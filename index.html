@@ -4,11 +4,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <meta name="description" content="ナッツんLABO公式サイト。AIを活用したCG・同人作品を制作しています。">
-
 <title>ナッツんLABO｜公式サイト</title>
-
 <style>
 
 * {
@@ -116,7 +113,9 @@ header p {
   margin-bottom: 25px;
 }
 
-/* バナー */
+/* =========================
+   バナー
+========================= */
 
 .dlsite-banner-area {
   display: flex;
@@ -139,7 +138,9 @@ header p {
   height: auto;
 }
 
-/* DLsiteボタン */
+/* =========================
+   DLsiteボタン
+========================= */
 
 .dlsite-button {
   display: inline-block;
@@ -158,7 +159,9 @@ header p {
   transform: translateY(-1px);
 }
 
-/* URL表示 */
+/* =========================
+   URL表示
+========================= */
 
 .dlsite-url-box {
   margin: 18px auto 0;
@@ -178,29 +181,42 @@ header p {
 
 .qr-area {
   margin: 35px auto 5px;
-  padding: 25px 20px;
+  padding: 25px 20px 30px;
   max-width: 500px;
   background: #fafafa;
   border-radius: 15px;
   border: 1px solid #eee;
+  text-align: center;
 }
 
 .qr-area h3 {
-  margin-top: 0;
+  margin: 0 0 8px;
   font-size: 21px;
 }
 
 .qr-area p {
   font-size: 14px;
   color: #666;
+  margin: 0 0 20px;
 }
 
-#dlsite-qr {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 20px auto 10px;
-  min-height: 220px;
+/* QR本体 */
+
+.qr-image {
+  display: block;
+  width: 220px;
+  height: 220px;
+  max-width: 100%;
+  margin: 15px auto 5px;
+  object-fit: contain;
+}
+
+/* QR下の説明 */
+
+.qr-note {
+  font-size: 12px;
+  color: #888;
+  margin-top: 12px;
 }
 
 /* =========================
@@ -305,6 +321,18 @@ footer p {
     font-size: 11px;
   }
 
+  /* QR */
+
+  .qr-area {
+    margin-top: 30px;
+    padding: 22px 15px 25px;
+  }
+
+  .qr-image {
+    width: 220px;
+    height: 220px;
+  }
+
 }
 
 /* =========================
@@ -321,243 +349,173 @@ footer p {
     padding: 22px 15px;
   }
 
+  .qr-image {
+    width: 200px;
+    height: 200px;
+  }
+
 }
 
 </style>
 </head>
-
 <body>
-
-
 <!-- =========================
      ヘッダー
 ========================= -->
-
 <header>
-
   <h1>ナッツんLABO</h1>
-
   <p>
     AIを活用したCG・同人作品を制作しています。
   </p>
-
 </header>
-
-
 <main class="container">
-
-
 <!-- =========================
      ナッツんLABOについて
 ========================= -->
-
 <section class="card">
-
   <h2>ナッツんLABOについて</h2>
-
   <p>
     ナッツんLABOでは、AI技術を活用したCG作品や
     同人作品などを制作しています。
   </p>
-
   <p>
     制作した作品は、DLsiteを中心に公開・販売しています。
   </p>
-
 </section>
-
-
 <!-- =========================
      DLsite
 ========================= -->
-
 <section class="card dlsite-card">
-
   <div class="dlsite-title">
     📚 DLsite
   </div>
-
   <p class="dlsite-subtitle">
     ナッツんLABOの作品はこちらからご覧いただけます。
   </p>
-
-
   <!-- PC用468×60バナー -->
-
   <div class="dlsite-banner-area">
+<a
+  rel="noopener sponsored"
+  href="https://dlaf.jp/home/dlaf/=/aid/nattsunlabo/url/https%3A%2F%2Fwww.dlsite.com%2Fhome%2Fcircle%2Fprofile%2F%3D%2Fmaker_id%2FRG01081024.html%2F%3Futm_medium%3Daffiliate%26utm_campaign%3Dbnlink%26utm_content%3Dbn_pc_468_60_dojin_01.gif"
+  target="_blank"
+>
 
-    <a
-      rel="noopener sponsored"
-      href="https://dlaf.jp/home/dlaf/=/aid/nattsunlabo/url/https%3A%2F%2Fwww.dlsite.com%2Fhome%2Fcircle%2Fprofile%2F%3D%2Fmaker_id%2FRG01081024.html%2F%3Futm_medium%3Daffiliate%26utm_campaign%3Dbnlink%26utm_content%3Dbn_pc_468_60_dojin_01.gif"
-      target="_blank"
-    >
-
-      <img
-        class="dlsite-banner-pc"
-        src="https://www.dlsite.com/img/male/dojin/bn_pc_468_60_dojin_01.gif"
-        alt="同人誌、同人ゲーム、同人ソフトのダウンロードショップ - DLsite"
-        width="468"
-        height="60"
-      >
-
-    </a>
-
-
-    <!-- スマホ用300×250バナー -->
-
-    <a
-      rel="noopener sponsored"
-      href="https://dlaf.jp/home/dlaf/=/aid/nattsunlabo/url/https%3A%2F%2Fwww.dlsite.com%2Fhome%2Fcircle%2Fprofile%2F%3D%2Fmaker_id%2FRG01081024.html%2F%3Futm_medium%3Daffiliate%26utm_campaign%3Dbnlink%26utm_content%3Dbn_sp_300_250_dojin_01.jpg"
-      target="_blank"
-    >
-
-      <img
-        class="dlsite-banner-sp"
-        src="https://www.dlsite.com/img/male/dojin/bn_sp_300_250_dojin_01.jpg"
-        alt="同人誌、同人ゲーム、同人ソフトのダウンロードショップ - DLsite"
-        width="300"
-        height="250"
-      >
-
-    </a>
-
-  </div>
-
-
-  <!-- DLsiteへ -->
-
-  <a
-    class="dlsite-button"
-    href="https://www.dlsite.com/home-touch/circle/profile/=/maker_ids%5B0%5D/RG01081024/per_page/50/work_category/doujin/hd/1/options%5B0%5D/JPN/options%5B1%5D/NM/maker_id/RG01081024.html/?utm_medium=affiliate&utm_campaign=bnlink&utm_content=qr"
-    target="_blank"
-    rel="noopener sponsored"
+  <img
+    class="dlsite-banner-pc"
+    src="https://www.dlsite.com/img/male/dojin/bn_pc_468_60_dojin_01.gif"
+    alt="DLsite"
+    width="468"
+    height="60"
   >
-    🛒 DLsiteで作品を見る
+
+</a>
+
+
+<!-- スマホ用300×250バナー -->
+
+<a
+  rel="noopener sponsored"
+  href="https://dlaf.jp/home/dlaf/=/aid/nattsunlabo/url/https%3A%2F%2Fwww.dlsite.com%2Fhome%2Fcircle%2Fprofile%2F%3D%2Fmaker_id%2FRG01081024.html%2F%3Futm_medium%3Daffiliate%26utm_campaign%3Dbnlink%26utm_content%3Dbn_sp_300_250_dojin_01.jpg"
+  target="_blank"
+>
+
+  <img
+    class="dlsite-banner-sp"
+    src="https://www.dlsite.com/img/male/dojin/bn_sp_300_250_dojin_01.jpg"
+    alt="DLsite"
+    width="300"
+    height="250"
+  >
+
+</a>
+  </div>
+  <!-- DLsiteへ -->
+<a class=“dlsite-button” href=“https://www.dlsite.com/home-touch/circle/profile/=/maker_ids%5B0%5D/RG01081024/per_page/50/work_category/doujin/hd/1/options%5B0%5D/JPN/options%5B1%5D/NM/maker_id/RG01081024.html/?utm_medium=affiliate&utm_campaign=bnlink&utm_content=qr” target=”_blank” rel=“noopener sponsored”
+🛒 DLsiteで作品を見る
   </a>
-
-
   <!-- URL -->
-
   <div class="dlsite-url-box">
+<strong>DLsiteページ：</strong><br>
 
-    <strong>DLsiteページ：</strong><br>
-
-    https://www.dlsite.com/home-touch/circle/profile/=/maker_ids%5B0%5D/RG01081024/per_page/50/work_category/doujin/hd/1/options%5B0%5D/JPN/options%5B1%5D/NM/maker_id/RG01081024.html/?utm_medium=affiliate&utm_campaign=bnlink&utm_content=qr
-
+https://www.dlsite.com/home-touch/circle/profile/=/maker_ids%5B0%5D/RG01081024/per_page/50/work_category/doujin/hd/1/options%5B0%5D/JPN/options%5B1%5D/NM/maker_id/RG01081024.html/?utm_medium=affiliate&utm_campaign=bnlink&utm_content=qr
   </div>
-
-
-  <!-- QRコード -->
-
+  <!-- =========================
+       QRコード
+  ========================= -->
   <div class="qr-area">
+<h3>📱 スマホからアクセス</h3>
 
-    <h3>📱 スマホからアクセス</h3>
+<p>
+  QRコードを読み取って<br>
+  ナッツんLABOのDLsiteページへアクセスできます。
+</p>
 
-    <p>
-      QRコードを読み取って<br>
-      ナッツんLABOのDLsiteページへアクセスできます。
-    </p>
+<a
+  href="https://dlaf.jp/home/dlaf/=/aid/nattsunlabo/url/https%3A%2F%2Fwww.dlsite.com%2Fhome%2Fcircle%2Fprofile%2F%3D%2Fmaker_id%2FRG01081024.html%2F%3Futm_medium%3Daffiliate%26utm_campaign%3Dbnlink%26utm_content%3Dqr"
+  target="_blank"
+  rel="noopener sponsored"
+>
 
-    <div id="dlsite-qr"></div>
+  <img
+    class="qr-image"
+    src="https://chart.googleapis.com/chart?cht=qr&chs=300x300&chl=https%3A%2F%2Fdlaf.jp%2Fhome%2Fdlaf%2F%3D%2Faid%2Fnattsunlabo%2Furl%2Fhttps%253A%252F%252Fwww.dlsite.com%252Fhome%252Fcircle%252Fprofile%252F%253D%252Fmaker_id%252FRG01081024.html%252F%253Futm_medium%253Daffiliate%2526utm_campaign%253Dbnlink%2526utm_content%253Dqr"
+    alt="ナッツんLABO DLsite QRコード"
+  >
 
+</a>
+
+<div class="qr-note">
+  QRコードをタップしてもアクセスできます
+</div>
   </div>
-
 </section>
-
-
 <!-- =========================
      活動情報
 ========================= -->
-
 <section class="card">
-
   <h2>📢 活動情報</h2>
-
   <p>
     ナッツんLABOの最新情報や作品情報は、
     各SNSでも発信しています。
   </p>
-
-
   <div class="links">
+<a
+  class="link-button"
+  href="https://x.com/nattsunjp_212"
+  target="_blank"
+  rel="noopener"
+>
+  𝕏 X（旧Twitter）
+</a>
 
-    <a
-      class="link-button"
-      href="https://x.com/nattsunjp_212"
-      target="_blank"
-      rel="noopener"
-    >
-      𝕏 X（旧Twitter）
-    </a>
 
-
-    <a
-      class="link-button"
-      href="https://youtube.com/@nattunjp"
-      target="_blank"
-      rel="noopener"
-    >
-      ▶ YouTube「ナッツんjp」
-    </a>
-
+<a
+  class="link-button"
+  href="https://youtube.com/@nattunjp"
+  target="_blank"
+  rel="noopener"
+>
+  ▶ YouTube「ナッツんjp」
+</a>
   </div>
-
 </section>
-
-
 <!-- =========================
      お問い合わせ
 ========================= -->
-
 <section class="card">
-
   <h2>✉️ お問い合わせ</h2>
-
   <p>
     作品や活動に関するお問い合わせは、
     各SNSなどからお願いいたします。
   </p>
-
 </section>
-
-
 </main>
-
-
 <!-- =========================
      フッター
 ========================= -->
-
 <footer>
-
   <p>© ナッツんLABO</p>
-
   <p>All Rights Reserved.</p>
-
 </footer>
-
-
-<!-- =========================
-     DLsite QRコード
-========================= -->
-
-<script>
-
-afqr = {
-  "type": "url",
-  "aid": "nattsunlabo",
-  "query": {
-    "url": "https://dlaf.jp/home/dlaf/=/aid/nattsunlabo/url/https%3A%2F%2Fwww.dlsite.com%2Fhome%2Fcircle%2Fprofile%2F%3D%2Fmaker_id%2FRG01081024.html%2F%3Futm_medium%3Daffiliate%26utm_campaign%3Dbnlink%26utm_content%3Dqr"
-  }
-};
-
-</script>
-
-<script
-  src="//www.dlsite.com/js/afqr.min.js"
-  charset="UTF-8">
-</script>
-
-
 </body>
 </html>
