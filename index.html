@@ -4,128 +4,560 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="ナッツんLABO公式サイト。AIを活用したCG・同人作品などを制作しています。">
+
+<meta name="description" content="ナッツんLABO公式サイト。AIを活用したCG・同人作品を制作しています。">
+
 <title>ナッツんLABO｜公式サイト</title>
+
 <style>
-*{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:-apple-system,BlinkMacSystemFont,"Noto Sans JP","Helvetica Neue",sans-serif;
-  background:#f7f4ef;
-  color:#29251f;
-  line-height:1.8;
+
+* {
+  box-sizing: border-box;
 }
-header{
-  padding:70px 20px 55px;
-  text-align:center;
-  background:linear-gradient(135deg,#fffaf2,#eee8dc);
-  border-bottom:1px solid #e5ddd0;
+
+html {
+  scroll-behavior: smooth;
 }
-.logo{
-  font-size:clamp(34px,9vw,64px);
-  font-weight:800;
-  letter-spacing:.04em;
+
+body {
+  margin: 0;
+  font-family:
+    -apple-system,
+    BlinkMacSystemFont,
+    "Helvetica Neue",
+    "Hiragino Kaku Gothic ProN",
+    "Yu Gothic",
+    YuGothic,
+    Meiryo,
+    sans-serif;
+  background: #f6f6f6;
+  color: #333;
+  line-height: 1.8;
 }
-.sub{
-  margin:8px 0 0;
-  font-size:14px;
-  letter-spacing:.18em;
-  color:#777;
+
+/* =========================
+   ヘッダー
+========================= */
+
+header {
+  background: linear-gradient(135deg, #222, #444);
+  color: #fff;
+  text-align: center;
+  padding: 55px 20px 50px;
 }
-.container{
-  max-width:900px;
-  margin:auto;
-  padding:38px 18px 70px;
+
+header h1 {
+  margin: 0;
+  font-size: 38px;
+  letter-spacing: 2px;
 }
-.card{
-  background:#fff;
-  border:1px solid #e8e1d7;
-  border-radius:20px;
-  padding:28px;
-  margin:0 0 22px;
-  box-shadow:0 8px 25px rgba(50,40,25,.05);
+
+header p {
+  margin: 12px 0 0;
+  font-size: 15px;
+  opacity: 0.9;
 }
-h2{
-  margin-top:0;
-  font-size:24px;
+
+/* =========================
+   全体
+========================= */
+
+.container {
+  width: min(920px, calc(100% - 30px));
+  margin: 40px auto 70px;
 }
-.links{
-  display:grid;
-  gap:12px;
+
+/* =========================
+   カード
+========================= */
+
+.card {
+  background: #fff;
+  border-radius: 18px;
+  padding: 35px 30px;
+  margin-bottom: 28px;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.06);
 }
-a{
-  display:block;
-  padding:15px 18px;
-  border-radius:12px;
-  background:#f5f1e9;
-  color:#29251f;
-  text-decoration:none;
-  font-weight:700;
+
+.card h2 {
+  margin: 0 0 18px;
+  font-size: 25px;
+  color: #222;
 }
-a:hover{
-  background:#ebe4d7;
+
+.card h3 {
+  margin-top: 28px;
+  margin-bottom: 10px;
+  font-size: 19px;
+  color: #333;
 }
-.note{
-  font-size:13px;
-  color:#777;
+
+.card p {
+  margin: 8px 0;
 }
-footer{
-  text-align:center;
-  padding:25px;
-  color:#888;
-  font-size:12px;
+
+/* =========================
+   DLsiteエリア
+========================= */
+
+.dlsite-card {
+  text-align: center;
+  border: 2px solid #eee;
 }
+
+.dlsite-title {
+  font-size: 27px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.dlsite-subtitle {
+  color: #666;
+  margin-bottom: 25px;
+}
+
+/* バナー */
+
+.dlsite-banner-area {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px auto;
+  min-height: 60px;
+  overflow: hidden;
+}
+
+.dlsite-banner-pc {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.dlsite-banner-sp {
+  display: none;
+  max-width: 100%;
+  height: auto;
+}
+
+/* DLsiteボタン */
+
+.dlsite-button {
+  display: inline-block;
+  margin: 20px auto 10px;
+  padding: 14px 30px;
+  background: #222;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 10px;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+.dlsite-button:hover {
+  opacity: 0.8;
+  transform: translateY(-1px);
+}
+
+/* URL表示 */
+
+.dlsite-url-box {
+  margin: 18px auto 0;
+  padding: 14px;
+  background: #f5f5f5;
+  border-radius: 10px;
+  max-width: 760px;
+  text-align: left;
+  word-break: break-all;
+  font-size: 12px;
+  color: #666;
+}
+
+/* =========================
+   QRエリア
+========================= */
+
+.qr-area {
+  margin: 35px auto 5px;
+  padding: 25px 20px;
+  max-width: 500px;
+  background: #fafafa;
+  border-radius: 15px;
+  border: 1px solid #eee;
+}
+
+.qr-area h3 {
+  margin-top: 0;
+  font-size: 21px;
+}
+
+.qr-area p {
+  font-size: 14px;
+  color: #666;
+}
+
+#dlsite-qr {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px auto 10px;
+  min-height: 220px;
+}
+
+/* =========================
+   リンク
+========================= */
+
+.links {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.link-button {
+  display: block;
+  padding: 16px;
+  text-align: center;
+  text-decoration: none;
+  color: #222;
+  background: #f4f4f4;
+  border-radius: 12px;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+.link-button:hover {
+  background: #e8e8e8;
+  transform: translateY(-2px);
+}
+
+/* =========================
+   フッター
+========================= */
+
+footer {
+  text-align: center;
+  background: #222;
+  color: #aaa;
+  padding: 30px 20px;
+  font-size: 13px;
+}
+
+footer p {
+  margin: 5px 0;
+}
+
+/* =========================
+   スマホ
+========================= */
+
+@media (max-width: 600px) {
+
+  header {
+    padding: 42px 15px 38px;
+  }
+
+  header h1 {
+    font-size: 30px;
+  }
+
+  header p {
+    font-size: 13px;
+  }
+
+  .container {
+    width: calc(100% - 20px);
+    margin-top: 20px;
+  }
+
+  .card {
+    padding: 25px 18px;
+    border-radius: 15px;
+  }
+
+  .card h2 {
+    font-size: 22px;
+  }
+
+  .dlsite-title {
+    font-size: 24px;
+  }
+
+  /* スマホでは300×250 */
+
+  .dlsite-banner-pc {
+    display: none;
+  }
+
+  .dlsite-banner-sp {
+    display: block;
+  }
+
+  .dlsite-banner-area {
+    min-height: 250px;
+  }
+
+  .links {
+    grid-template-columns: 1fr;
+  }
+
+  .dlsite-url-box {
+    font-size: 11px;
+  }
+
+}
+
+/* =========================
+   小さいスマホ
+========================= */
+
+@media (max-width: 360px) {
+
+  header h1 {
+    font-size: 26px;
+  }
+
+  .card {
+    padding: 22px 15px;
+  }
+
+}
+
 </style>
 </head>
+
 <body>
+
+
+<!-- =========================
+     ヘッダー
+========================= -->
+
 <header>
-  <div class="logo">🥜 ナッツんLABO</div>
-  <div class="sub">NATTSUN LABO</div>
+
+  <h1>ナッツんLABO</h1>
+
+  <p>
+    AIを活用したCG・同人作品を制作しています。
+  </p>
+
 </header>
+
+
 <main class="container">
-  <section class="card">
-    <h2>ナッツんLABOについて</h2>
+
+
+<!-- =========================
+     ナッツんLABOについて
+========================= -->
+
+<section class="card">
+
+  <h2>ナッツんLABOについて</h2>
+
+  <p>
+    ナッツんLABOでは、AI技術を活用したCG作品や
+    同人作品などを制作しています。
+  </p>
+
+  <p>
+    制作した作品は、DLsiteを中心に公開・販売しています。
+  </p>
+
+</section>
+
+
+<!-- =========================
+     DLsite
+========================= -->
+
+<section class="card dlsite-card">
+
+  <div class="dlsite-title">
+    📚 DLsite
+  </div>
+
+  <p class="dlsite-subtitle">
+    ナッツんLABOの作品はこちらからご覧いただけます。
+  </p>
+
+
+  <!-- PC用468×60バナー -->
+
+  <div class="dlsite-banner-area">
+
+    <a
+      rel="noopener sponsored"
+      href="https://dlaf.jp/home/dlaf/=/aid/nattsunlabo/url/https%3A%2F%2Fwww.dlsite.com%2Fhome%2Fcircle%2Fprofile%2F%3D%2Fmaker_id%2FRG01081024.html%2F%3Futm_medium%3Daffiliate%26utm_campaign%3Dbnlink%26utm_content%3Dbn_pc_468_60_dojin_01.gif"
+      target="_blank"
+    >
+
+      <img
+        class="dlsite-banner-pc"
+        src="https://www.dlsite.com/img/male/dojin/bn_pc_468_60_dojin_01.gif"
+        alt="同人誌、同人ゲーム、同人ソフトのダウンロードショップ - DLsite"
+        width="468"
+        height="60"
+      >
+
+    </a>
+
+
+    <!-- スマホ用300×250バナー -->
+
+    <a
+      rel="noopener sponsored"
+      href="https://dlaf.jp/home/dlaf/=/aid/nattsunlabo/url/https%3A%2F%2Fwww.dlsite.com%2Fhome%2Fcircle%2Fprofile%2F%3D%2Fmaker_id%2FRG01081024.html%2F%3Futm_medium%3Daffiliate%26utm_campaign%3Dbnlink%26utm_content%3Dbn_sp_300_250_dojin_01.jpg"
+      target="_blank"
+    >
+
+      <img
+        class="dlsite-banner-sp"
+        src="https://www.dlsite.com/img/male/dojin/bn_sp_300_250_dojin_01.jpg"
+        alt="同人誌、同人ゲーム、同人ソフトのダウンロードショップ - DLsite"
+        width="300"
+        height="250"
+      >
+
+    </a>
+
+  </div>
+
+
+  <!-- DLsiteへ -->
+
+  <a
+    class="dlsite-button"
+    href="https://www.dlsite.com/home-touch/circle/profile/=/maker_ids%5B0%5D/RG01081024/per_page/50/work_category/doujin/hd/1/options%5B0%5D/JPN/options%5B1%5D/NM/maker_id/RG01081024.html/?utm_medium=affiliate&utm_campaign=bnlink&utm_content=qr"
+    target="_blank"
+    rel="noopener sponsored"
+  >
+    🛒 DLsiteで作品を見る
+  </a>
+
+
+  <!-- URL -->
+
+  <div class="dlsite-url-box">
+
+    <strong>DLsiteページ：</strong><br>
+
+    https://www.dlsite.com/home-touch/circle/profile/=/maker_ids%5B0%5D/RG01081024/per_page/50/work_category/doujin/hd/1/options%5B0%5D/JPN/options%5B1%5D/NM/maker_id/RG01081024.html/?utm_medium=affiliate&utm_campaign=bnlink&utm_content=qr
+
+  </div>
+
+
+  <!-- QRコード -->
+
+  <div class="qr-area">
+
+    <h3>📱 スマホからアクセス</h3>
+
     <p>
-      ナッツんLABOでは、AIを活用したCG・同人作品などを制作しています。<br>
-      作品を通して、楽しんでもらえるコンテンツをお届けします。
+      QRコードを読み取って<br>
+      ナッツんLABOのDLsiteページへアクセスできます。
     </p>
-  </section>
-  <section class="card">
-    <h2>作品</h2>
-    <p>DLsiteで作品を公開しています。</p>
-<div class="links">
-  <a href="https://www.dlsite.com/home-touch/circle/profile/=/maker_ids%5B0%5D/RG01081024/per_page/50/work_category/doujin/hd/1/options%5B0%5D/JPN/options%5B1%5D/NM/maker_id/RG01081024.html/" target="_blank" rel="noopener">
-    🛒 DLsite「ナッツんLABO」
-  </a>
-</div>
 
-<p class="note">
-  ※DLsiteのナッツんLABO公式サークルページです。
-</p>
-  </section>
-  <section class="card">
-    <h2>活動情報</h2>
-<div class="links">
+    <div id="dlsite-qr"></div>
 
-  <a href="https://x.com/nattsunjp_212" target="_blank" rel="noopener">
-    𝕏 X「ナッツんjp」
-  </a>
+  </div>
 
-  <a href="https://youtube.com/@nattunjp" target="_blank" rel="noopener">
-    ▶ YouTube「ナッツんjp」
-  </a>
+</section>
 
-</div>
-  </section>
-  <section class="card">
-    <h2>お問い合わせ</h2>
-    <p>
-      作品や活動に関するお問い合わせは、各サービスのメッセージ機能をご利用ください。
-    </p>
-  </section>
+
+<!-- =========================
+     活動情報
+========================= -->
+
+<section class="card">
+
+  <h2>📢 活動情報</h2>
+
+  <p>
+    ナッツんLABOの最新情報や作品情報は、
+    各SNSでも発信しています。
+  </p>
+
+
+  <div class="links">
+
+    <a
+      class="link-button"
+      href="https://x.com/nattsunjp_212"
+      target="_blank"
+      rel="noopener"
+    >
+      𝕏 X（旧Twitter）
+    </a>
+
+
+    <a
+      class="link-button"
+      href="https://youtube.com/@nattunjp"
+      target="_blank"
+      rel="noopener"
+    >
+      ▶ YouTube「ナッツんjp」
+    </a>
+
+  </div>
+
+</section>
+
+
+<!-- =========================
+     お問い合わせ
+========================= -->
+
+<section class="card">
+
+  <h2>✉️ お問い合わせ</h2>
+
+  <p>
+    作品や活動に関するお問い合わせは、
+    各SNSなどからお願いいたします。
+  </p>
+
+</section>
+
+
 </main>
+
+
+<!-- =========================
+     フッター
+========================= -->
+
 <footer>
-  © Nattsun LABO
+
+  <p>© ナッツんLABO</p>
+
+  <p>All Rights Reserved.</p>
+
 </footer>
+
+
+<!-- =========================
+     DLsite QRコード
+========================= -->
+
+<script>
+
+afqr = {
+  "type": "url",
+  "aid": "nattsunlabo",
+  "query": {
+    "url": "https://dlaf.jp/home/dlaf/=/aid/nattsunlabo/url/https%3A%2F%2Fwww.dlsite.com%2Fhome%2Fcircle%2Fprofile%2F%3D%2Fmaker_id%2FRG01081024.html%2F%3Futm_medium%3Daffiliate%26utm_campaign%3Dbnlink%26utm_content%3Dqr"
+  }
+};
+
+</script>
+
+<script
+  src="//www.dlsite.com/js/afqr.min.js"
+  charset="UTF-8">
+</script>
+
+
 </body>
 </html>
