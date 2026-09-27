@@ -20,20 +20,29 @@ body{
 }
 
 header{
-  padding:70px 20px 55px;
+  padding:42px 20px 48px;
   text-align:center;
   background:linear-gradient(135deg,#fffaf2,#eee8dc);
   border-bottom:1px solid #e5ddd0;
 }
 
-.logo{
-  font-size:clamp(34px,9vw,64px);
+.logo-img{
+  display:block;
+  width:min(230px,58vw);
+  height:auto;
+  margin:0 auto 18px;
+  border-radius:50%;
+  box-shadow:0 8px 24px rgba(50,40,25,.12);
+}
+
+.logo-title{
+  font-size:clamp(30px,8vw,52px);
   font-weight:800;
   letter-spacing:.04em;
 }
 
 .sub{
-  margin:8px 0 0;
+  margin:6px 0 0;
   font-size:14px;
   letter-spacing:.18em;
   color:#777;
@@ -100,25 +109,38 @@ footer{
 <body>
 
 <header>
-  <div class="logo">🥜 ナッツんLABO</div>
+
+  <img
+    class="logo-img"
+    src="logo.jpeg"
+    alt="ナッツんjp ロゴ">
+
+  <div class="logo-title">🥜 ナッツんLABO</div>
+
   <div class="sub">NATTSUN LABO</div>
+
 </header>
+
 
 <main class="container">
 
+
   <!-- ナッツんLABOについて -->
   <section class="card">
+
     <h2>ナッツんLABOについて</h2>
 
     <p>
       ナッツんLABOでは、AIを活用したCG・同人作品などを制作しています。<br>
       作品を通して、楽しんでもらえるコンテンツをお届けします。
     </p>
+
   </section>
 
 
   <!-- 作品 -->
   <section class="card">
+
     <h2>作品</h2>
 
     <p>
@@ -127,9 +149,10 @@ footer{
 
     <div class="links">
 
-      <a href="https://www.dlsite.com/ai-touch/work/=/product_id/RJ01728683.html"
-         target="_blank"
-         rel="noopener">
+      <a
+        href="https://www.dlsite.com/ai-touch/work/=/product_id/RJ01728683.html"
+        target="_blank"
+        rel="noopener">
         🛒 DLsiteで作品を見る
       </a>
 
@@ -138,11 +161,13 @@ footer{
     <p class="note">
       ※DLsiteの販売ページへ移動します。
     </p>
+
   </section>
 
 
   <!-- DLsiteランキング -->
   <section class="card">
+
     <h2>DLsiteランキング</h2>
 
     <p>
@@ -179,42 +204,51 @@ blogparts={
 </script>
 
     </div>
+
   </section>
 
 
   <!-- 活動情報 -->
   <section class="card">
+
     <h2>活動情報</h2>
 
     <div class="links">
 
-      <a href="#"
-         target="_blank"
-         rel="noopener">
-        𝕏 X（準備中）
+      <a
+        href="https://x.com/nattsunjp_212?s=11"
+        target="_blank"
+        rel="noopener">
+        𝕏 X「ナッツんjp」
       </a>
 
-      <a href="https://www.youtube.com/"
-         target="_blank"
-         rel="noopener">
+      <a
+        href="https://www.youtube.com/"
+        target="_blank"
+        rel="noopener">
         ▶ YouTube「ナッツんjp」
       </a>
 
     </div>
+
   </section>
 
 
   <!-- お問い合わせ -->
   <section class="card">
+
     <h2>お問い合わせ</h2>
 
     <p>
       作品や活動に関するお問い合わせは、
       各サービスのメッセージ機能をご利用ください。
     </p>
+
   </section>
 
+
 </main>
+
 
 <footer>
   © Nattsun LABO
