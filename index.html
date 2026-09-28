@@ -17,208 +17,395 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
   font-family:
     -apple-system,
     BlinkMacSystemFont,
-    "Noto Sans JP",
-    "Helvetica Neue",
+    "Hiragino Kaku Gothic ProN",
+    "Yu Gothic",
+    "Meiryo",
     sans-serif;
-
-  background: #f7f4ef;
-  color: #29251f;
+  background:
+    linear-gradient(
+      180deg,
+      #0b1020 0%,
+      #10172d 45%,
+      #080c18 100%
+    );
+  color: #ffffff;
   line-height: 1.8;
 }
-
 
 /* =========================
    ヘッダー
 ========================= */
 
 header {
-  padding: 42px 20px 48px;
+  padding: 45px 20px 35px;
   text-align: center;
-
   background:
-    linear-gradient(
-      135deg,
-      #fffaf2,
-      #eee8dc
+    radial-gradient(
+      circle at top,
+      rgba(80, 130, 255, 0.25),
+      transparent 55%
     );
-
-  border-bottom: 1px solid #e5ddd0;
 }
-
-
-/* ナッツんjpロゴ */
 
 .logo-img {
-  display: block;
-
-  width: min(230px, 58vw);
+  width: min(260px, 75%);
   height: auto;
-
-  margin: 0 auto 18px;
-
-  border-radius: 50%;
-
-  box-shadow:
-    0 8px 24px rgba(50, 40, 25, 0.12);
+  display: block;
+  margin: 0 auto 20px;
+  border-radius: 16px;
 }
 
-
-/* ナッツんLABO */
-
-.logo-title {
-  font-size: clamp(30px, 8vw, 52px);
-
-  font-weight: 800;
-
-  letter-spacing: 0.04em;
+.site-title {
+  margin: 0;
+  font-size: 32px;
+  letter-spacing: 3px;
 }
 
-
-/* 英語表記 */
-
-.sub {
-  margin: 6px 0 0;
-
+.site-subtitle {
+  margin: 8px 0 0;
+  color: #b9c7ff;
   font-size: 14px;
-
-  letter-spacing: 0.18em;
-
-  color: #777;
 }
-
 
 /* =========================
-   メイン
+   ナビゲーション
+========================= */
+
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: rgba(8, 12, 24, 0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+nav ul {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  list-style: none;
+  padding: 10px;
+  margin: 0;
+}
+
+nav a {
+  display: block;
+  padding: 7px 13px;
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 13px;
+  border-radius: 999px;
+  transition: 0.2s;
+}
+
+nav a:hover {
+  background: rgba(100, 150, 255, 0.2);
+}
+
+/* =========================
+   共通
 ========================= */
 
 .container {
-  max-width: 900px;
-
-  margin: auto;
-
-  padding: 38px 18px 70px;
+  width: min(1000px, calc(100% - 32px));
+  margin: 0 auto;
 }
 
-
-/* カード */
-
-.card {
-  background: #fff;
-
-  border: 1px solid #e8e1d7;
-
-  border-radius: 20px;
-
-  padding: 28px;
-
-  margin: 0 0 22px;
-
-  box-shadow:
-    0 8px 25px rgba(50, 40, 25, 0.05);
+section {
+  padding: 70px 0;
 }
 
-
-h2 {
-  margin-top: 0;
-
-  font-size: 24px;
-}
-
-
-/* =========================
-   リンク
-========================= */
-
-.links {
-  display: grid;
-
-  gap: 12px;
-}
-
-
-.links a {
-  display: block;
-
-  padding: 15px 18px;
-
-  border-radius: 12px;
-
-  background: #f5f1e9;
-
-  color: #29251f;
-
-  text-decoration: none;
-
-  font-weight: 700;
-}
-
-
-.links a:hover {
-  background: #ebe4d7;
-}
-
-
-.note {
-  font-size: 13px;
-
-  color: #777;
-}
-
-
-/* =========================
-   DLsiteアフィリエイトバナー
-========================= */
-
-.dlsite-banner {
+.section-title {
+  margin: 0 0 35px;
   text-align: center;
+  font-size: 28px;
+  letter-spacing: 2px;
+}
 
-  margin: 26px 0 12px;
+.section-title span {
+  display: block;
+  margin-top: 5px;
+  color: #8fa9ff;
+  font-size: 12px;
+  letter-spacing: 3px;
+}
 
+/* =========================
+   ナッツんLABO紹介
+========================= */
+
+.intro {
+  text-align: center;
+}
+
+.intro-text {
+  max-width: 720px;
+  margin: 0 auto;
+  color: #d9def0;
+}
+
+.highlight {
+  color: #9db4ff;
+  font-weight: bold;
+}
+
+/* =========================
+   作品
+========================= */
+
+.work-card {
+  max-width: 850px;
+  margin: 0 auto;
+  padding: 30px;
+  background:
+    linear-gradient(
+      145deg,
+      rgba(40, 55, 100, 0.7),
+      rgba(15, 20, 40, 0.8)
+    );
+  border: 1px solid rgba(150, 175, 255, 0.2);
+  border-radius: 22px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.work-title {
+  text-align: center;
+  margin: 0 0 8px;
+  font-size: 25px;
+}
+
+.work-subtitle {
+  text-align: center;
+  color: #9fb3ff;
+  margin: 0 0 25px;
+  font-size: 14px;
+}
+
+.work-description {
+  color: #d9def0;
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+/* =========================
+   新規：作品サンプル
+========================= */
+
+.sample-area {
+  margin: 35px 0 30px;
+}
+
+.sample-label {
+  text-align: center;
+  margin-bottom: 15px;
+  color: #aebfff;
+  font-size: 14px;
+  letter-spacing: 2px;
+}
+
+.sample-image {
+  display: block;
+  width: 100%;
+  max-width: 900px;
+  height: auto;
+  margin: 0 auto;
+  border-radius: 16px;
+  box-shadow:
+    0 15px 50px rgba(0,0,0,0.45),
+    0 0 30px rgba(80,130,255,0.12);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+.sample-note {
+  text-align: center;
+  color: #9ca6c2;
+  font-size: 12px;
+  margin-top: 12px;
+}
+
+/* =========================
+   DLsiteボタン
+========================= */
+
+.dlsite-button {
+  display: block;
+  width: min(500px, 100%);
+  margin: 25px auto 0;
+  padding: 15px 20px;
+  text-align: center;
+  text-decoration: none;
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 16px;
+  border-radius: 12px;
+  background:
+    linear-gradient(
+      135deg,
+      #596fff,
+      #7f5cff
+    );
+  box-shadow: 0 10px 30px rgba(70,90,255,0.25);
+  transition: 0.2s;
+}
+
+.dlsite-button:hover {
+  transform: translateY(-2px);
+  opacity: 0.9;
+}
+
+/* =========================
+   DLsiteバナー
+========================= */
+
+.banner-area {
+  margin: 35px auto 10px;
+  text-align: center;
   overflow-x: auto;
 }
 
-
-.dlsite-banner img {
-  display: inline-block;
-
-  width: 468px;
-
+.banner-area img {
   max-width: 100%;
-
   height: auto;
-
-  border: 0;
 }
-
 
 /* =========================
-   DLsiteランキング
+   ランキング
 ========================= */
 
-.ranking {
-  overflow: hidden;
-
-  margin-top: 18px;
+.ranking-box {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 25px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 18px;
+  text-align: center;
 }
 
+.ranking-title {
+  margin: 0 0 20px;
+  font-size: 20px;
+}
+
+/* =========================
+   活動情報
+========================= */
+
+.link-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.link-card {
+  display: block;
+  padding: 22px;
+  text-align: center;
+  color: #ffffff;
+  text-decoration: none;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  transition: 0.2s;
+}
+
+.link-card:hover {
+  transform: translateY(-3px);
+  background: rgba(100,130,255,0.12);
+}
+
+.link-card strong {
+  display: block;
+  font-size: 18px;
+  margin-bottom: 5px;
+}
+
+.link-card span {
+  color: #aeb7d0;
+  font-size: 12px;
+}
+
+/* =========================
+   お問い合わせ
+========================= */
+
+.contact-box {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 30px;
+  text-align: center;
+  background: rgba(255,255,255,0.04);
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.contact-box p {
+  color: #c5ccdf;
+}
 
 /* =========================
    フッター
 ========================= */
 
 footer {
+  padding: 35px 20px;
   text-align: center;
-
-  padding: 25px;
-
-  color: #888;
-
+  color: #7f89a4;
   font-size: 12px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+/* =========================
+   スマホ
+========================= */
+
+@media (max-width: 700px) {
+
+  header {
+    padding-top: 30px;
+  }
+
+  .site-title {
+    font-size: 25px;
+  }
+
+  section {
+    padding: 50px 0;
+  }
+
+  .section-title {
+    font-size: 24px;
+  }
+
+  .work-card {
+    padding: 20px;
+  }
+
+  .work-title {
+    font-size: 21px;
+  }
+
+  .link-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sample-image {
+    border-radius: 12px;
+  }
+
 }
 
 </style>
@@ -226,7 +413,6 @@ footer {
 
 
 <body>
-
 
 <!-- =========================
      ヘッダー
@@ -237,236 +423,285 @@ footer {
   <img
     class="logo-img"
     src="logo.jpeg"
-    alt="ナッツんjp ロゴ"
+    alt="ナッツんLABO ロゴ"
   >
 
-  <div class="logo-title">
-    🥜 ナッツんLABO
-  </div>
+  <h1 class="site-title">
+    ナッツんLABO
+  </h1>
 
-  <div class="sub">
-    NATTSUN LABO
-  </div>
+  <p class="site-subtitle">
+    AIを活用したCG・同人作品などを制作しています。
+  </p>
 
 </header>
 
 
-
-<main class="container">
-
-
 <!-- =========================
-     ナッツんLABOについて
+     ナビゲーション
 ========================= -->
 
-<section class="card">
+<nav>
+  <ul>
+    <li><a href="#about">ABOUT</a></li>
+    <li><a href="#works">WORKS</a></li>
+    <li><a href="#ranking">RANKING</a></li>
+    <li><a href="#activity">ACTIVITY</a></li>
+    <li><a href="#contact">CONTACT</a></li>
+  </ul>
+</nav>
 
-  <h2>
-    ナッツんLABOについて
-  </h2>
 
-  <p>
-    ナッツんLABOでは、AIを活用したCG・同人作品などを制作しています。<br>
-    作品を通して、楽しんでもらえるコンテンツをお届けします。
-  </p>
+<main>
+
+<!-- =========================
+     ABOUT
+========================= -->
+
+<section id="about">
+
+  <div class="container intro">
+
+    <h2 class="section-title">
+      ナッツんLABO
+      <span>ABOUT</span>
+    </h2>
+
+    <p class="intro-text">
+      ナッツんLABOでは、
+      <span class="highlight">AI技術を活用したCG・ビジュアル作品</span>
+      などを制作しています。
+      <br>
+      自分の世界観を大切にしながら、
+      デジタル作品を少しずつ形にしていきます。
+    </p>
+
+  </div>
 
 </section>
 
 
-
 <!-- =========================
-     作品
+     WORKS
 ========================= -->
 
-<section class="card">
+<section id="works">
 
-  <h2>
-    作品
-  </h2>
+  <div class="container">
 
-  <p>
-    ナッツんLABOの作品をDLsiteで公開しています。
-  </p>
-
-
-  <!-- DLsite販売ページ -->
-
-  <div class="links">
-
-    <a
-      href="https://www.dlsite.com/ai-touch/work/=/product_id/RJ01728683.html"
-      target="_blank"
-      rel="noopener"
-    >
-      🛒 DLsiteで作品を見る
-    </a>
-
-  </div>
+    <h2 class="section-title">
+      作品
+      <span>WORKS</span>
+    </h2>
 
 
-  <p class="note">
-    ※DLsiteの販売ページへ移動します。
-  </p>
+    <div class="work-card">
+
+      <h3 class="work-title">
+        月夜の彼女 ― Moonlight Visual Arts ―
+      </h3>
+
+      <p class="work-subtitle">
+        Rei Tsukishiro
+      </p>
+
+      <p class="work-description">
+        月夜の世界を舞台にした、
+        AIによるビジュアルアート作品です。
+        <br>
+        静かな夜と少女の幻想的な世界を描いています。
+      </p>
 
 
+      <!-- =========================
+           作品サンプル画像
+      ========================== -->
 
-  <!-- =========================
-       DLsiteアフィリエイトバナー
-  ========================= -->
+      <div class="sample-area">
 
-  <div class="dlsite-banner">
+        <p class="sample-label">
+          ― SAMPLE VISUAL ―
+        </p>
 
-    <a
-      rel="noopener sponsored"
-      href="https://dlaf.jp/home/dlaf/=/aid/nattsunlabo/url/https%3A%2F%2Fwww.dlsite.com%2Fai-touch%2Fwork%2F%3D%2Fproduct_id%2FRJ01728683.html"
-      target="_blank"
-    >
+        <img
+          class="sample-image"
+          src="moonlight.jpg"
+          alt="月夜の彼女 ― Moonlight Visual Arts ― サンプルビジュアル"
+        >
 
-      <img
-        src="https://www.dlsite.com/img/male/dojin/bn_pc_468_60_dojin_01.gif"
-        alt="DLsiteで販売中"
-        width="468"
-        height="60"
+        <p class="sample-note">
+          ※作品紹介用のサンプルビジュアルです。
+        </p>
+
+      </div>
+
+
+      <!-- =========================
+           DLsite
+      ========================== -->
+
+      <a
+        class="dlsite-button"
+        href="https://www.dlsite.com/ai-touch/work/=/product_id/RJ01728683.html"
+        target="_blank"
+        rel="noopener sponsored"
       >
+        🌙 DLsiteで作品を見る
+      </a>
 
-    </a>
+
+      <!-- DLsiteバナー -->
+
+      <div class="banner-area">
+
+        <a
+          href="https://www.dlsite.com/ai-touch/work/=/product_id/RJ01728683.html"
+          target="_blank"
+          rel="noopener sponsored"
+        >
+
+          <img
+            src="https://www.dlsite.com/img/male/dojin/bn_pc_468_60_dojin_01.gif"
+            alt="DLsite"
+            width="468"
+            height="60"
+          >
+
+        </a>
+
+      </div>
+
+    </div>
 
   </div>
 
-
 </section>
-
 
 
 <!-- =========================
      DLsiteランキング
 ========================= -->
 
-<section class="card">
+<section id="ranking">
 
-  <h2>
-    DLsiteランキング
-  </h2>
+  <div class="container">
 
-  <p>
-    DLsiteの週間ランキングを表示しています。
-  </p>
-
-
-  <div class="ranking">
-
-<script type="text/javascript">
-
-blogparts = {
-  "base": "https://www.dlsite.com/",
-  "type": "ranking",
-  "site": "home",
-
-  "query": {
-    "period": "week",
-    "options": [
-      "-GRO",
-      "-MEN"
-    ]
-  },
-
-  "title": "ランキング",
-
-  "display": "vertical",
-
-  "detail": "1",
-
-  "column": "v",
-
-  "image": "large",
-
-  "count": "3",
-
-  "wrapper": "1",
-
-  "autorotate": true,
-
-  "aid": "nattsunlabo"
-};
-
-</script>
+    <h2 class="section-title">
+      DLsiteランキング
+      <span>RANKING</span>
+    </h2>
 
 
-<script
-  type="text/javascript"
-  src="https://www.dlsite.com/js/blogparts.js"
-  charset="UTF-8"
-></script>
+    <div class="ranking-box">
 
+      <h3 class="ranking-title">
+        今週のおすすめ作品
+      </h3>
+
+
+      <script
+        type="text/javascript"
+        src="https://www.dlsite.com/modpub/lp/blogparts.js"
+      ></script>
+
+      <script>
+        var dlsiteBlogParts = {
+          type: "ranking",
+          period: "week",
+          options: "-GRO",
+          genre: "-MEN",
+          count: 3,
+          vertical: true,
+          aid: "nattsunlabo"
+        };
+      </script>
+
+    </div>
 
   </div>
 
 </section>
-
 
 
 <!-- =========================
      活動情報
 ========================= -->
 
-<section class="card">
+<section id="activity">
 
-  <h2>
-    活動情報
-  </h2>
+  <div class="container">
 
-
-  <div class="links">
-
-
-    <!-- X -->
-
-    <a
-      href="https://x.com/nattsunjp_212?s=11"
-      target="_blank"
-      rel="noopener"
-    >
-      𝕏 X「ナッツんjp」
-    </a>
+    <h2 class="section-title">
+      活動情報
+      <span>ACTIVITY</span>
+    </h2>
 
 
-    <!-- YouTube -->
+    <div class="link-grid">
 
-    <a
-      href="https://www.youtube.com/"
-      target="_blank"
-      rel="noopener"
-    >
-      ▶ YouTube「ナッツんjp」
-    </a>
+      <a
+        class="link-card"
+        href="https://x.com/nattsunjp_212?s=11"
+        target="_blank"
+        rel="noopener"
+      >
+        <strong>𝕏 X</strong>
+        <span>ナッツんjp 公式アカウント</span>
+      </a>
 
+
+      <a
+        class="link-card"
+        href="#"
+      >
+        <strong>▶ YouTube</strong>
+        <span>ナッツんjp YouTubeチャンネル</span>
+      </a>
+
+    </div>
 
   </div>
 
 </section>
 
 
-
 <!-- =========================
-     お問い合わせ
+     CONTACT
 ========================= -->
 
-<section class="card">
+<section id="contact">
 
-  <h2>
-    お問い合わせ
-  </h2>
+  <div class="container">
 
-  <p>
-    作品や活動に関するお問い合わせは、
-    各サービスのメッセージ機能をご利用ください。
-  </p>
+    <h2 class="section-title">
+      お問い合わせ
+      <span>CONTACT</span>
+    </h2>
+
+
+    <div class="contact-box">
+
+      <p>
+        作品・サイトに関するお問い合わせは、
+        ナッツんjpのXアカウントよりお願いいたします。
+      </p>
+
+      <a
+        class="dlsite-button"
+        href="https://x.com/nattsunjp_212?s=11"
+        target="_blank"
+        rel="noopener"
+      >
+        𝕏 Xへ
+      </a>
+
+    </div>
+
+  </div>
 
 </section>
 
-
 </main>
-
 
 
 <!-- =========================
@@ -475,7 +710,13 @@ blogparts = {
 
 <footer>
 
-  © Nattsun LABO
+  <p>
+    © ナッツんLABO
+  </p>
+
+  <p>
+    AI Visual Art / PixAI / Tsubaki.3
+  </p>
 
 </footer>
 
