@@ -10,6 +10,14 @@
 >
 
 <title>ナッツんLABO｜公式サイト</title>
+<link rel="canonical" href="https://nattsun-jp.github.io/nattsun-labo/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="ナッツんLABO｜月夜の彼女・AIビジュアルアート">
+<meta property="og:description" content="月夜の彼女 ― Moonlight Visual Arts ― のサンプルを公開。作品の詳細はDLsiteでご覧いただけます。">
+<meta property="og:url" content="https://nattsun-jp.github.io/nattsun-labo/">
+<meta property="og:image" content="https://nattsun-jp.github.io/nattsun-labo/logo.jpeg">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:site" content="@nattsunjp_212">
 
 <style>
 
@@ -19,6 +27,19 @@
 
 html {
   scroll-behavior: smooth;
+}
+section { scroll-margin-top: 110px; }
+a:focus-visible { outline: 3px solid #b9c7ff; outline-offset: 5px; }
+.hero-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin: 24px auto 0; }
+.hero-actions .dlsite-button { width: auto; margin: 0; }
+.secondary-button { display: inline-block; padding: 15px 20px; color: #fff; border: 1px solid #8fa9ff; border-radius: 12px; text-decoration: none; }
+.purchase-note { text-align: center; font-size: 13px; color: #b9c7ff; }
+.work-summary { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; padding: 0; list-style: none; }
+.work-summary li { padding: 5px 12px; border: 1px solid rgba(150,175,255,.3); border-radius: 999px; color: #d9def0; font-size: 13px; }
+.link-card-inactive { color: #aeb7d0; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  a { transition: none !important; }
 }
 
 body {
@@ -434,6 +455,12 @@ footer {
     AIを活用したCG・同人作品などを制作しています。
   </p>
 
+  <p>月夜の彼女 ― Moonlight Visual Arts ―</p>
+  <div class="hero-actions">
+    <a class="dlsite-button" href="#works">作品サンプルを見る</a>
+    <a class="secondary-button" href="https://www.dlsite.com/ai-touch/work/=/product_id/RJ01728683.html" target="_blank" rel="noopener">DLsiteで作品詳細を見る</a>
+  </div>
+
 </header>
 
 
@@ -441,13 +468,13 @@ footer {
      ナビゲーション
 ========================= -->
 
-<nav>
+<nav aria-label="ページ内メニュー">
   <ul>
-    <li><a href="#about">ABOUT</a></li>
-    <li><a href="#works">WORKS</a></li>
-    <li><a href="#ranking">RANKING</a></li>
-    <li><a href="#activity">ACTIVITY</a></li>
-    <li><a href="#contact">CONTACT</a></li>
+    <li><a href="#works">作品・購入先</a></li>
+    <li><a href="#about">サークル紹介</a></li>
+    <li><a href="#ranking">DLsiteランキング</a></li>
+    <li><a href="#activity">活動情報</a></li>
+    <li><a href="#contact">お問い合わせ</a></li>
   </ul>
 </nav>
 
@@ -458,27 +485,7 @@ footer {
      ABOUT
 ========================= -->
 
-<section id="about">
 
-  <div class="container intro">
-
-    <h2 class="section-title">
-      ナッツんLABO
-      <span>ABOUT</span>
-    </h2>
-
-    <p class="intro-text">
-      ナッツんLABOでは、
-      <span class="highlight">AI技術を活用したCG・ビジュアル作品</span>
-      などを制作しています。
-      <br>
-      自分の世界観を大切にしながら、
-      デジタル作品を少しずつ形にしていきます。
-    </p>
-
-  </div>
-
-</section>
 
 
 <!-- =========================
@@ -512,6 +519,14 @@ footer {
         静かな夜と少女の幻想的な世界を描いています。
       </p>
 
+      <ul class="work-summary" aria-label="作品の特徴">
+        <li>AIビジュアルアート</li>
+        <li>月夜の幻想的な世界</li>
+        <li>DLsiteで作品紹介</li>
+      </ul>
+      <a class="dlsite-button" href="https://www.dlsite.com/ai-touch/work/=/product_id/RJ01728683.html" target="_blank" rel="noopener">作品詳細・価格をDLsiteで確認する</a>
+      <p class="purchase-note">収録内容・価格・対象年齢は、販売ページでご確認ください。</p>
+
 
       <!-- =========================
            作品サンプル画像
@@ -527,7 +542,8 @@ footer {
           class="sample-image"
           src="moonlight.png"
           alt="月夜の彼女 ― Moonlight Visual Arts ― サンプルビジュアル"
-　　　　　>
+          decoding="async"
+        >
 
         <p class="sample-note">
           ※作品紹介用のサンプルビジュアルです。
@@ -546,7 +562,7 @@ footer {
         target="_blank"
         rel="noopener sponsored"
       >
-        🌙 DLsiteで作品を見る
+        🌙 この作品の詳細・購入ページへ
       </a>
 
 
@@ -577,6 +593,28 @@ footer {
 
 </section>
 
+<section id="about">
+
+  <div class="container intro">
+
+    <h2 class="section-title">
+      ナッツんLABO
+      <span>ABOUT</span>
+    </h2>
+
+    <p class="intro-text">
+      ナッツんLABOでは、
+      <span class="highlight">AI技術を活用したCG・ビジュアル作品</span>
+      などを制作しています。
+      <br>
+      自分の世界観を大切にしながら、
+      デジタル作品を少しずつ形にしていきます。
+    </p>
+
+  </div>
+
+</section>
+
 
 <!-- =========================
      DLsiteランキング
@@ -597,6 +635,7 @@ footer {
       <h3 class="ranking-title">
         今週のおすすめ作品
       </h3>
+      <p class="purchase-note">作品一覧が表示されない場合は、上の作品紹介からDLsiteをご覧ください。</p>
 
 
       <script
@@ -650,13 +689,10 @@ footer {
       </a>
 
 
-      <a
-        class="link-card"
-        href="#"
-      >
+      <div class="link-card link-card-inactive">
         <strong>▶ YouTube</strong>
-        <span>ナッツんjp YouTubeチャンネル</span>
-      </a>
+        <span>チャンネルへのリンクは準備中です</span>
+      </div>
 
     </div>
 
