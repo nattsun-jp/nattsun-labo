@@ -6,14 +6,14 @@
 
 <meta
   name="description"
-  content="ナッツんLABO公式サイト。AIを活用したCG・同人作品などを制作しています。"
+  content="ナッツんLABO公式サイト。色の見え方を試せる視覚実験、制作記録、AIビジュアルアート作品を公開しています。"
 >
 
 <title>ナッツんLABO｜公式サイト</title>
 <link rel="canonical" href="https://nattsun-jp.github.io/nattsun-labo/">
 <meta property="og:type" content="website">
-<meta property="og:title" content="ナッツんLABO｜月夜の彼女・AIビジュアルアート">
-<meta property="og:description" content="月夜の彼女 ― Moonlight Visual Arts ― のサンプルを公開。作品の詳細はDLsiteでご覧いただけます。">
+<meta property="og:title" content="ナッツんLABO｜視覚実験・AIビジュアルアート">
+<meta property="og:description" content="同じ色なのに違って見える？自分で試せる視覚実験と、ナッツんjpの制作記録・作品サンプル。">
 <meta property="og:url" content="https://nattsun-jp.github.io/nattsun-labo/">
 <meta property="og:image" content="https://nattsun-jp.github.io/nattsun-labo/logo.jpeg">
 <meta name="twitter:card" content="summary">
@@ -429,6 +429,20 @@ footer {
 
 }
 
+
+.lab-card { max-width: 850px; margin: auto; padding: clamp(18px,4vw,32px); background: #131d31; border: 1px solid #35466a; border-radius: 22px; }
+.lab-card h3 { font-size: clamp(21px,4vw,28px); margin-top: 0; }
+.lab-panels { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 24px 0; }
+.lab-panel { display: grid; place-items: center; min-height: clamp(140px,28vw,230px); border-radius: 16px; background: rgb(24,24,24); }
+.lab-panel:last-child { background: rgb(238,238,238); }
+.lab-circle { display: block; width: clamp(64px,14vw,110px); aspect-ratio: 1; border-radius: 50%; background: rgb(150,150,150); }
+.lab-controls { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0; }
+.lab-controls button { padding: 12px 18px; min-height: 44px; border: 1px solid #a8bbff; border-radius: 10px; background: #233456; color: #fff; font: inherit; cursor: pointer; }
+.lab-card details { padding: 14px 0; border-top: 1px solid #35466a; }
+.lab-card summary { cursor: pointer; font-weight: bold; }
+.lab-card p { color: #d9def0; }
+.lab-date { font-size: 13px; color: #aeb7d0; }
+@media (max-width: 400px) { nav a { padding: 7px 9px; } }
 </style>
 </head>
 
@@ -455,10 +469,10 @@ footer {
     AIを活用したCG・同人作品などを制作しています。
   </p>
 
-  <p>月夜の彼女 ― Moonlight Visual Arts ―</p>
+  <p>見て、試して、つくる。ナッツんjpの制作実験室。</p>
   <div class="hero-actions">
     <a class="dlsite-button" href="#works">作品サンプルを見る</a>
-    <a class="secondary-button" href="https://www.dlsite.com/ai-touch/work/=/product_id/RJ01728683.html" target="_blank" rel="noopener">DLsiteで作品詳細を見る</a>
+    <a class="secondary-button" href="#experiments">色の実験を試す</a>
   </div>
 
 </header>
@@ -470,7 +484,7 @@ footer {
 
 <nav aria-label="ページ内メニュー">
   <ul>
-    <li><a href="#works">作品・購入先</a></li>
+    <li><a href="#experiments">視覚実験</a></li>\n    <li><a href="#works">作品</a></li>
     <li><a href="#about">サークル紹介</a></li>
     <li><a href="#ranking">DLsiteランキング</a></li>
     <li><a href="#activity">活動情報</a></li>
@@ -479,7 +493,37 @@ footer {
 </nav>
 
 
-<main>
+<main>\n
+<section id="experiments" aria-labelledby="experiment-title">
+  <div class="container">
+    <h2 class="section-title" id="experiment-title">見え方の実験<span>VISUAL EXPERIMENT</span></h2>
+    <article class="lab-card">
+      <p class="lab-date">制作ノート 01 · <time datetime="2026-10-08">2026年10月8日</time></p>
+      <h3>同じ色なのに、違って見える？</h3>
+      <p>左右の円を比べてみてください。どちらが明るく見えますか？背景をそろえたり入れ替えたりして、見え方の変化を確かめられます。</p>
+      <div class="lab-panels" role="img" aria-label="暗い背景と明るい背景に、同じRGB値150の灰色の円を置いた比較図">
+        <div class="lab-panel" id="lab-left"><span class="lab-circle"></span></div>
+        <div class="lab-panel" id="lab-right"><span class="lab-circle"></span></div>
+      </div>
+      <div class="lab-controls" aria-label="背景の操作">
+        <button type="button" data-lab-mode="same">背景をそろえる</button>
+        <button type="button" data-lab-mode="swap">背景を入れ替える</button>
+        <button type="button" data-lab-mode="reset">最初に戻す</button>
+      </div>
+      <p id="lab-status" role="status">左は暗い背景、右は明るい背景です。</p>
+      <details>
+        <summary>答えと制作のしくみを見る</summary>
+        <p>2つの円は、どちらも同じ RGB（150 / 150 / 150）で描いています。操作で変わるのは背景だけです。円の色は固定しています。</p>
+        <p>このページでは、図形と背景をCSSで別々に描き、ボタンで背景だけを切り替えています。動画でも同じ考え方で、背景の変化と円の色を分けて制作しました。</p>
+        <p>作品づくりでは、同じ色でも背景との組み合わせで印象が変わります。文字やボタンも、色単体ではなく背景に置いた状態で確かめるのが大切です。感じ方には個人差があり、画面の設定や周囲の明るさでも変わります。</p>
+      </details>
+      <p>ナッツんjpのYouTubeでも、オリジナルの制作実験に挑戦しています。</p>
+      <a class="secondary-button" href="https://www.youtube.com/@NattunJP" target="_blank" rel="noopener">ナッツんjpのYouTubeを見る</a>
+      <noscript><p>ボタンの操作にはJavaScriptが必要です。上の比較図と解説はそのままご覧いただけます。</p></noscript>
+    </article>
+  </div>
+</section>
+
 
 <!-- =========================
      ABOUT
@@ -540,7 +584,7 @@ footer {
 
         <img
           class="sample-image"
-          src="moonlight.png"
+          loading="lazy"\n          src="moonlight.png"
           alt="月夜の彼女 ― Moonlight Visual Arts ― サンプルビジュアル"
           decoding="async"
         >
@@ -757,5 +801,24 @@ footer {
 </footer>
 
 
+<script>
+(() => {
+  const left = document.getElementById('lab-left');
+  const right = document.getElementById('lab-right');
+  const status = document.getElementById('lab-status');
+  let swapped = false;
+  document.querySelectorAll('[data-lab-mode]').forEach(button => {
+    button.addEventListener('click', () => {
+      const mode = button.dataset.labMode;
+      let a = 24, b = 238;
+      if (mode === 'same') { a = b = 100; status.textContent = '背景を同じ色にそろえました。円の色は変えていません。'; }
+      else if (mode === 'swap') { swapped = !swapped; a = swapped ? 238 : 24; b = swapped ? 24 : 238; status.textContent = '背景を入れ替えました。円の色は変えていません。'; }
+      else { swapped = false; status.textContent = '最初の背景に戻しました。円はどちらもRGB（150 / 150 / 150）です。'; }
+      left.style.backgroundColor = 'rgb(' + a + ',' + a + ',' + a + ')';
+      right.style.backgroundColor = 'rgb(' + b + ',' + b + ',' + b + ')';
+    });
+  });
+})();
+</script>
 </body>
 </html>
