@@ -33,10 +33,13 @@ function stopEffects(){for(const source of sources){try{source.stop();}catch{}}s
 async function playPreset(p,button){try{if(!$('overlap').checked)stopEffects();await audioReady();const seconds=synth(p[3]);mark(button,seconds+.1);$('status').textContent=p[0]+'を再生中';}catch(e){$('status').textContent=e.message;}}
 function makePad(label,symbol,key){const b=document.createElement('button');b.className='pad';b.type='button';b.setAttribute('aria-pressed','false');const icon=document.createElement('span');icon.className='symbol';icon.textContent=symbol;const name=document.createElement('span');name.textContent=label;const hint=document.createElement('small');hint.textContent=key?key.toUpperCase():'端末内の音源';b.append(icon,name,hint);return b;}
 presets.forEach(p=>{const b=makePad(p[0],p[1],p[2]);b.onclick=()=>playPreset(p,b);$('pads').append(b);});
+document.querySelectorAll('[data-audio-preset]').forEach(button=>{const p=presets.find(p=>p[3]===button.dataset.audioPreset);if(p)button.onclick=()=>playPreset(p,button);});
+window.addEventListener('nattsun-audio-preset',event=>{const i=presets.findIndex(p=>p[3]===event.detail);if(i>=0)playPreset(presets[i],$('pads').children[i]);});
+
 $('stop-se').onclick=()=>{stopEffects();$('status').textContent='効果音を停止しました。';};
 function stopBGM(){$('bgm').pause();$('bgm').currentTime=0;}
-$('stop-all').onclick=()=>{stopEffects();stopBGM();$('status').textContent='すべての音を停止しました。';};
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){stopEffects();stopBGM();$('status').textContent='すべての音を停止しました。';return;}if(!$('keys').checked||e.repeat||e.ctrlKey||e.metaKey||e.altKey||e.target.closest('input,textarea,select,button,[contenteditable]'))return;const i=presets.findIndex(p=>p[2]===e.key.toLowerCase());if(i>=0){e.preventDefault();playPreset(presets[i],$('pads').children[i]);}});
+$('stop-all').onclick=()=>{stopEffects();stopBGM();$('status').textContent='すべての音を停止しました。';$('bgm-status').textContent='すべての音を停止しました。';};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){stopEffects();stopBGM();$('status').textContent='すべての音を停止しました。';$('bgm-status').textContent='すべての音を停止しました。';return;}if(!$('keys').checked||e.repeat||e.ctrlKey||e.metaKey||e.altKey||e.target.closest('input,textarea,select,button,[contenteditable]'))return;const i=presets.findIndex(p=>p[2]===e.key.toLowerCase());if(i>=0){e.preventDefault();playPreset(presets[i],$('pads').children[i]);}});
 $('bgm-start').onclick=async()=>{try{await $('bgm').play();$('bgm-status').textContent='BGMを再生中';}catch{$('bgm-status').textContent='BGMを再生できません。ファイル形式や通信状況をご確認ください。';}};
 $('bgm-pause').onclick=()=>{$('bgm').pause();$('bgm-status').textContent='一時停止しました。';};$('bgm-stop').onclick=()=>{stopBGM();$('bgm-status').textContent='BGMを停止しました。';};
 $('track').onchange=()=>{stopBGM();$('bgm').src=$('track').value;$('bgm').load();$('bgm-status').textContent='曲を切り替えました。「BGMを再生」で開始します。';};
