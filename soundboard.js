@@ -2,8 +2,8 @@
 (() => {
 const $=id=>document.getElementById(id), storageKey='nattsun-labo-soundboard-v1';
 const presets=[['正解','◎','q','correct'],['不正解','×','w','wrong'],['決定','✓','e','confirm'],['通知','♪','r','notice'],['ドラムロール','◌','a','roll'],['ファンファーレ','✦','s','fanfare'],['カウントダウン','3→1','d','count'],['タイムアップ','⌛','f','time'],['ひらめき','✧','z','idea'],['登場','↗','x','enter'],['退場','↘','c','exit'],['きらきら','☆','v','sparkle']];
-let ctx,master,settings={},customCounter=0;
-const sources=new Set(), playingButtons=new Map(), customAudios=new Set(), customURLs=[],trackURLs=[];
+let ctx,master,settings={};
+const sources=new Set(), playingButtons=new Map(), customAudios=new Set();
 try{settings=JSON.parse(localStorage.getItem(storageKey)||'{}')||{};}catch{}
 for(const id of ['se-volume','bgm-volume'])if(Number.isFinite(settings[id]))$(id).value=Math.max(0,Math.min(100,settings[id]));
 for(const id of ['overlap','keys','loop'])if(typeof settings[id]==='boolean')$(id).checked=settings[id];
@@ -42,7 +42,79 @@ $('bgm-pause').onclick=()=>{$('bgm').pause();$('bgm-status').textContent='一時
 $('track').onchange=()=>{stopBGM();$('bgm').src=$('track').value;$('bgm').load();$('bgm-status').textContent='曲を切り替えました。「BGMを再生」で開始します。';};
 $('bgm').onerror=()=>{$('bgm-status').textContent='この音源を再生できません。対応形式・通信状況をご確認ください。';};
 const validFile=f=>f.type.startsWith('audio/')||/\.(mp3|wav|m4a|ogg|aac|flac)$/i.test(f.name);
-$('bgm-file').onchange=()=>{let added=0,rejected=0;for(const f of $('bgm-file').files){if(trackURLs.length>=10||f.size>50*1024*1024||!validFile(f)){rejected++;continue;}const url=URL.createObjectURL(f);trackURLs.push(url);const o=document.createElement('option');o.value=url;o.textContent=f.name+'（端末内）';$('track').append(o);added++;}$('bgm-status').textContent=added+'曲追加しました。曲の選択から切り替えてください。'+(rejected?' '+rejected+'曲は形式・容量・件数上限のため追加できませんでした。':'');$('bgm-file').value='';};
-$('se-file').onchange=()=>{let added=0,rejected=0;for(const f of $('se-file').files){if(customURLs.length>=12||f.size>10*1024*1024||!validFile(f)){rejected++;continue;}const url=URL.createObjectURL(f),a=new Audio(url),b=makePad(f.name,'♫');a.preload='none';customURLs.push(url);customAudios.add(a);a.volume=Number($('se-volume').value)/100;b.onclick=async()=>{try{if(!$('overlap').checked)stopEffects();a.currentTime=0;await a.play();mark(b);playingButtons.set(b,null);$('status').textContent=f.name+'を再生中';}catch{unmark(b);$('custom-status').textContent='この音源を再生できません。対応形式をご確認ください。';}};a.onended=()=>unmark(b);a.onerror=()=>{unmark(b);$('custom-status').textContent=f.name+'を読み込めませんでした。';};$('custom-pads').append(b);added++;}$('custom-status').textContent=added+'個追加しました。'+(rejected?' '+rejected+'個は形式・容量・件数上限のため追加できませんでした。':'');$('se-file').value='';};
-$('clear-custom').onclick=()=>{stopEffects();customURLs.forEach(url=>URL.revokeObjectURL(url));customURLs.length=0;for(const a of customAudios){a.removeAttribute('src');a.load();}customAudios.clear();$('custom-pads').replaceChildren();$('custom-status').textContent='追加した効果音を解除しました。元のファイルは削除しません。';};
+const library=new Map();
+let dbPromise, ready=false, busy=false;
+function openLibrary(){
+ if(dbPromise)return dbPromise;
+ dbPromise=new Promise((resolve,reject)=>{
+  if(!window.indexedDB){reject(Error('このブラウザでは音源を保存できません。'));return;}
+  const req=window.indexedDB.open('nattsun-labo-audio',1);
+  const timer=setTimeout(()=>reject(Error('音源の保存先を開けません。ほかのタブを閉じて再読み込みしてください。')),8000);
+  req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains('sounds'))req.result.createObjectStore('sounds',{keyPath:'id'});};
+  req.onsuccess=()=>{clearTimeout(timer);req.result.onversionchange=()=>req.result.close();resolve(req.result);};
+  req.onerror=()=>{clearTimeout(timer);reject(req.error);};
+ });return dbPromise;
+}
+async function dbAction(action){
+ const db=await openLibrary();
+ return new Promise((resolve,reject)=>{
+  const tx=db.transaction('sounds',action==='read'?'readonly':'readwrite'),store=tx.objectStore('sounds');let result,error;
+  tx.oncomplete=()=>resolve(result);tx.onabort=()=>reject(error||tx.error||Error('保存に失敗しました。'));tx.onerror=()=>{};
+  if(action==='read'){const req=store.getAll();req.onsuccess=()=>{result=req.result;};return;}
+  if(action.remove){for(const id of action.remove)store.delete(id);return;}
+  const req=store.getAll();req.onsuccess=()=>{
+   const files=req.result,r=action.add;
+   if(files.filter(f=>f.kind===r.kind).length>=(r.kind==='bgm'?10:12)){error=Error('保存できる件数の上限です。不要な音源を削除してください。');tx.abort();return;}
+   if(files.reduce((n,f)=>n+f.size,0)+r.size>100*1024*1024){error=Error('音源の保存は合計100MBまでです。不要な音源を削除してください。');tx.abort();return;}
+   store.put(r);
+  };
+ });
+}
+function refreshLibrary(){
+ const rows=[...library.values()],bytes=rows.reduce((n,r)=>n+r.size,0);
+ $('storage-status').textContent='このブラウザに保存：BGM '+rows.filter(r=>r.kind==='bgm').length+'曲 / 効果音 '+rows.filter(r=>r.kind==='se').length+'個 · '+(bytes/1024/1024).toFixed(1)+' / 100MB';
+ $('delete-track').disabled=busy||!rows.some(r=>r.kind==='bgm'&&r.url===$('track').value);
+}
+function setBusy(value){busy=value;$('bgm-file').disabled=$('se-file').disabled=value||!ready;refreshLibrary();}
+function storageError(e){return e?.name==='QuotaExceededError'?'端末の保存容量が足りません。不要な音源を削除してから追加してください。':(e?.message||'保存できませんでした。ブラウザの保存設定をご確認ください。');}
+function attachSound(r){
+ r.url=URL.createObjectURL(r.blob);library.set(r.id,r);
+ if(r.kind==='bgm'){
+  const o=document.createElement('option');o.value=r.url;o.textContent=r.name+'（保存済み）';$('track').append(o);r.element=o;return;
+ }
+ const a=new Audio(r.url),b=makePad(r.name,'♫'),wrap=document.createElement('div'),del=document.createElement('button');
+ wrap.className='saved-pad';del.className='remove-sound';del.type='button';del.textContent='削除';del.setAttribute('aria-label',r.name+'を保存から削除');
+ a.preload='none';a.volume=Number($('se-volume').value)/100;customAudios.add(a);r.audio=a;r.button=b;r.element=wrap;
+ b.onclick=async()=>{try{if(!$('overlap').checked)stopEffects();a.currentTime=0;await a.play();mark(b);playingButtons.set(b,null);$('status').textContent=r.name+'を再生中';}catch{unmark(b);$('custom-status').textContent='この音源を再生できません。対応形式をご確認ください。';}};
+ a.onended=()=>unmark(b);a.onerror=()=>{unmark(b);$('custom-status').textContent=r.name+'を読み込めませんでした。';};
+ del.onclick=()=>removeSaved([r.id],'custom-status');wrap.append(b,del);$('custom-pads').append(wrap);
+}
+function detachSound(r){
+ if(r.audio){r.audio.pause();unmark(r.button);r.audio.removeAttribute('src');r.audio.load();customAudios.delete(r.audio);}
+ if(r.kind==='bgm'&&$('track').value===r.url){stopBGM();$('track').value='nattsun-bgm01.mp3';$('bgm').src='nattsun-bgm01.mp3';$('bgm').load();$('bgm-status').textContent='標準BGMに戻しました。';}
+ r.element.remove();URL.revokeObjectURL(r.url);library.delete(r.id);
+}
+async function removeSaved(ids,status){
+ if(busy)return;setBusy(true);
+ try{await dbAction({remove:ids});for(const id of ids){const r=library.get(id);if(r)detachSound(r);}refreshLibrary();$(status).textContent='保存した音源を削除しました。元のファイルは残ります。';}
+ catch(e){$(status).textContent=storageError(e);}finally{setBusy(false);}
+}
+async function importSounds(input,kind,status){
+ if(!ready||busy)return;setBusy(true);let added=0,errors=[];
+ const files=[...input.files];input.value='';
+ try{for(const f of files){
+  if(!validFile(f)||f.size>(kind==='bgm'?50:10)*1024*1024){errors.push(f.name+'：形式または容量上限を確認してください。');continue;}
+  const r={id:kind+'-'+Date.now()+'-'+Math.random().toString(36).slice(2),kind,name:f.name,size:f.size,blob:f,created:Date.now()};
+  try{await dbAction({add:r});attachSound(r);added++;}catch(e){errors.push(f.name+'：'+storageError(e));}
+ }refreshLibrary();$(status).textContent=added+'件をこのブラウザに保存しました。'+(kind==='bgm'&&added?' 曲の選択から切り替えてください。':'')+(errors.length?' '+errors.join(' '):'');}
+ finally{setBusy(false);}
+}
+$('bgm-file').onchange=()=>importSounds($('bgm-file'),'bgm','bgm-status');
+$('se-file').onchange=()=>importSounds($('se-file'),'se','custom-status');
+$('delete-track').onclick=()=>{const r=[...library.values()].find(r=>r.kind==='bgm'&&r.url===$('track').value);if(r)removeSaved([r.id],'bgm-status');};
+$('track').addEventListener('change',refreshLibrary);
+$('clear-custom').onclick=()=>{const ids=[...library.values()].filter(r=>r.kind==='se').map(r=>r.id);if(ids.length&&window.confirm('このブラウザに保存した効果音をすべて削除しますか？ 元のファイルは削除しません。'))removeSaved(ids,'custom-status');};
+$('bgm-file').disabled=$('se-file').disabled=true;
+(async()=>{try{const records=await dbAction('read');records.sort((a,b)=>a.created-b.created).forEach(attachSound);ready=true;$('bgm-file').disabled=$('se-file').disabled=false;refreshLibrary();}
+catch(e){$('storage-status').textContent=storageError(e)+' 標準効果音と標準BGMは使えます。';}})();
 })();

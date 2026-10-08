@@ -443,6 +443,8 @@ footer {
 .lab-card p { color: #d9def0; }
 .lab-date { font-size: 13px; color: #aeb7d0; }
 @media (max-width: 400px) { nav a { padding: 7px 9px; } }
+
+.stream-primary{display:flex;flex-direction:column;justify-content:center;min-width:260px;padding:13px 25px;background:linear-gradient(115deg,#b8c8ff,#dfceff);color:#10172d;font-weight:800;text-decoration:none;border-radius:14px;box-shadow:0 8px 28px #8d9bff25}.stream-primary span{font-size:12px;font-weight:600}.hero-actions{align-items:stretch}.hero-actions .secondary-button{display:flex;align-items:center}.nav-tools{background:#263857;border:1px solid #7c97d4;font-weight:700}.nav-tools span{margin-left:5px;color:#d5deff;font-size:10px}#stream-tools{padding:48px 0 60px;background:linear-gradient(135deg,#18234180,#30244645);border-bottom:1px solid #5b689b35}.tools-heading{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:24px}.tools-heading h2{font-size:clamp(25px,4vw,34px);margin:0}.tools-heading p{margin:5px 0;color:#c2cde5}.tools-heading .tools-kicker{color:#b5c9ff;font-size:11px;letter-spacing:2px}.tools-badge{padding:6px 14px;border:1px solid #7d8fc0;border-radius:99px;font-size:12px;white-space:nowrap}.tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.tool-entry{display:flex;flex-direction:column;padding:27px;background:#172640;border:1px solid #687eaf;border-radius:20px;text-decoration:none;color:white;transition:border-color .2s,background .2s}.sound-entry{background:#29213f;border-color:#85729f}.tool-entry:hover{background:#24314e;border-color:#d3ddff}.tool-number{font-size:11px;letter-spacing:2px;color:#b5c8f0}.tool-entry h3{font-size:24px;margin:12px 0 4px}.tool-entry p{color:#ccd6e9;font-size:14px;flex:1;margin:8px 0 20px}.tool-open{font-weight:700;color:#e0d7ff}.tools-footnote{font-size:12px;color:#aebbd4;margin:18px 0 0}@media(max-width:700px){.tools-heading{align-items:start;flex-direction:column;gap:10px}.tools-grid{grid-template-columns:1fr}.tool-entry{padding:22px}.stream-primary{width:100%}.hero-actions{max-width:500px}.hero-actions .secondary-button{flex:1;justify-content:center;padding:12px 14px;font-size:13px}}
 </style>
 </head>
 
@@ -471,8 +473,8 @@ footer {
 
   <p>見て、試して、つくる。ナッツんjpの制作実験室。</p>
   <div class="hero-actions">
-    <a class="dlsite-button" href="#works">作品サンプルを見る</a>
-    <a class="secondary-button" href="streamer.html">無料の配信ツールを使う</a>
+    <a class="stream-primary" href="#stream-tools">無料の配信ツール <span>ガチャ・集計・トーク・効果音 →</span></a>
+    <a class="secondary-button" href="#works">作品サンプルを見る</a>
     <a class="secondary-button" href="#experiments">色の実験を試す</a>
   </div>
 
@@ -485,7 +487,7 @@ footer {
 
 <nav aria-label="ページ内メニュー">
   <ul>
-    <li><a href="streamer.html">配信ツール</a></li>
+    <li><a class="nav-tools" href="#stream-tools">配信ツール <span>無料</span></a></li>
     <li><a href="soundboard.html">効果音・BGM</a></li>
     <li><a href="#experiments">視覚実験</a></li>
     <li><a href="#works">作品</a></li>
@@ -498,7 +500,11 @@ footer {
 
 
 <main>
-<section id="stream-tools" aria-labelledby="stream-tools-title"><div class="container"><h2 class="section-title" id="stream-tools-title">ライバー向け配信ツール<span>STREAMER TOOLS</span></h2><article class="lab-card"><h3>ガチャも、当選集計も、トークも。</h3><p>景品の重み・在庫を設定して名前を入力するガチャ、名前ごとの当選表とCSV出力、使ったお題がわかるトークリスト。配信中の手間をまとめて減らせる無料ツールです。</p><p>登録不要。設定と結果は使ったブラウザに保存され、バックアップで移せます。IRIAMなどの公式連携やギフトの自動読取はなく、配信者が手動で操作します。</p><a class="secondary-button" href="streamer.html">配信ツールを開く →</a> <a class="secondary-button" href="soundboard.html">効果音・BGMを鳴らす →</a></article></div></section>
+<section id="stream-tools" aria-labelledby="stream-tools-title"><div class="container">
+<div class="tools-heading"><div><p class="tools-kicker">FREE STREAMER TOOLS</p><h2 id="stream-tools-title">配信の準備、ここひとつ。</h2><p>ガチャから音の演出まで。ライバーのための無料ツール。</p></div><span class="tools-badge">無料・登録不要</span></div>
+<div class="tools-grid"><a class="tool-entry" href="streamer.html"><span class="tool-number">01 / STREAM TOOLS</span><h3>ガチャ・集計・トーク</h3><p>景品・確率・在庫を設定してガチャ。名前別の当選表、CSV、トークのお題もまとめて。</p><span class="tool-open">配信ツールを開く →</span></a><a class="tool-entry sound-entry" href="soundboard.html"><span class="tool-number">02 / SOUND BOARD</span><h3>効果音・BGM</h3><p>12の効果音をワンタップ。自作BGMも追加でき、音源は自分のブラウザに保存。</p><span class="tool-open">サウンドボードを開く →</span></a></div>
+<p class="tools-footnote">IRIAMなどの公式連携やギフトの自動読取はなく、手動で操作します。配信への音の乗せ方はサウンドボード内で案内しています。</p>
+</div></section>
 
 
 <section id="experiments" aria-labelledby="experiment-title">
