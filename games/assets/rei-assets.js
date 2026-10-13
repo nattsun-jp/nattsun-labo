@@ -41,6 +41,24 @@ window.ReiAssets = (() => {
             if (x > 0) add(i - 1); if (x < w - 1) add(i + 1);
             if (y > 0) add(i - w); if (y < h - 1) add(i + w);
           }
+          // Remove the white matte from bright antialiased edge pixels too.
+          // Only the single-pixel boundary of the known backdrop is softened.
+          const backdrop = new Uint8Array(w * h);
+          for (let j = 0; j < tail; j++) backdrop[queue[j]] = 1;
+          for (let i = 0; i < w * h; i++) {
+            if (backdrop[i]) continue;
+            const x = i % w, y = Math.floor(i / w), p = i * 4;
+            const lo = Math.min(pixels[p],pixels[p+1],pixels[p+2]);
+            const hi = Math.max(pixels[p],pixels[p+1],pixels[p+2]);
+            if (lo < 180 || hi - lo > 25) continue;
+            if (!((x > 0 && backdrop[i-1]) || (x < w-1 && backdrop[i+1]) ||
+                  (y > 0 && backdrop[i-w]) || (y < h-1 && backdrop[i+w]))) continue;
+            const alpha = (255 - lo) / 195;
+            pixels[p+3] = Math.round(255 * alpha);
+            if (alpha > 0) for (let c = 0; c < 3; c++) {
+              pixels[p+c] = Math.max(0,Math.min(255,(pixels[p+c] - 255 * (1-alpha)) / alpha));
+            }
+          }
           context.putImageData(frame, 0, 0);
           resolve(canvas);
         } catch (error) { reject(error); }
