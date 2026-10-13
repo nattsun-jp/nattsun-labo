@@ -1,4 +1,4 @@
-/* PixAI originals stay unchanged. Remove only the connected white backdrop when drawing. */
+/* Keep the PixAI originals and white clothing intact; mask the backdrop at render time. */
 window.ReiAssets = (() => {
   const base = new URL('.', document.currentScript.src);
   const cache = new Map();
@@ -26,6 +26,15 @@ window.ReiAssets = (() => {
           };
           for (let x = 0; x < w; x++) { add(x); add((h - 1) * w + x); }
           for (let y = 0; y < h; y++) { add(y * w); add(y * w + w - 1); }
+          // White pockets enclosed by hair, arms and legs are also background.
+          // Asset-specific seeds avoid removing the blouse, cuffs, skin or eye highlights.
+          const pockets = {
+            'rei-uniform-smile.png': [[363,155],[363,197],[360,234],[374,251],[368,287],[376,305],[571,195],[571,235],[580,276],[580,305],[560,547],[475,1193]],
+            'rei-uniform-shy.png': [[355,254],[351,317],[335,385],[329,449],[602,267],[599,283],[608,320],[628,843],[489,1315]]
+          };
+          for (const [x,y] of pockets[name] || []) {
+            add(Math.round(y * h / 1584) * w + Math.round(x * w / 944));
+          }
           while (head < tail) {
             const i = queue[head++], x = i % w, y = Math.floor(i / w);
             pixels[i * 4 + 3] = 0;
