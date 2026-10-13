@@ -38,7 +38,7 @@ window.LaboFight=(()=>{
   if(changed&&dx!==0&&s.phase==='fight'){const tap=f.tap;if(tap&&tap.dx===dx&&tap.dy===dy&&s.frame-tap.t<=16&&s.frame>tap.t&&!locked(f)&&!f.action&&!(f.y<0&&f.airDashed)){f.dash=14;f.dashDx=dx;if(f.y<0){f.airDashed=true;f.airVx=dx*7.5;}emit(s,'move','ダッシュ',side);f.tap=null;}else f.tap={dx,dy,t:s.frame};}
   f.dir=[dx,dy];const value=(dy<0?'↑':dy>0?'↓':'')+(dx<0?'←':dx>0?'→':'');if(value&&value!==f.lastDir){f.motions.push({dx,dy,t:s.frame,face:f.face});f.motions=f.motions.filter(m=>s.frame-m.t<75).slice(-14);f.history.push({text:value,t:s.frame});if(f.history.length>18)f.history.shift();}f.lastDir=value;
  }
- function press(s,side,button){if(!['P','K','S'].includes(button)||s.phase==='match')return;const f=s.f[side];f.history.push({text:button,t:s.frame});if(f.history.length>18)f.history.shift();f.queue.push({button,t:s.frame});f.queue=f.queue.slice(-3);}
+ function press(s,side,button){if(!['P','K','S'].includes(button)||s.phase==='match')return;const f=s.f[side];f.history.push({text:button,t:s.frame});if(f.history.length>18)f.history.shift();f.queue.push({button,t:s.frame,dir:[...f.dir]});f.queue=f.queue.slice(-3);}
  function motion(f,seq,time){const list=f.motions.filter(m=>time-m.t<=65);let cursor=seq.length-1,face=f.face;for(let i=list.length-1;i>=0&&cursor>=0;i--){const m=list[i],symbol=m.dy>0?'D':m.dx*face>0?'F':m.dx*face<0?'B':null;if(symbol===seq[cursor])cursor--;else if(symbol&&symbol!==seq[cursor+1])return false;}return cursor<0;}
  function choose(s,side,button){const f=s.f[side],e=s.f[1-side],skills=chars[f.id].skills;let index=-1;
   if(button==='S'){if(motion(f,['F','D','B'],s.frame))index=2;else if(motion(f,['B','D','F'],s.frame))index=3;else if(f.dir[0]!==0&&f.dir[1]===0){f.motions=[];const air=f.y<0;return {name:air?'空中投げ':'投げ',type:'throw',kind:'throw',start:4,end:32,hits:[6],damage:air?24:16,range:air?90:80,air,throwDx:f.dir[0],swap:f.dir[0]*f.face<0,unblockable:true,frame:0,hit:[],originFace:f.face};}else{emit(s,'hint','投げは左右＋S / 超必殺はコマンド＋S',side);return null;}}
@@ -90,7 +90,7 @@ window.LaboFight=(()=>{
    }else f.dash=0;
    f.dash=Math.max(0,f.dash-1);f.previousY=f.dir[1];f.vy+=.55;f.y=Math.min(0,f.y+f.vy);if(f.y===0){f.vy=0;f.airVx=0;f.airDashed=false;}
    f.queue=f.queue.filter(q=>s.frame-q.t<40);const cancellable=f.action?.type==='basic'&&f.action.frame>=12&&f.chain<3;
-   if(f.queue.length&&!locked(f)&&(!f.action||cancellable)){const q=f.queue.shift();startMove(s,side,choose(s,side,q.button));}
+   if(f.queue.length&&!locked(f)&&(!f.action||cancellable)){const q=f.queue.shift(),currentDir=f.dir;if(q.dir)f.dir=q.dir;const move=choose(s,side,q.button);f.dir=currentDir;startMove(s,side,move);}
    const m=f.action;if(m){m.frame++;if(m.speed&&m.frame>=m.start&&m.frame<m.end-8)f.x=clamp(f.x+m.originFace*m.speed,65,895);
     if(m.kind==='orbit'&&m.frame>=m.start&&m.frame<60){f.x=clamp(e.x+Math.cos(m.frame*.3)*85,65,895);f.y=-Math.abs(Math.sin(m.frame*.3))*45;}
     if(m.hits.includes(m.frame)&&!m.hit.includes(m.frame)){m.hit.push(m.frame);if(m.kind==='bomb'){s.projectiles.push({x:f.x+f.face*35,y:440+f.y-80,v:f.face*7,side,life:90,m:{...m,range:75}});}else hit(s,side,m,m.kind==='impact'&&m.connected?960:m.range);}

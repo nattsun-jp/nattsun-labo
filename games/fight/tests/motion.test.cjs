@@ -9,4 +9,5 @@ for(let id=0;id<3;id++){
   f.action=null;
  }
 }
+{const s=E.create('training');s.phase='fight';E.direction(s,0,0,1);E.press(s,0,'K');E.direction(s,0,0,0);E.step(s);assert(s.f[0].action.low,'quick crouch+attack preserves direction at button press');s.f[0].action.frame=8;assert.equal(R.motionFrame(s.f[0]),5);}
 console.log('Motion: four-frame walking, idle/wall stop, dedicated crouch P/K and full body proportions passed');
