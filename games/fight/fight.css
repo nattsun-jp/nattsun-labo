@@ -31,3 +31,20 @@ body.expanded{position:fixed;inset:0;overflow:hidden;overscroll-behavior:none}.p
 
 /* Defence stays inside each fighter HUD; online lobby is the primary entry. */
 .guard-row{display:flex;align-items:center;gap:7px;margin-top:6px;font-size:9px;color:#f2d8a5}.guard-row>span{min-width:62px;white-space:nowrap}.guard-meter{height:5px;flex:1;overflow:hidden;background:#0b1022;border-radius:4px}.guard-meter i{display:block;height:100%;width:100%;background:#efd190;transition:width .08s linear}.guard-row.broken{color:#ff91af}.guard-row.broken .guard-meter i{background:#ff91af}.health-number{font-size:9px;opacity:.8;margin-left:auto}.online-entry{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;border:2px solid #76d7e5;border-radius:17px;background:linear-gradient(135deg,#243c52,#29243f);padding:24px;margin:0 0 22px}.online-entry h2{margin-bottom:8px}.online-entry p{font-size:12px;line-height:1.7;color:#d4e9ec}.online-entry>.primary{font-size:16px;padding:18px 24px;min-height:60px}.online-entry details{grid-column:1/-1;border-top:1px solid #657185;padding-top:10px;font-size:11px;color:#aebace}.online-entry summary{cursor:pointer;padding:5px}.online-entry details button{font-size:12px}.play-shell.expanded .guard-row{margin-top:3px;font-size:8px;gap:5px}.play-shell.expanded .guard-row>span{min-width:56px}.play-shell.expanded .guard-meter{height:4px}.play-shell.expanded .training-hud{top:max(105px,calc(env(safe-area-inset-top) + 95px))}.play-shell.expanded.compact .training-hud{top:max(77px,calc(env(safe-area-inset-top) + 71px))}@media(max-height:520px){.play-shell.expanded .training-hud{top:max(77px,calc(env(safe-area-inset-top) + 71px))}}@media(max-width:650px){.online-entry{grid-template-columns:1fr;padding:18px}.online-entry>.primary{width:100%}.health-number{font-size:8px}}
+
+/* Staggered P/K/S for both phone and tablet; P/S retain the lower baseline. */
+.attack-buttons{--attack-size:72px;--attack-gap:10px;position:relative;display:block;gap:0;width:calc(var(--attack-size)*3 + var(--attack-gap)*2);height:calc(var(--attack-size)*1.75);flex-shrink:0}
+.attack-buttons button{position:absolute;bottom:0;width:var(--attack-size);height:var(--attack-size)}
+.attack-buttons [data-attack="P"]{left:0}.attack-buttons [data-attack="K"]{left:calc(var(--attack-size) + var(--attack-gap));bottom:calc(var(--attack-size)*.75)}.attack-buttons [data-attack="S"]{right:0}
+.play-shell.expanded .attack-buttons{--attack-size:68px;--attack-gap:10px}
+.play-shell.expanded.compact .attack-buttons{--attack-size:64px;--attack-gap:6px}
+/* Only handheld phones get the low corner controls; tablets retain their D-pad/tools. */
+.play-shell.expanded.phone-layout .touch-controls{left:max(8px,env(safe-area-inset-left));right:max(8px,env(safe-area-inset-right));bottom:8px;gap:8px}
+.play-shell.expanded.phone-layout .dpad{grid-template-columns:repeat(3,44px);grid-template-rows:repeat(3,34px);gap:3px}
+.play-shell.expanded.phone-layout .dpad button{font-size:21px;opacity:.5}
+.play-shell.expanded.phone-layout .attack-buttons{--attack-size:60px;--attack-gap:5px}
+.play-shell.expanded.phone-layout .attack-buttons button{width:60px;height:60px;font-size:24px;opacity:.56}
+.play-shell.expanded.phone-layout .attack-buttons small{font-size:9px}
+.play-shell.expanded.phone-layout .touch-controls button.pressed{opacity:.96}
+@media(max-width:650px){.play-shell:not(.expanded) .attack-buttons{--attack-size:57px;--attack-gap:6px}}
+@media(max-height:520px){.play-shell.expanded .attack-buttons{--attack-size:64px;--attack-gap:6px}.play-shell.expanded.phone-layout .attack-buttons{--attack-size:60px;--attack-gap:5px}}
