@@ -3,20 +3,23 @@ window.LaboFight=(()=>{
  'use strict';
  const chars=[
   {id:'rei',name:'月城麗',color:'#97a9e3',label:'月光の連撃',skills:[
-   {name:'月光拳',cost:30,start:7,end:40,hits:[8,14,20,26,32],damage:5,range:114,kind:'rush'},
+   {name:'月光拳',cost:30,start:10,end:36,hits:[12],damage:24,range:0,kind:'fist',projectile:true},
    {name:'月光旋風脚',cost:30,start:6,end:42,hits:[8,18,28],damage:8,range:110,kind:'spin',speed:6},
    {name:'月光波紋疾走',cost:100,start:12,end:76,hits:[16,25,34,43,52],damage:10,range:150,kind:'orbit'},
-   {name:'月光韻波句徒',cost:100,start:14,end:72,hits:[18,29,40,51],damage:12,range:175,kind:'impact'}]},
+   {name:'月光韻波句徒',cost:100,start:14,end:72,hits:[18,29,40,51],damage:12,range:175,kind:'impact'},
+   {name:'月光狩り',cost:30,start:9,end:38,hits:[11],damage:22,range:0,kind:'ruler',projectile:true,antiAir:true}]},
   {id:'nuts',name:'ナッツんjp',color:'#f0c25c',label:'落花生の底力',skills:[
    {name:'落花生爆弾',cost:30,start:14,end:42,hits:[16],damage:22,range:0,kind:'bomb'},
    {name:'落花生回転',cost:30,start:6,end:45,hits:[9,21],damage:12,range:102,kind:'roll',speed:6.5},
    {name:'落花生の中からこんにちは。',cost:100,start:27,end:70,hits:[30],damage:48,range:195,kind:'giant'},
-   {name:'落花生だって負けない！',cost:100,start:5,end:46,hits:[],damage:0,range:0,kind:'power'}]},
+   {name:'落花生だって負けない！',cost:100,start:5,end:46,hits:[],damage:0,range:0,kind:'power'},
+   {name:'落花生ロケット',cost:30,start:10,end:40,hits:[12],damage:22,range:0,kind:'bomb',projectile:true,antiAir:true}]},
   {id:'chappy',name:'チャッピー',color:'#63d4d0',label:'電気と叡智の使い手',skills:[
    {name:'プラグイン',cost:30,start:12,end:39,hits:[15],damage:24,range:230,kind:'cable'},
    {name:'電気ビリビリ',cost:30,start:10,end:42,hits:[14],damage:27,range:105,kind:'shock'},
    {name:'データ収集',cost:100,start:38,end:78,hits:[42],damage:50,range:145,kind:'data',unblockable:true},
-   {name:'叡智の集合体',cost:100,start:5,end:46,hits:[],damage:0,range:0,kind:'reach'}]}
+   {name:'叡智の集合体',cost:100,start:5,end:46,hits:[],damage:0,range:0,kind:'reach'},
+   {name:'撃ち落とします！',cost:30,start:8,end:37,hits:[10],damage:22,range:0,kind:'cd',projectile:true,antiAir:true}]}
  ];
  // Limb anchors in world pixels, aligned with each character's drawn fist / toe.
  const combat=[
@@ -40,39 +43,46 @@ window.LaboFight=(()=>{
  }
  function press(s,side,button){if(!['P','K','S'].includes(button)||s.phase==='match')return;const f=s.f[side];f.history.push({text:button,t:s.frame});if(f.history.length>18)f.history.shift();f.queue.push({button,t:s.frame,dir:[...f.dir]});f.queue=f.queue.slice(-3);}
  function motion(f,seq,time){const list=f.motions.filter(m=>time-m.t<=65);let cursor=seq.length-1,face=f.face;for(let i=list.length-1;i>=0&&cursor>=0;i--){const m=list[i],symbol=m.dy>0?'D':m.dx*face>0?'F':m.dx*face<0?'B':null;if(symbol===seq[cursor])cursor--;else if(symbol&&symbol!==seq[cursor+1])return false;}return cursor<0;}
+ function dragonMotion(f,time){const list=f.motions.filter(m=>time-m.t<=65),face=f.face;let cursor=2;const seq=['F','D','DF'];for(let i=list.length-1;i>=0&&cursor>=0;i--){const m=list[i],symbol=m.dx*face>0&&m.dy>0?'DF':m.dy>0&&m.dx===0?'D':m.dx*face>0&&m.dy===0?'F':'other';if(symbol===seq[cursor])cursor--;else if(symbol!==seq[cursor+1])return false;}return cursor<0;}
+ const regular=m=>m.type==='basic'||m.type==='skill'&&m.cost<100;
+ function spawnProjectile(s,side,m){const f=s.f[side],face=m.originFace,air=!!m.antiAir;const radius=air?48:m.kind==='fist'?28:20;s.projectiles.push({x:f.x+face*(combat[f.id].punch.x-16),y:440+f.y+combat[f.id].punch.y,vx:face*(air?7:m.kind==='fist'?9:7),vy:air?-7:0,side,life:100,rx:radius*f.reach,ry:(air?44:m.kind==='fist'?24:20)*f.reach,airOnly:air,m:{...m,hit:[],gained:0}});}
  function choose(s,side,button){const f=s.f[side],e=s.f[1-side],skills=chars[f.id].skills;let index=-1;
   if(button==='S'){if(motion(f,['F','D','B'],s.frame))index=2;else if(motion(f,['B','D','F'],s.frame))index=3;else if(f.dir[0]!==0&&f.dir[1]===0){f.motions=[];const air=f.y<0;return {name:air?'空中投げ':'投げ',type:'throw',kind:'throw',start:4,end:32,hits:[6],damage:air?24:16,range:air?90:80,air,throwDx:f.dir[0],swap:f.dir[0]*f.face<0,unblockable:true,frame:0,hit:[],originFace:f.face};}else{emit(s,'hint','投げは左右＋S / 超必殺はコマンド＋S',side);return null;}}
+  else if(button==='P'&&dragonMotion(f,s.frame))index=4;
   else if(button==='P'&&motion(f,['D','F'],s.frame))index=0;
   else if(button==='K'&&motion(f,['D','B'],s.frame))index=1;
-  if(index>=0){const m=skills[index];if(f.meter<m.cost){emit(s,'hint',index>=2?'ゲージMAXで発動できます':'スキルゲージが足りません',side);return null;}f.meter-=m.cost;f.motions=[];return {...m,type:'skill',index,frame:0,hit:[],originFace:f.face,connected:false};}
+  if(index>=0){const m=skills[index];if(f.meter<m.cost){emit(s,'hint',m.cost>=100?'ゲージMAXで発動できます':'スキルゲージが足りません',side);return null;}f.meter-=m.cost;f.motions=[];return {...m,type:'skill',index,frame:0,hit:[],originFace:f.face,connected:false};}
   const chain=s.frame-f.lastBasic<48?f.chain%3+1:1;f.chain=chain;f.lastBasic=s.frame;const kick=button==='K';const low=f.dir[1]>0&&f.y===0,high=f.y<0;
   const geometry=basicGeometry(f.id,kick,low,high,chain);
   return {...geometry,name:(low?'しゃがみ':high?'ジャンプ':'')+(kick?'キック':'パンチ')+(chain>1?' '+chain:' '),type:'basic',kind:kick?'kick':'punch',start:chain===3?8:5,end:chain===3?30:21,hits:[chain===3?10:7],damage:(kick?9:6)+(chain-1)*2,range:geometry.tipX+geometry.rx,low,high,frame:0,hit:[],originFace:f.face};
  }
- function startMove(s,side,m){const f=s.f[side];if(!m)return;f.action=m;f.dash=0;f.lastMove=m.name;emit(s,m.type==='skill'&&m.index>=2?'super':'move',m.name,side);if(m.kind==='power')f.power=1.5;if(m.kind==='reach')f.reach=1.6;
-  if(s.mode==='training'&&side===0){const target={special1:0,special2:1,super1:2,super2:3}[s.drill];if(target===m.index&&m.type==='skill')s.complete=true;}
+ function startMove(s,side,m){const f=s.f[side];if(!m)return;f.action=m;f.dash=0;f.lastMove=m.name;emit(s,m.type==='skill'&&m.cost>=100?'super':'move',m.name,side);if(m.kind==='power')f.power=1.5;if(m.kind==='reach')f.reach=1.6;
+  if(s.mode==='training'&&side===0){const target={special1:0,special2:1,super1:2,super2:3,antiAir:4}[s.drill];if(target===m.index&&m.type==='skill')s.complete=true;}
  }
  function canGuard(f,from,m){return !m.unblockable&&f.y===0&&!f.action&&!locked(f)&&f.dir[0]*(from.x>f.x?-1:1)>0&&(m.low?f.dir[1]>0:m.high?f.dir[1]<=0:true);}
- function hit(s,side,m,range=m.range){const f=s.f[side],e=s.f[1-side];if(e.hp<=0||e.down>0)return false;const dx=e.x-f.x,omni=['shock','orbit','data'].includes(m.kind),reach=m.type==='basic'||m.index<2?f.reach:1;let contact;
-  if(m.type==='basic'){const box=attackbox(f,m),body=hurtbox(e);if(!overlaps(box,body))return false;contact={x:clamp(box.x,body.left,body.right),y:clamp(box.y,body.top,body.bottom)};}
+ function hit(s,side,m,range=m.range,projectile=null){const f=s.f[side],e=s.f[1-side];if(e.hp<=0||e.down>0)return false;const dx=e.x-f.x,omni=['shock','orbit','data'].includes(m.kind),reach=regular(m)?f.reach:1;let contact,from=projectile?{x:e.x-Math.sign(projectile.vx||projectile.v||m.originFace)*100}:f;
+  if(projectile){if(projectile.airOnly&&e.y===0)return false;const body=hurtbox(e);contact={x:clamp(projectile.x,body.left,body.right),y:clamp(projectile.y,body.top,body.bottom)};}
+  else if(m.type==='basic'){const box=attackbox(f,m),body=hurtbox(e);if(!overlaps(box,body))return false;contact={x:clamp(box.x,body.left,body.right),y:clamp(box.y,body.top,body.bottom)};}
   else if(m.kind==='throw'){if(Math.abs(dx)>range||m.air!==(f.y<0)||m.air!==(e.y<0)||Math.abs(f.y-e.y)>(m.air?75:10)||locked(e)||e.action?.type==='throw')return false;}
   else if(Math.abs(dx)>range*reach||(!omni&&dx*m.originFace<-15)||Math.abs(f.y-e.y)>100)return false;
-  const continuing=e.stun>0&&s.frame<=f.comboUntil,guard=canGuard(e,f,m),damage=guard?Math.max(1,Math.round(m.damage*.18)):Math.round(m.damage*(m.type==='basic'||m.index<2?f.power:1));
+  const continuing=e.stun>0&&s.frame<=f.comboUntil,guard=canGuard(e,from,m),damage=guard?Math.max(1,Math.round(m.damage*.18)):Math.round(m.damage*(regular(m)?f.power:1));
   e.hp=clamp(e.hp-damage,0,100);e.damageTaken+=damage;e.stun=guard?7:m.type==='basic'?20:22;e.action=null;e.queue=[];e.dash=0;e.wakeup=0;
   if(!guard){f.combo=continuing?f.combo+1:1;f.comboDamage=continuing?f.comboDamage+damage:damage;f.comboUntil=s.frame+65;
    if(m.kind==='throw'){const oldX=f.x,enemyX=e.x,sign=Math.sign(dx||f.face);if(m.swap){f.x=clamp(enemyX,65,895);e.x=clamp(oldX-sign*42,65,895);}else e.x=clamp(enemyX+sign*110,65,895);e.down=30;e.stun=0;e.vy=m.air?6:0;e.airVx=0;f.face=e.x>=f.x?1:-1;e.face=-f.face;m.originFace=f.face;contact={x:e.x,y:440+e.y-45};}
-   else e.x=clamp(e.x+Math.sign(dx||f.face)*(m.type==='basic'?5:12),65,895);
+   else e.x=clamp(e.x+Math.sign(projectile?(projectile.vx||projectile.v):dx||f.face)*(m.type==='basic'?5:12),65,895);
   }
   if(m.kind==='impact'&&!m.connected&&!guard){e.x=f.face>0?885:75;m.connected=true;}
   if(m.kind==='data')f.slow=.65;
-  if(m.type==='basic')f.meter=clamp(f.meter+(guard?3:12),0,100);else if(m.index<2){const gain=Math.min(6,18-(m.gained||0));m.gained=(m.gained||0)+gain;f.meter=clamp(f.meter+gain,0,100);}
+  if(m.type==='basic')f.meter=clamp(f.meter+(guard?3:12),0,100);else if(m.type==='skill'&&m.cost<100){const gain=Math.min(6,18-(m.gained||0));m.gained=(m.gained||0)+gain;f.meter=clamp(f.meter+gain,0,100);}
   s.effects.push({x:contact?.x??e.x,y:contact?.y??440+e.y-132,kind:guard?'guard':m.kind,life:20,side});emit(s,guard?'guard':'hit',guard?'GUARD':damage+' DAMAGE',1-side);
   if(s.mode==='training'&&side===0){if(s.drill==='combo'&&f.combo>=3)s.complete=true;if(s.drill==='throw'&&m.kind==='throw')s.complete=true;}
   return true;
  }
- function cpu(s){const f=s.f[1],e=s.f[0];if(s.mode==='training'&&s.dummy!=='cpu'){direction(s,1,s.dummy==='guard'?-f.face:0,0);return;}
+ function cpu(s){const f=s.f[1],e=s.f[0];if(s.mode==='training'&&s.dummy!=='cpu'){direction(s,1,s.dummy==='guard'?-f.face:0,s.dummy==='jump'&&f.y===0?f.dir[1]<0?0:-1:0);return;}
   if(s.frame<f.aiAt)return;f.aiAt=s.frame+12+Math.floor(random(s)*12);const dist=Math.abs(e.x-f.x);if(e.action&&random(s)<.32){direction(s,1,-f.face,e.action.low?1:0);return;}
   direction(s,1,dist>105?f.face:0,0);if(f.action||locked(f))return;
+  if(e.y<0&&dist<450&&f.meter>=30&&random(s)<.65){f.meter-=30;startMove(s,1,{...chars[f.id].skills[4],type:'skill',index:4,frame:0,hit:[],originFace:f.face});return;}
+  if(f.id===0&&dist>170&&dist<620&&f.meter>=30&&random(s)<.2){f.meter-=30;startMove(s,1,{...chars[f.id].skills[0],type:'skill',index:0,frame:0,hit:[],originFace:f.face});return;}
   if(dist<180&&f.meter>=100&&random(s)<.12){const i=Math.floor(random(s)*2)+2;f.meter-=100;startMove(s,1,{...chars[f.id].skills[i],type:'skill',index:i,frame:0,hit:[],originFace:f.face});return;}
   if(dist<170&&f.meter>=30&&random(s)<.2){const i=random(s)<.5?0:1;f.meter-=30;startMove(s,1,{...chars[f.id].skills[i],type:'skill',index:i,frame:0,hit:[],originFace:f.face});return;}
   if(dist<65&&f.y===0&&e.y===0&&random(s)<.15){direction(s,1,random(s)<.5?f.face:-f.face,0);press(s,1,'S');return;}
@@ -93,14 +103,14 @@ window.LaboFight=(()=>{
    if(f.queue.length&&!locked(f)&&(!f.action||cancellable)){const q=f.queue.shift(),currentDir=f.dir;if(q.dir)f.dir=q.dir;const move=choose(s,side,q.button);f.dir=currentDir;startMove(s,side,move);}
    const m=f.action;if(m){m.frame++;if(m.speed&&m.frame>=m.start&&m.frame<m.end-8)f.x=clamp(f.x+m.originFace*m.speed,65,895);
     if(m.kind==='orbit'&&m.frame>=m.start&&m.frame<60){f.x=clamp(e.x+Math.cos(m.frame*.3)*85,65,895);f.y=-Math.abs(Math.sin(m.frame*.3))*45;}
-    if(m.hits.includes(m.frame)&&!m.hit.includes(m.frame)){m.hit.push(m.frame);if(m.kind==='bomb'){s.projectiles.push({x:f.x+f.face*35,y:440+f.y-80,v:f.face*7,side,life:90,m:{...m,range:75}});}else hit(s,side,m,m.kind==='impact'&&m.connected?960:m.range);}
+    if(m.hits.includes(m.frame)&&!m.hit.includes(m.frame)){m.hit.push(m.frame);if(m.projectile||m.kind==='bomb'){spawnProjectile(s,side,m);}else hit(s,side,m,m.kind==='impact'&&m.connected?960:m.range);}
     if(m.frame>=m.end)f.action=null;
    }
   }
   // Body collision keeps fighters apart on the ground, while jumps allow cross-ups.
   const a=s.f[0],b=s.f[1];if(Math.abs(a.x-b.x)<50&&a.y===0&&b.y===0&&!a.action?.kind?.includes('orbit')&&!b.action?.kind?.includes('orbit')){const push=(50-Math.abs(a.x-b.x))/2,sign=a.x<=b.x?1:-1;a.x=clamp(a.x-sign*push,65,895);b.x=clamp(b.x+sign*push,65,895);if(Math.abs(a.x-b.x)<50){if(a.x<=65||a.x>=895)b.x=clamp(a.x+sign*50,65,895);else a.x=clamp(b.x-sign*50,65,895);}}
-  for(const p of s.projectiles){p.x+=p.v;p.life--;const enemy=s.f[1-p.side];if(Math.abs(enemy.x-p.x)<42&&Math.abs(440+enemy.y-65-p.y)<75){const owner=s.f[p.side],saved=owner.x;owner.x=p.x-p.v;hit(s,p.side,p.m,75);owner.x=saved;p.life=0;}if(p.life<=0)s.effects.push({x:p.x,y:p.y,kind:'bomb',life:24,side:p.side});}s.projectiles=s.projectiles.filter(p=>p.life>0&&p.x>0&&p.x<960);
+  for(const p of s.projectiles){const oldX=p.x,oldY=p.y;p.x+=p.vx??p.v;p.y+=p.vy||0;p.life--;const enemy=s.f[1-p.side],body=hurtbox(enemy),rx=p.rx||20,ry=p.ry||20,box={left:Math.min(oldX,p.x)-rx,right:Math.max(oldX,p.x)+rx,top:Math.min(oldY,p.y)-ry,bottom:Math.max(oldY,p.y)+ry};if((!p.airOnly||enemy.y<0)&&overlaps(box,body)&&hit(s,p.side,p.m,p.m.range,p))p.life=0;if(p.life<=0)s.effects.push({x:p.x,y:p.y,kind:p.m.kind,life:24,side:p.side});}s.projectiles=s.projectiles.filter(p=>p.life>0&&p.x>-70&&p.x<1030&&p.y>-80&&p.y<520);
   if(s.mode!=='training'&&(s.time<=0||s.f.some(f=>f.hp<=0)))endRound(s);
  }
- return {combat,basicGeometry,hurtbox,attackbox,chars,create,direction,press,step,choose,startMove,canGuard,hit,resetRound};
+ return {dragonMotion,spawnProjectile,combat,basicGeometry,hurtbox,attackbox,chars,create,direction,press,step,choose,startMove,canGuard,hit,resetRound};
 })();
