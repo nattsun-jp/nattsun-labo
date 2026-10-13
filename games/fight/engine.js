@@ -41,7 +41,7 @@ window.LaboFight=(()=>{
   if(changed&&dx!==0&&s.phase==='fight'){const tap=f.tap;if(tap&&tap.dx===dx&&tap.dy===dy&&s.frame-tap.t<=16&&s.frame>tap.t&&!locked(f)&&!f.action&&!(f.y<0&&f.airDashed)){f.dash=14;f.dashDx=dx;if(f.y<0){f.airDashed=true;f.airVx=dx*7.5;}emit(s,'move','ダッシュ',side);f.tap=null;}else f.tap={dx,dy,t:s.frame};}
   f.dir=[dx,dy];const value=(dy<0?'↑':dy>0?'↓':'')+(dx<0?'←':dx>0?'→':'');if(value&&value!==f.lastDir){f.motions.push({dx,dy,t:s.frame,face:f.face});f.motions=f.motions.filter(m=>s.frame-m.t<75).slice(-14);f.history.push({text:value,t:s.frame});if(f.history.length>18)f.history.shift();}f.lastDir=value;
  }
- function press(s,side,button){if(!['P','K','S'].includes(button)||s.phase==='match')return;const f=s.f[side];f.history.push({text:button,t:s.frame});if(f.history.length>18)f.history.shift();f.queue.push({button,t:s.frame,dir:[...f.dir]});f.queue=f.queue.slice(-3);}
+ function press(s,side,button){if(!['P','K','S'].includes(button)||s.phase==='match')return;const f=s.f[side];f.history.push({text:button,t:s.frame});if(f.history.length>18)f.history.shift();f.queue.push({button,t:s.frame,dir:[...f.dir],motions:f.motions.map(m=>({...m}))});f.queue=f.queue.slice(-3);}
  function motion(f,seq,time){const list=f.motions.filter(m=>time-m.t<=65);let cursor=seq.length-1,face=f.face;for(let i=list.length-1;i>=0&&cursor>=0;i--){const m=list[i],symbol=m.dy>0?'D':m.dx*face>0?'F':m.dx*face<0?'B':null;if(symbol===seq[cursor])cursor--;else if(symbol&&symbol!==seq[cursor+1])return false;}return cursor<0;}
  function dragonMotion(f,time){const list=f.motions.filter(m=>time-m.t<=65),face=f.face;let cursor=2;const seq=['F','D','DF'];for(let i=list.length-1;i>=0&&cursor>=0;i--){const m=list[i],symbol=m.dx*face>0&&m.dy>0?'DF':m.dy>0&&m.dx===0?'D':m.dx*face>0&&m.dy===0?'F':'other';if(symbol===seq[cursor])cursor--;else if(symbol!==seq[cursor+1])return false;}return cursor<0;}
  const regular=m=>m.type==='basic'||m.type==='skill'&&m.cost<100;
@@ -100,7 +100,7 @@ window.LaboFight=(()=>{
    }else f.dash=0;
    f.dash=Math.max(0,f.dash-1);f.previousY=f.dir[1];f.vy+=.55;f.y=Math.min(0,f.y+f.vy);if(f.y===0){f.vy=0;f.airVx=0;f.airDashed=false;}
    f.queue=f.queue.filter(q=>s.frame-q.t<40);const cancellable=f.action?.type==='basic'&&f.action.frame>=12&&f.chain<3;
-   if(f.queue.length&&!locked(f)&&(!f.action||cancellable)){const q=f.queue.shift(),currentDir=f.dir;if(q.dir)f.dir=q.dir;const move=choose(s,side,q.button);f.dir=currentDir;startMove(s,side,move);}
+   if(f.queue.length&&!locked(f)&&(!f.action||cancellable)){const q=f.queue.shift(),currentDir=f.dir,currentMotions=f.motions;if(q.dir)f.dir=q.dir;if(q.motions)f.motions=q.motions;const move=choose(s,side,q.button);f.dir=currentDir;f.motions=move?.type==='skill'||move?.type==='throw'?currentMotions.filter(m=>m.t>q.t):currentMotions;startMove(s,side,move);}
    const m=f.action;if(m){m.frame++;if(m.speed&&m.frame>=m.start&&m.frame<m.end-8)f.x=clamp(f.x+m.originFace*m.speed,65,895);
     if(m.kind==='orbit'&&m.frame>=m.start&&m.frame<60){f.x=clamp(e.x+Math.cos(m.frame*.3)*85,65,895);f.y=-Math.abs(Math.sin(m.frame*.3))*45;}
     if(m.hits.includes(m.frame)&&!m.hit.includes(m.frame)){m.hit.push(m.frame);if(m.projectile||m.kind==='bomb'){spawnProjectile(s,side,m);}else hit(s,side,m,m.kind==='impact'&&m.connected?960:m.range);}
