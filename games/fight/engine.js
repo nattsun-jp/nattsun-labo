@@ -25,12 +25,12 @@ window.LaboFight=(()=>{
   {height:266,crouch:185,width:30,speed:2.65,jumpSpeed:5.1,punch:{x:132,y:-204,rx:18,ry:20},kick:{x:200,y:-181,rx:22,ry:22}}
  ];
  function basicGeometry(id,kick,low,high,chain=1){const limb=combat[id][kick?'kick':'punch'],sx=(low||high)?0.62:1,sy=low?0.35:high?0.65:1;return {tipX:limb.x*sx+(chain-1)*4,tipY:limb.y*sy,rx:limb.rx,ry:limb.ry,sx,sy};}
- function hurtbox(f){const p=combat[f.id],m=f.action,crouching=f.y===0&&(f.dir[1]>0||m?.low),height=crouching?(m?.type==='basic'&&m.frame>=m.start?p.height*.35:p.crouch):p.height;return {left:f.x-p.width,right:f.x+p.width,top:440+f.y-height,bottom:440+f.y};}
+ function hurtbox(f){const p=combat[f.id],m=f.action,crouching=f.y===0&&(f.dir[1]>0||m?.low),height=crouching?p.crouch:p.height;return {left:f.x-p.width,right:f.x+p.width,top:440+f.y-height,bottom:440+f.y};}
  function attackbox(f,m){if(m?.type!=='basic')return null;const reach=f.reach||1,tip=m.tipX*reach,back=Math.max(16,tip*.35),a=f.x+m.originFace*back,b=f.x+m.originFace*(tip+m.rx),cy=440+f.y+m.tipY;return {left:Math.min(a,b),right:Math.max(a,b),top:cy-m.ry,bottom:cy+m.ry,x:f.x+m.originFace*tip,y:cy};}
  const overlaps=(a,b)=>a.left<=b.right&&a.right>=b.left&&a.top<=b.bottom&&a.bottom>=b.top;
  const locked=f=>f.stun>0||f.down>0||f.wakeup>0;
  const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
- function fighter(id,x){return {id,x,y:0,vy:0,hp:100,pink:100,meter:0,wins:0,face:x<480?1:-1,dir:[0,0],previousY:0,airVx:0,dash:0,dashDx:0,airDashed:false,tap:null,down:0,wakeup:0,stun:0,action:null,queue:[],motions:[],history:[],lastDir:'',chain:0,lastBasic:-100,power:1,reach:1,slow:1,combo:0,comboDamage:0,comboUntil:0,damageTaken:0,lastMove:'',aiAt:0,guardTicks:0};}
+ function fighter(id,x){return {id,x,y:0,vy:0,hp:100,pink:100,meter:0,wins:0,face:x<480?1:-1,dir:[0,0],previousY:0,airVx:0,walkPhase:0,walking:false,dash:0,dashDx:0,airDashed:false,tap:null,down:0,wakeup:0,stun:0,action:null,queue:[],motions:[],history:[],lastDir:'',chain:0,lastBasic:-100,power:1,reach:1,slow:1,combo:0,comboDamage:0,comboUntil:0,damageTaken:0,lastMove:'',aiAt:0,guardTicks:0};}
  function create(mode='cpu',ids=[0,1]){return {mode,ids:[...ids],f:[fighter(ids[0],315),fighter(ids[1],645)],frame:0,time:99,phase:'intro',phaseTicks:100,round:1,winner:null,effects:[],projectiles:[],events:[],dummy:'stand',infinite:true,drill:'free',complete:false,rng:192731,inputSeq:0,showHitboxes:false};}
  function random(s){s.rng=(Math.imul(s.rng,1664525)+1013904223)>>>0;return s.rng/4294967296;}
  function emit(s,type,text,side){s.events.push({type,text,side,frame:s.frame});if(s.events.length>12)s.events.shift();}
@@ -84,9 +84,9 @@ window.LaboFight=(()=>{
   if(s.mode!=='friend')cpu(s);if(s.mode!=='training')s.time=Math.max(0,s.time-1/60);
   for(let side=0;side<2;side++){const f=s.f[side],e=s.f[1-side];f.face=f.action?f.action.originFace:e.x>=f.x?1:-1;f.meter=clamp(f.meter+1/60,0,100);if(s.mode==='training'&&s.infinite&&side===0)f.meter=100;f.stun=Math.max(0,f.stun-1);f.wakeup=Math.max(0,f.wakeup-1);if(f.down>0&&f.y===0&&--f.down===0)f.wakeup=10;f.pink=Math.max(f.hp,f.pink-(s.frame%2?.2:.45));
    if(s.mode==='training'&&e.hp<100&&!locked(e)&&!f.action&&s.frame>f.comboUntil){e.hp=e.pink=100;}
-   const profile=combat[f.id];if(!locked(f)&&!f.action){const frozenDummy=s.mode==='training'&&side===1&&s.dummy!=='cpu';
+   const profile=combat[f.id];f.walking=false;if(!locked(f)&&!f.action){const frozenDummy=s.mode==='training'&&side===1&&s.dummy!=='cpu';
     if(f.dir[1]<0&&f.previousY>=0&&f.y===0){f.vy=-10;f.airVx=f.dir[0]*profile.jumpSpeed;f.airDashed=false;}
-    if(!frozenDummy){const crouch=f.dir[1]>0&&f.y===0,velocity=f.dash>0?f.dashDx*7.5*f.slow:f.y<0?(f.dir[0]?f.dir[0]*profile.jumpSpeed:f.airVx)*f.slow:crouch?0:f.dir[0]*profile.speed*f.slow;f.x=clamp(f.x+velocity,65,895);}
+    if(!frozenDummy){const crouch=f.dir[1]>0&&f.y===0,velocity=f.dash>0?f.dashDx*7.5*f.slow:f.y<0?(f.dir[0]?f.dir[0]*profile.jumpSpeed:f.airVx)*f.slow:crouch?0:f.dir[0]*profile.speed*f.slow;const beforeX=f.x;f.x=clamp(f.x+velocity,65,895);if(f.y===0&&f.vy===0&&!crouch&&Math.abs(f.x-beforeX)>.01){f.walking=true;f.walkPhase=(f.walkPhase+Math.abs(f.x-beforeX)/22)%4;}}
    }else f.dash=0;
    f.dash=Math.max(0,f.dash-1);f.previousY=f.dir[1];f.vy+=.55;f.y=Math.min(0,f.y+f.vy);if(f.y===0){f.vy=0;f.airVx=0;f.airDashed=false;}
    f.queue=f.queue.filter(q=>s.frame-q.t<40);const cancellable=f.action?.type==='basic'&&f.action.frame>=12&&f.chain<3;
