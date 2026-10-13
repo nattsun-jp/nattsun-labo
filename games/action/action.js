@@ -1,7 +1,7 @@
 (() => {
 'use strict';
 const $=id=>document.getElementById(id),canvas=$('game'),ctx=canvas.getContext('2d');
-const W=960,H=540,FLOOR=435,PW=36,PH=72,SAVE='nattsun_rei_action_v2',PROFILE='nattsun_rei_journal_v2';
+let W=960;const H=540,FLOOR=435,PW=36,PH=72,SAVE='nattsun_rei_action_v2',PROFILE='nattsun_rei_journal_v2';
 const levels=[
  {name:'教室棟',subtitle:'掲示板の鍵と、寄り道',length:3100,bg:'classroom',par:90,
   platforms:[{x:410,y:355,w:260},{x:740,y:245,w:145},{x:1540,y:350,w:240},{x:1780,y:270,w:180},{x:2110,y:325,w:200,ax:95},{x:2570,y:245,w:160}],
@@ -32,6 +32,27 @@ const memories=[
 ];
 let profile=readProfile(),stage=0,run,facing=1,time=0,camera=0,last=0,playing=false,mode='title',audioOn=true,assets={},assetsReady=false,toastAt=0,hudAt=0;
 const input={left:false,right:false,jump:false,interact:false,dash:false};
+const pointerHolds=new Map(['left','right','jump','dash','interact'].map(k=>[k,new Set()]));
+const keyboardHeld={left:false,right:false};
+const coarsePointer=()=>window.matchMedia('(pointer: coarse)').matches;
+let preferPlayView=coarsePointer(),pagePosition={x:0,y:0};
+function fitPlayView(){
+ const fixed=document.body.classList.contains('game-mode');
+ if(fixed){const height=window.visualViewport?.height||window.innerHeight;document.body.style.setProperty('--game-viewport-height',height+'px')}
+ const portrait=window.matchMedia('(orientation: portrait)').matches;
+ const width=fixed&&coarsePointer()&&portrait?600:960;
+ if(width!==W){W=width;canvas.width=W;camera=Math.max(0,Math.min(levels[stage].length-W,camera))}
+}
+function playView(active){
+ const current=document.body.classList.contains('game-mode');
+ if(active&&!current){pagePosition={x:window.scrollX,y:window.scrollY};document.body.classList.add('game-mode');document.body.style.top='-'+pagePosition.y+'px'}
+ if(!active&&current){document.body.classList.remove('game-mode');document.body.style.top='';document.body.style.removeProperty('--game-viewport-height');window.scrollTo(pagePosition.x,pagePosition.y)}
+ $('playView').textContent=active?'ページに戻る':'操作画面を固定';$('playView').setAttribute('aria-pressed',String(active));fitPlayView();
+}
+$('playView').onclick=()=>{preferPlayView=!document.body.classList.contains('game-mode');if(!preferPlayView&&playing)panel('pause','PAUSED','ページに戻りました。','記録帳を見たり、セーブしたりできます。探索を続けるときは「探索に戻る」。','探索に戻る');playView(preferPlayView)};
+window.addEventListener('resize',fitPlayView);window.visualViewport?.addEventListener('resize',fitPlayView);
+function movementInput(k){input[k]=keyboardHeld[k]||pointerHolds.get(k).size>0}
+
 function readProfile(){try{const p=JSON.parse(localStorage.getItem(PROFILE)||'null');if(!p||p.version!==2)return emptyProfile();return {version:2,unlocked:Number.isInteger(p.unlocked)?Math.max(1,Math.min(3,p.unlocked)):1,notes:Array.isArray(p.notes)?[...new Set(p.notes.filter(n=>Number.isInteger(n)&&n>=0&&n<9))]:[],records:Array.from({length:3},(_,i)=>{const r=p.records?.[i];return r&&Number.isFinite(r.best)&&r.best>0&&r.best<86400&&['S','A','B','C'].includes(r.grade)?{best:r.best,grade:r.grade,clean:r.clean===true,clears:Number.isInteger(r.clears)?Math.max(1,r.clears):1}:null})}}catch{return emptyProfile()}}
 function emptyProfile(){return {version:2,unlocked:1,notes:[],records:[null,null,null]}}
 function persistProfile(){try{localStorage.setItem(PROFILE,JSON.stringify(profile));return true}catch{flash('記録を保存できません。ブラウザの保存設定を確認してください。');return false}}
@@ -41,11 +62,11 @@ const round=(x,y,w,h,r,color)=>{ctx.fillStyle=color;ctx.beginPath();ctx.roundRec
 const format=n=>{const safe=Math.max(0,n),m=Math.floor(safe/60),s=Math.floor(safe%60);return m+':'+String(s).padStart(2,'0')+'.'+Math.floor((safe%1)*10)};
 function flash(text){$('hint').textContent=text;toastAt=time+180}
 let ac;function tone(f=620,d=.1){if(!audioOn)return;try{ac??=new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();const osc=ac.createOscillator(),g=ac.createGain(),now=ac.currentTime;osc.type='sine';osc.frequency.setValueAtTime(f,now);osc.frequency.linearRampToValueAtTime(f*1.16,now+d);g.gain.setValueAtTime(.035,now);g.gain.exponentialRampToValueAtTime(.001,now+d);osc.connect(g).connect(ac.destination);osc.start(now);osc.stop(now+d)}catch{}}
-function clearInput(){for(const k of Object.keys(input))input[k]=false;for(const k of ['left','right','jump','dash','interact'])$(k).classList.remove('pressed')}
+function clearInput(){for(const set of pointerHolds.values())set.clear();keyboardHeld.left=keyboardHeld.right=false;for(const k of Object.keys(input))input[k]=false;for(const k of ['left','right','jump','dash','interact'])$(k).classList.remove('pressed')}
 function panel(kind,tag,heading,text,label='つづける',detail='',secondary=''){playing=false;mode=kind;clearInput();$('overlay').hidden=false;$('panelTag').textContent=tag;$('panelTitle').textContent=heading;$('panelText').textContent=text;$('panelDetails').textContent=detail;$('mainAction').textContent=label;$('mainAction').disabled=!assetsReady;$('otherAction').hidden=!secondary;$('otherAction').textContent=secondary}
 function intro(){panel('title','CHAPTER '+String(stage+1).padStart(2,'0'),levels[stage].name,levels[stage].hint+'\nしおり3枚を出口へ。思い出メモ3枚は、寄り道のお楽しみ。','ここから遊ぶ','2段ジャンプ / 近くで調べる / ダッシュ')}
 function startStage(i,autoplay=true){setMainAction();stage=i;run=fresh();time=0;camera=0;toastAt=0;hudAt=0;facing=1;clearInput();renderJournal();updateHud();if(autoplay)resume();else intro()}
-function resume(){if(!assetsReady)return;playing=true;mode='play';$('overlay').hidden=true;clearInput();canvas.focus()}
+function resume(){if(!assetsReady)return;playing=true;mode='play';$('overlay').hidden=true;clearInput();if(preferPlayView)playView(true);canvas.focus({preventScroll:true})}
 function selectStage(i){if(i>=profile.unlocked){flash('前のステージをクリアすると解放されます');return}if(playing){panel('select','CHAPTER SELECT',levels[i].name+'へ移動する？','現在の探索は最初からになります。保存済みのセーブと記録は残ります。','移動する','', '探索に戻る');$('mainAction').onclick=()=>{setMainAction();startStage(i)};$('otherAction').onclick=()=>{setMainAction();resume()}}else startStage(i,false)}
 function mainAction(){if(mode==='clear'){if(stage<2)startStage(stage+1);else startStage(stage)}else if(mode==='pause')resume();else if(mode==='retry'){run.hp=3;respawn();resume()}else startStage(stage)}
 function setMainAction(){$('mainAction').onclick=mainAction;$('otherAction').onclick=()=>startStage(stage)}
@@ -58,11 +79,26 @@ $('save').onclick=()=>{if(!playing&&mode!=='pause'){flash('探索を始めてか
 $('load').onclick=loadGame;
 function loadGame(){if(!assetsReady){flash('素材を読み込んでいます。完了してからロードしてください。');return}try{let d=JSON.parse(localStorage.getItem(SAVE)||'null');if(!d){const old=JSON.parse(localStorage.getItem('nattsun_rei_action_v1')||'null'),s=old?.state;if(old?.version===1&&s&&Number.isFinite(s.x)&&Array.isArray(s.got)&&s.got.length===3&&s.got.every(v=>typeof v==='boolean')){d={version:2,stage:0,run:{x:Math.max(40,Math.min(levels[0].length-170,s.x)),y:FLOOR-PH,hp:3,got:s.got,notes:[false,false,false],levers:[s.x>1370],checkpoint:0,damage:0,elapsed:0},time:0}}}if(!validSave(d)){flash('読み込めるセーブがありません');return}stage=d.stage;run={...fresh(),...d.run,got:[...d.run.got],notes:[...d.run.notes],levers:[...d.run.levers],invuln:60};time=Number.isFinite(d.time)&&d.time>=0?Math.min(d.time,10000000):0;camera=Math.max(0,Math.min(levels[stage].length-W,run.x-320));profile.unlocked=Math.max(profile.unlocked,stage+1);renderJournal();resume();updateHud();flash('探索をロードしました')}catch{flash('セーブを読み込めませんでした')}}
 const keyMap={ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right',ArrowUp:'jump',KeyW:'jump',Space:'jump',KeyE:'interact',ShiftLeft:'dash',ShiftRight:'dash'};
-window.addEventListener('keydown',e=>{const k=keyMap[e.code];if(!k||!playing||['INPUT','TEXTAREA','SELECT'].includes(e.target?.tagName))return;if(e.code==='Space'&&e.target?.tagName==='BUTTON')return;e.preventDefault();if((k==='jump'||k==='interact'||k==='dash')&&e.repeat)return;input[k]=true});
-window.addEventListener('keyup',e=>{const k=keyMap[e.code];if(k==='left'||k==='right')input[k]=false});
+window.addEventListener('keydown',e=>{const k=keyMap[e.code];if(!k||!playing||['INPUT','TEXTAREA','SELECT'].includes(e.target?.tagName))return;if(e.code==='Space'&&e.target?.tagName==='BUTTON')return;e.preventDefault();if((k==='jump'||k==='interact'||k==='dash')&&e.repeat)return;if(k==='left'||k==='right'){keyboardHeld[k]=true;movementInput(k)}else input[k]=true});
+window.addEventListener('keyup',e=>{const k=keyMap[e.code];if(k==='left'||k==='right'){keyboardHeld[k]=false;movementInput(k)}});
 window.addEventListener('blur',()=>{clearInput();if(playing)panel('pause','PAUSED','ひと休み。','画面を離れたため時間を止めました。','探索に戻る')});
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&playing)panel('pause','PAUSED','ひと休み。','画面を離れたため時間を止めました。','探索に戻る')});
-for(const k of ['left','right','jump','dash','interact']){const b=$(k);b.addEventListener('pointerdown',e=>{e.preventDefault();if(!playing)return;b.setPointerCapture(e.pointerId);input[k]=true;b.classList.add('pressed')});for(const event of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(event,e=>{e.preventDefault();if(k==='left'||k==='right')input[k]=false;b.classList.remove('pressed')})}
+const cancelNative=e=>{if(e.cancelable!==false)e.preventDefault()};
+for(const zone of [canvas,document.querySelector('.controls')]){
+ for(const event of ['contextmenu','selectstart','dragstart','dblclick'])zone.addEventListener(event,cancelNative);
+ for(const event of ['touchstart','touchmove'])zone.addEventListener(event,cancelNative,{passive:false});
+}
+for(const k of ['left','right','jump','dash','interact']){
+ const b=$(k),holds=pointerHolds.get(k);
+ const press=(id,e)=>{cancelNative(e);if(!playing)return;holds.add(id);if(k==='left'||k==='right')movementInput(k);else input[k]=true;b.classList.add('pressed')};
+ const release=(id,e)=>{cancelNative(e);holds.delete(id);if(k==='left'||k==='right')movementInput(k);if(!holds.size)b.classList.remove('pressed')};
+ b.addEventListener('pointerdown',e=>{press(e.pointerId,e);if(playing)try{b.setPointerCapture(e.pointerId)}catch{}});
+ for(const event of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(event,e=>release(e.pointerId,e));
+ // Fallback for older touch browsers. Modern browsers use pointer capture above.
+ if(!window.PointerEvent){b.addEventListener('touchstart',e=>{for(const t of e.changedTouches)press(t.identifier,e)},{passive:false});for(const event of ['touchend','touchcancel'])b.addEventListener(event,e=>{for(const t of e.changedTouches)release(t.identifier,e)},{passive:false})}
+ b.addEventListener('click',e=>{if(e.detail===0&&playing){if(k==='left'||k==='right')return;input[k]=true}});
+}
+
 function surfaces(at=time){return levels[stage].platforms.map((p,id)=>({...p,id,x:p.x+(p.ax||0)*Math.sin(at*.018+id),y:p.y+(p.enabledBy!==undefined&&!run.levers[p.enabledBy]?0:p.ay||0)*Math.sin(at*.017+id)}))}
 function gateOpen(){return levels[stage].gate.requires.every(i=>run.levers[i])}
 function intersects(a,b){return a.x+a.w>b.x&&a.x<b.x+b.w&&a.y+a.h>b.y&&a.y<b.y+b.h}
