@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ja">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#14172d"><meta name="description" content="月城麗と星屑の放課後。無料・登録不要の学園横スクロールゲーム試作版。">
+<title>月城麗と星屑の放課後 | ナッツんLABO</title>
+<style>
+*{box-sizing:border-box}body{margin:0;color:#f8f5ff;background:#101426;font-family:-apple-system,BlinkMacSystemFont,"Yu Gothic",Meiryo,sans-serif}a{color:#f8c4d5}button{font:inherit;cursor:pointer;touch-action:manipulation}button:focus-visible,a:focus-visible{outline:3px solid #ffe1e9;outline-offset:3px}.nav{max-width:1080px;margin:auto;padding:18px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{font-weight:900;letter-spacing:.05em}.back{font-size:14px;text-decoration:none}.wrap{max-width:1080px;padding:0 12px 25px;margin:auto}.banner{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px;margin:3px 0 15px}.banner h1{font-size:clamp(20px,3vw,30px);margin:0}.banner small{color:#c8c5e4}.stage{position:relative;border:3px solid #7d759c;border-radius:19px;background:#d4e0f2;overflow:hidden;box-shadow:0 14px 50px #0008}canvas{width:100%;aspect-ratio:16/9;display:block;touch-action:none}.overlay{position:absolute;inset:0;background:#11182fb5;display:flex;align-items:center;justify-content:center;padding:15px;z-index:3}.overlay[hidden]{display:none}.panel{background:linear-gradient(150deg,#202543ef,#2d2544f5);color:#fff;border:1px solid #cab5d9;border-radius:19px;padding:clamp(18px,4vw,33px);width:min(550px,96%);text-align:center;box-shadow:0 12px 50px #0009;max-height:98%;overflow:auto}.panel h2{font-size:clamp(22px,3.4vw,32px);margin:10px 0}.panel p{font-size:15px;line-height:1.8;color:#e1dce9}.pill{color:#f8c4d5;font-size:12px;font-weight:900;letter-spacing:.17em}.primary,.secondary{border:0;padding:11px 23px;border-radius:99px;min-height:45px;font-weight:800}.primary{background:#f5b8cc;color:#25182f}.secondary{background:#ffffff23;color:white;border:1px solid #ffffff60}.panel .actions{display:flex;justify-content:center;gap:11px;flex-wrap:wrap;margin-top:20px}.toolbar{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin:14px 0}.toolbar button{background:#2e3150;color:#fff;border:1px solid #656282;padding:10px 15px;border-radius:12px;min-height:42px}.toolbar button:hover{background:#414466}.controls{display:flex;justify-content:space-between;gap:12px;align-items:center;user-select:none;-webkit-user-select:none}.controls .cluster{display:flex;gap:12px}.control{background:#33334f;border:1px solid #b6a5c4;color:#fff;min-width:69px;min-height:65px;border-radius:15px;font-size:25px;font-weight:900;touch-action:none}.control:active,.control.pressed{background:#b46c8d}.help{font-size:13px;color:#bfbdd4;line-height:1.9;margin:16px 2px}footer{color:#b3b0c6;text-align:center;font-size:12px;margin:15px}@media(hover:hover) and (pointer:fine){.controls{opacity:.85}}@media(max-width:560px){.control{min-width:60px;min-height:58px}.stage{border-width:2px;border-radius:12px}.toolbar button{font-size:13px;padding:8px 10px}.help{font-size:12px}}
+</style></head>
+<body><div class="nav"><div class="brand">ナッツんLABO / GAME 01</div><a class="back" href="../">← ゲーム一覧に戻る</a></div>
+<main class="wrap"><div class="banner"><h1>月城麗と星屑の放課後</h1><small>無料・登録不要 / 学園アクション・試作版</small></div>
+<div class="stage"><canvas id="game" tabindex="0" width="960" height="540" aria-label="横スクロールアクション。月城麗を動かして、星のしおりを3つ集めてください"></canvas><div class="overlay" id="overlay"><div class="panel"><div class="pill" id="panelEyebrow">AFTER SCHOOL STORY</div><h2 id="panelTitle">星屑の放課後</h2><p id="panelText">放課後、月城麗は校内に散らばった「星のしおり」を探すことに。3枚集めて図書室へ届けよう。<br>移動：← → / A D　ジャンプ：↑ / W / SPACE</p><div class="actions"><button class="primary" id="mainAction" type="button">はじめる</button><button class="secondary" id="otherAction" type="button" hidden>もう一度</button></div></div></div></div>
+<div class="toolbar"><div><button id="save" type="button">💾 セーブ</button> <button id="load" type="button">📂 ロード</button> <button id="reset" type="button">↻ 最初から</button></div><button id="sound" type="button" aria-pressed="false">♪ 効果音 ON</button></div>
+<div class="controls" aria-label="スマートフォン用操作ボタン"><div class="cluster"><button class="control" id="left" type="button" aria-label="左に移動">◀</button><button class="control" id="right" type="button" aria-label="右に移動">▶</button></div><button class="control" id="jump" type="button" aria-label="ジャンプ">↑ JUMP</button></div>
+<p class="help">パソコン：← → または A/D で移動、↑・W・スペースでジャンプ。スマホ：画面下の操作ボタン。<br>端末内へのセーブとロードに対応。ブラウザのデータを消去するとセーブは消えます。月城麗と廊下の画像はPixAI / Tsubaki.3で制作（LoRAなし）。効果音はゲーム内で合成。無料・登録不要です。</p></main><footer>© ナッツんLABO · 全年齢対象</footer>
+<script src="../assets/rei-assets.js"></script>
+<script>
+(()=>{
+'use strict';
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+const overlay=document.getElementById('overlay'),eye=document.getElementById('panelEyebrow'),title=document.getElementById('panelTitle'),desc=document.getElementById('panelText'),go=document.getElementById('mainAction'),other=document.getElementById('otherAction');
+let reiSprite=null, hallwayImage=null;
+const ready=Promise.all([ReiAssets.load('rei-uniform-smile.png',true),ReiAssets.load('school-hallway.png')]).then(([rei,hall])=>{reiSprite=rei;hallwayImage=hall;go.disabled=false;go.textContent='はじめる'}).catch(()=>{desc.textContent='画像を読み込めませんでした。ページを再読み込みしてください。';go.textContent='画像読み込みエラー'});
+go.disabled=true;go.textContent='素材を読み込み中…';
+const W=960,H=540,GROUND=435,WORLD=3450,KEY='nattsun_rei_action_v1';
+const platforms=[{x:420,y:356,w:295},{x:1120,y:344,w:300},{x:2210,y:349,w:300}];
+const stars=[{x:555,y:313},{x:1280,y:300},{x:2350,y:305}];
+const hazards=[{x:870,w:70},{x:1710,w:80},{x:2690,w:80}];
+const held={left:false,right:false,jump:false}; let last=0,t=0,camera=0,playing=false,audioOn=true,locked=false,actionKind='start',suppressJump=false;
+const fresh=()=>({x:82,y:GROUND-57,vx:0,vy:0,hp:3,onGround:true,got:[false,false,false],checkpoint:82,seenEvent:false,finished:false});
+let player=fresh();const pw=34,ph=57;
+function round(x,y,w,h,r,color){ctx.fillStyle=color;ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill()}
+function flash(message){const el=document.createElement('div');el.setAttribute('role','status');el.textContent=message;Object.assign(el.style,{position:'fixed',top:'18px',left:'50%',transform:'translateX(-50%)',background:'#27233eea',color:'#fff',padding:'12px 23px',borderRadius:'12px',zIndex:'10',fontSize:'14px',boxShadow:'0 6px 20px #0005'});document.body.append(el);setTimeout(()=>el.remove(),1700)}
+let ac;function tone(freq=660,dur=.11){if(!audioOn)return;try{ac??=new (window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume();const osc=ac.createOscillator(),gain=ac.createGain(),now=ac.currentTime;osc.type='sine';osc.frequency.setValueAtTime(freq,now);osc.frequency.exponentialRampToValueAtTime(freq*1.3,now+dur);gain.gain.setValueAtTime(.045,now);gain.gain.exponentialRampToValueAtTime(.001,now+dur);osc.connect(gain).connect(ac.destination);osc.start(now);osc.stop(now+dur)}catch(e){}}
+function showPanel(k,heading,body,button='つづける',eyebrow='REI STORY'){playing=false;actionKind=k;overlay.hidden=false;eye.textContent=eyebrow;title.textContent=heading;desc.textContent=body;go.textContent=button;other.hidden=true;held.left=held.right=held.jump=false}
+function begin(){if(!reiSprite||!hallwayImage)return;overlay.hidden=true;playing=true;held.jump=false;suppressJump=true;go.blur();canvas.focus()}
+function startNew(){player=fresh();camera=0;begin();tone(440,.2)}
+function checkSave(){try{const d=JSON.parse(localStorage.getItem(KEY)||'null');return d&&d.version===1?d:null}catch(e){return null}}
+function saveGame(){if(!playing){flash('プレイ中にセーブできます');return}try{localStorage.setItem(KEY,JSON.stringify({version:1,state:{x:player.x,y:player.y,hp:player.hp,got:player.got,checkpoint:player.checkpoint,seenEvent:player.seenEvent,finished:player.finished}}));flash('セーブしました');tone(760,.16)}catch(e){flash('保存できませんでした（ブラウザの設定をご確認ください）')}}
+function loadGame(){let d=checkSave();if(!d){flash('セーブデータがありません');return}const s=d.state;if(!s||!Number.isFinite(s.x)||!Number.isFinite(s.y)||!Number.isInteger(s.hp)||s.hp<1||s.hp>3||!Number.isFinite(s.checkpoint)||s.checkpoint<0||s.checkpoint>WORLD||!Array.isArray(s.got)||s.got.length!==3||s.got.some(x=>typeof x!=='boolean')||typeof s.seenEvent!=='boolean'||typeof s.finished!=='boolean'){flash('セーブデータを読み込めません');return}player={...fresh(),...s,x:Math.max(40,Math.min(WORLD-60,s.x)),y:Math.max(50,Math.min(GROUND-ph,s.y)),vx:0,vy:0,invuln:0,got:s.got.map(Boolean)};camera=Math.max(0,Math.min(WORLD-W,player.x-320));begin();flash('ロードしました')}
+function resetGame(){showPanel('start','最初から遊ぶ？','星のしおりを3つ集めて、図書室を目指そう。端末内のセーブデータは消さずに残します。','はじめる','NEW GAME')}
+function hit(){if(player.invuln>0)return;player.hp--;tone(220,.23);if(player.hp<=0){showPanel('retry','もう一度、挑戦！','月城麗は少し休むことにした。チェックポイントから再挑戦できるよ。','チェックポイントから再開','TRY AGAIN');return}player.x=player.checkpoint;player.y=GROUND-ph;player.vy=0;player.vx=0;player.invuln=80;flash('あぶない！ 体力が1つ減った')}
+function act(){switch(actionKind){case 'start':startNew();break;case 'retry':player.hp=3;player.x=player.checkpoint;player.y=GROUND-ph;player.vx=player.vy=0;begin();break;case 'story':begin();break;case 'win':startNew();break;default:begin()}}
+go.addEventListener('click',act);document.getElementById('save').onclick=saveGame;document.getElementById('load').onclick=loadGame;document.getElementById('reset').onclick=resetGame;
+document.getElementById('sound').onclick=ev=>{audioOn=!audioOn;ev.currentTarget.textContent=audioOn?'♪ 効果音 ON':'♪ 効果音 OFF';ev.currentTarget.setAttribute('aria-pressed',String(!audioOn))};
+const keyMap={ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right',ArrowUp:'jump',KeyW:'jump',Space:'jump'};
+window.addEventListener('keydown',e=>{let k=keyMap[e.code];if(!k)return; if(e.target?.tagName==='BUTTON'&&e.code==='Space')return;e.preventDefault();held[k]=true});
+window.addEventListener('keyup',e=>{const k=keyMap[e.code];if(k){e.preventDefault();held[k]=false;if(k==='jump')suppressJump=false}});
+window.addEventListener('blur',()=>{held.left=held.right=held.jump=false});
+for(const k of ['left','right','jump']){const b=document.getElementById(k);const set=(e,val)=>{e.preventDefault();held[k]=val;b.classList.toggle('pressed',val);if(k==='jump'&&!val)suppressJump=false};b.addEventListener('pointerdown',e=>{b.setPointerCapture(e.pointerId);set(e,true)});for(const ev of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(ev,e=>set(e,false))}
+function update(dt){if(!playing)return;t+=dt;let p=player;const move=(held.right?1:0)-(held.left?1:0);p.vx=move*4.4;
+if(held.jump&&!suppressJump&&p.onGround){p.vy=-13.4;p.onGround=false;suppressJump=true;tone(390,.1)}if(!held.jump)suppressJump=false;
+p.x=Math.max(12,Math.min(WORLD-65,p.x+p.vx*dt));let previousBottom=p.y+ph;p.vy=Math.min(17,p.vy+.65*dt);p.y+=p.vy*dt;p.onGround=false;
+if(p.y+ph>=GROUND){p.y=GROUND-ph;p.vy=0;p.onGround=true}
+for(const plat of platforms){if(p.vy>=0&&previousBottom<=plat.y+8&&p.y+ph>=plat.y&&p.x+pw>plat.x+5&&p.x<plat.x+plat.w-5){p.y=plat.y-ph;p.vy=0;p.onGround=true}}
+for(let i=0;i<stars.length;i++){const st=stars[i];if(!p.got[i]&&Math.abs(p.x+pw/2-st.x)<34&&Math.abs(p.y+ph/2-st.y)<49){p.got[i]=true;p.checkpoint=Math.max(p.checkpoint,i===0?700:i===1?1510:2520);tone(850,.18);flash('星のしおりを発見！ '+p.got.filter(Boolean).length+'/3')}}
+for(const hz of hazards){if(p.x+pw>hz.x+7&&p.x<hz.x+hz.w-7&&p.y+ph>GROUND-29)hit()}
+if(p.invuln>0)p.invuln-=dt;
+if(p.x>1960&&!p.seenEvent){p.seenEvent=true;showPanel('story','麗の決意','「あと少し……。このしおりは、きっと誰かの大切な思い出。最後まで探してみよう」','先へ進む');return}
+if(p.x>3260){if(p.got.every(Boolean)){p.finished=true;tone(1000,.25);showPanel('win','クリア！ 星屑の約束','3枚のしおりが元に戻った。夕暮れの図書室で、麗は小さく微笑んだ。「ありがとう。明日も、きっといい日になるね」','もう一度遊ぶ','STAGE CLEAR')}else{p.x=3230;if(!locked){flash('しおりを3つ集めると図書室が開きます');locked=true}setTimeout(()=>locked=false,1800)}}
+camera+=(Math.max(0,Math.min(WORLD-W,p.x-340))-camera)*Math.min(1,.13*dt)}
+function cloud(x,y,scale){ctx.fillStyle='#fff9f2b8';ctx.beginPath();ctx.ellipse(x,y,48*scale,17*scale,0,0,7);ctx.ellipse(x-23*scale,y-8*scale,25*scale,18*scale,0,0,7);ctx.ellipse(x+18*scale,y-12*scale,31*scale,22*scale,0,0,7);ctx.fill()}
+function schoolBuilding(x,w,base=425){ctx.fillStyle='#e9e6ee';ctx.fillRect(x,140,w,base-140);ctx.fillStyle='#afabc9';ctx.fillRect(x-8,125,w+16,20);ctx.fillStyle='#cec5d8';ctx.fillRect(x,153,w,12);for(let bx=x+35;bx<x+w-24;bx+=98){for(let row=0;row<3;row++){let wy=190+row*75;ctx.fillStyle='#7d9bb9';ctx.fillRect(bx,wy,61,44);ctx.fillStyle='#e8dfe1';ctx.fillRect(bx+28,wy,5,44);ctx.fillRect(bx,wy+20,61,3);ctx.fillStyle='#ffffff3d';ctx.fillRect(bx+4,wy+4,17,14)}}ctx.fillStyle='#d3b1a8';ctx.fillRect(x,base-17,w,17)}
+function petal(x,y,a){ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.fillStyle='#f7bed6b0';ctx.beginPath();ctx.ellipse(0,0,5,2.4,0,0,7);ctx.fill();ctx.restore()}
+function backdrop(){
+ if(hallwayImage){
+  const width=H*hallwayImage.naturalWidth/hallwayImage.naturalHeight, shift=(camera*.18)%width;
+  for(let x=-shift;x<W;x+=width)ctx.drawImage(hallwayImage,x,0,width,H);
+  ctx.fillStyle='#fff5df16';ctx.fillRect(0,0,W,H);
+ }else{ctx.fillStyle='#dbc9b1';ctx.fillRect(0,0,W,H)}
+}
+function tree(x){ctx.fillStyle='#715269';ctx.fillRect(x-7,313,14,110);for(let i=0;i<7;i++){ctx.fillStyle=i%2?'#e4a0b8':'#f4bdc9';ctx.beginPath();ctx.arc(x+Math.sin(i*2)*38,278+(i%3)*19,37-(i%2)*4,0,7);ctx.fill()}}
+function detailed(){ctx.save();ctx.translate(-camera,0);ctx.fillStyle='#7d91a6';ctx.fillRect(0,GROUND,WORLD,12);ctx.fillStyle='#55677e';ctx.fillRect(0,GROUND+12,WORLD,H-GROUND-12);for(let i=0;i<44;i++){ctx.fillStyle=i%2?'#8f9baa':'#8293a7';ctx.fillRect(i*85,GROUND+13,50,2)}
+for(const p of platforms){round(p.x,p.y,p.w,15,4,'#d9bcc1');round(p.x+7,p.y+13,p.w-14,14,3,'#827e9a');for(let i=0;i<Math.floor(p.w/32);i++)round(p.x+8+i*32,p.y+22,15,3,1,'#55566f')}
+for(let i=0;i<hazards.length;i++){const h=hazards[i];round(h.x,GROUND-17,h.w,16,5,'#ab6278');for(let j=5;j<h.w-6;j+=15){ctx.fillStyle='#d796ad';ctx.beginPath();ctx.moveTo(h.x+j,GROUND-17);ctx.lineTo(h.x+j+6,GROUND-34);ctx.lineTo(h.x+j+12,GROUND-17);ctx.fill()}}
+for(let i=0;i<stars.length;i++){if(player.got[i])continue;const s=stars[i];ctx.save();ctx.translate(s.x,s.y+Math.sin(t*.07+i)*6);ctx.shadowBlur=16;ctx.shadowColor='#fff2a4';ctx.fillStyle='#fff3b3';ctx.beginPath();for(let j=0;j<10;j++){const a=-Math.PI/2+j*Math.PI/5,r=j%2?10:20;ctx.lineTo(Math.cos(a)*r,Math.sin(a)*r)}ctx.closePath();ctx.fill();ctx.restore()}
+// 図書室の扉
+round(3250,318,110,117,6,'#726788');round(3261,329,90,106,3,'#5d4269');round(3273,342,65,57,2,'#a8ccdb');round(3330,400,9,9,5,'#fce4a2');ctx.font='bold 20px sans-serif';ctx.fillStyle='#fff3d3';ctx.fillText('図書室',3272,311);
+for(let i=0;i<14;i++)petal((i*291+t*(.5+i%3))%WORLD,240+(i*43+t*.25)%(GROUND-245),.3+i);
+ctx.restore()}
+function drawRei(){const p=player;if(!reiSprite || (p.invuln>0&&Math.floor(t/5)%2))return;
+ ctx.save();ctx.translate(p.x-camera+pw/2,p.y+ph);
+ if(p.vx<0)ctx.scale(-1,1);
+ const bob=p.onGround&&p.vx?Math.sin(t*.25)*1.7:0;ctx.translate(0,bob);
+ // Shared original portrait, mirrored for left travel; no new model or LoRA.
+ const height=82,width=height*reiSprite.width/reiSprite.height;
+ ctx.drawImage(reiSprite,-width/2,-height,width,height);ctx.restore();
+}
+function hud(){round(18,16,365,52,14,'#24243fbd');ctx.font='bold 21px sans-serif';ctx.fillStyle='#fff0f4';ctx.fillText('♥ '.repeat(player.hp),33,49);ctx.font='bold 19px sans-serif';ctx.fillStyle='#fff4ba';ctx.fillText('✦ '+player.got.filter(Boolean).length+' / 3',220,49);round(668,18,275,34,12,'#25253bbd');ctx.fillStyle='#ffd8e1';ctx.fillRect(680,29,250*(player.x/(WORLD-200)),10);ctx.strokeStyle='#f5dce055';ctx.strokeRect(680,29,250,10);ctx.fillStyle='#fff';ctx.font='14px sans-serif';ctx.fillText('放課後の学園',18,91)}
+function render(){ctx.clearRect(0,0,W,H);backdrop();detailed();drawRei();hud()}
+function frame(ms){if(!last)last=ms;const dt=Math.min(2.4,(ms-last)/16.667||1);last=ms;update(dt);render();requestAnimationFrame(frame)}
+player.invuln=0;requestAnimationFrame(frame);
+})();
+</script></body></html>
