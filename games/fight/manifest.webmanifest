@@ -1,0 +1,20 @@
+{
+  "id": "./",
+  "name": "LABO FIGHTERS｜ナッツんLABO",
+  "short_name": "LABO FIGHTERS",
+  "lang": "ja",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#10162b",
+  "theme_color": "#11182e",
+  "icons": [
+    {
+      "src": "../../logo.jpeg",
+      "sizes": "1254x1254",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ]
+}
