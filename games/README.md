@@ -43,3 +43,9 @@ fight/ は3キャラの格闘体験版。99秒、2ラウンド先取、最大3�
 - Original cel-shaded 3x2 sprite atlases: Rei / Nattsun / Chappy. Six poses: idle, punch, kick, crouch, guard, hit. Created using built-in image generation; no paid external image API or stock-asset purchase.
 - Stored and versioned in existing Sites source `public/fighters/*-atlas-v1.png`; renderer uses its public `/fighters/` static URLs. Alpha channel is preserved.
 - Browser rendering selects atlas cells, positions the planted feet and mirrors opponent-facing poses. Match logic and room communication are unchanged.
+
+### 斜め入力・サウンド
+- 下段ガードは相手と逆方向＋下（相手右なら↙、相手左なら↘）。立ちガードは横の後ろ。空中攻撃は下段ガードで防げない。
+- 必殺技/超必殺技は斜めを経由する波動/半回転入力が使用可能。斜め省略の従来入力も残す。技/コンボ表に相手右・左それぞれの入力経路を記載。
+- 新曲『月光バトル・LABO BEAT』144BPMと `fight/sound.js` のオリジナルWeb Audio効果音（選択、攻撃、命中、ガード、ジャンプ、必殺、超必殺、ラウンド、勝利）。有料素材や外部音声APIなし。
+- BGMと効果音を別々にON/OFF・音量調整。ブラウザは最初のクリック/タップで音声を有効化。ネットワーク状態の同じイベントを繰り返し鳴らさない。

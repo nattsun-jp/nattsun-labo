@@ -12,6 +12,20 @@ window.ReiMusic = (() => {
         [ [69,0,2],[67,2,1],[65,3,1] ], [ [67,0,3.5] ]
       ]
     },
+    fight: {
+      bpm: 144, name: '月光バトル・LABO BEAT',
+      chords: [[52,55,59,62],[48,52,55,59],[45,48,52,55],[47,51,54,57]],
+      melody: [
+        [[76,0,.5],[79,.5,.25],[83,.75,.25],[81,1,.5],[79,1.5,.5],[76,2,.5],[74,2.5,.5],[71,3,1]],
+        [[72,0,.5],[76,.5,.5],[79,1,.5],[83,1.5,.5],[81,2,.5],[79,2.5,.5],[76,3,1]],
+        [[69,0,.5],[72,.5,.5],[76,1,.5],[79,1.5,.5],[76,2,.5],[72,2.5,.5],[69,3,1]],
+        [[71,0,.5],[75,.5,.5],[78,1,.5],[81,1.5,.5],[78,2,.5],[75,2.5,.5],[71,3,1]],
+        [[83,0,.25],[81,.25,.25],[79,.5,.5],[76,1,.5],[79,1.5,.5],[83,2,1],[86,3,1]],
+        [[84,0,.5],[83,.5,.5],[79,1,.5],[76,1.5,.5],[79,2,1],[72,3,1]],
+        [[81,0,.5],[79,.5,.5],[76,1,.5],[72,1.5,.5],[76,2,1],[69,3,1]],
+        [[78,0,.5],[81,.5,.5],[83,1,1],[78,2,.5],[75,2.5,.5],[76,3,1]]
+      ]
+    },
     action: {
       bpm: 116, name: '星屑ステップ',
       chords: [[62,66,69,73],[59,62,66,69],[55,59,62,66],[57,61,64,69]],
@@ -74,9 +88,13 @@ window.ReiMusic = (() => {
       const section = Math.floor(bar / 8) % 4;
       for (const [midi,offset,length] of score.melody[bar % 8]) {
         // A quiet reprise and octave answer vary the 32-bar loop.
-        note(midi + (section === 2 ? -12 : 0), at + offset * beat, length * beat, section === 1 ? .15 : .21, 'sine', true);
+        note(midi + (section === 2 ? -12 : 0), at + offset * beat, length * beat, kind==='fight'?.09:section === 1 ? .15 : .21, kind==='fight'?'sawtooth':'sine', kind!=='fight');
       }
-      if (kind === 'romance') {
+      if(kind==='fight') {
+        for(let i=0;i<16;i++){note(chord[[0,2,1,2][i%4]]+12,at+i*beat/4,beat*.12,.045,'triangle');if(i%2===0)percussion(at+i*beat/4,false);}
+        for(let i=0;i<8;i++)note(chord[i%4===3?2:0]-12,at+i*beat/2,beat*.32,.18,'triangle');
+        for(let i=0;i<4;i++){percussion(at+i*beat,true);if(i%2===1){percussion(at+i*beat+.015,false);percussion(at+i*beat+.045,false);}}
+      } else if (kind === 'romance') {
         const pattern = [0,2,1,3,0,2,1,2];
         pattern.forEach((i,j) => note(chord[i], at + j * beat / 2, beat * .9, .09, 'sine', true));
         note(chord[0] - 24, at, beat * 3.2, .13);
