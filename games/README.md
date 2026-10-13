@@ -38,3 +38,8 @@ fight/ は3キャラの格闘体験版。99秒、2ラウンド先取、最大3�
 - 部屋の操作権はサーバー側のランダムトークンのハッシュで検証。募集APIはトークンや対戦状態を公開しない。二重参加は条件付きUPDATEで防ぐ。
 - 待機10分、対戦開始から30分で期限切れ。離脱時は募集終了。名前/募集文は文字数制限し、DOMのtextContentで表示。
 - Backend source: existing Sites repository `/workspace/sites/rei-shared-ranking`; tests `node tests/rooms.cjs`。
+
+### Fighter illustration assets
+- Original cel-shaded 3x2 sprite atlases: Rei / Nattsun / Chappy. Six poses: idle, punch, kick, crouch, guard, hit. Created using built-in image generation; no paid external image API or stock-asset purchase.
+- Stored and versioned in existing Sites source `public/fighters/*-atlas-v1.png`; renderer uses its public `/fighters/` static URLs. Alpha channel is preserved.
+- Browser rendering selects atlas cells, positions the planted feet and mirrors opponent-facing poses. Match logic and room communication are unchanged.
