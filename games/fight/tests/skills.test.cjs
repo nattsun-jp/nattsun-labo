@@ -12,12 +12,12 @@ for(let id=0;id<3;id++)for(const face of [-1,1]){
 for(const face of [-1,1]){
  const s=make(0,face);input(s,[[0,1],[face,1],[face,0]]);const m=E.choose(s,0,'P');assert.equal(m.kind,'fist');E.startMove(s,0,m);tick(s,12);assert.equal(s.projectiles.length,1);const firstY=s.projectiles[0].y,firstX=s.projectiles[0].x;tick(s,5);assert.equal(s.projectiles[0].y,firstY,'fist flies straight');assert(Math.sign(s.projectiles[0].x-firstX)===face);
  // Shooter moves vertically after launch; the projectile still resolves from its own location.
- s.f[0].y=-150;tick(s,30);assert.equal(s.f[1].hp,76);assert.equal(s.f[0].y,0);assert.equal(s.projectiles.length,0,'one projectile cannot hit repeatedly');
- const guard=make(0,face);guard.f[1].dir=[face,0];const shot={...E.chars[0].skills[0],type:'skill',index:0,originFace:face};E.spawnProjectile(guard,0,shot);tick(guard,40);assert.equal(guard.f[1].hp,96,'normal back guard blocks fist');
+ s.f[0].y=-150;tick(s,30);assert.equal(s.f[1].hp,90);assert.equal(s.f[0].y,0);assert.equal(s.projectiles.length,0,'one projectile cannot hit repeatedly');
+ const guard=make(0,face);guard.f[1].dir=[face,0];const shot={...E.chars[0].skills[0],type:'skill',index:0,originFace:face};E.spawnProjectile(guard,0,shot);tick(guard,40);assert.equal(guard.f[1].hp,100,'normal back guard prevents projectile HP damage');assert(guard.f[1].guard<100);
 }
 for(let id=0;id<3;id++){
  const ground=make(id);ground.f[1].x=420;const m={...E.chars[id].skills[4],type:'skill',index:4,originFace:1};E.spawnProjectile(ground,0,m);tick(ground,10);assert.equal(ground.f[1].hp,100,'anti-air does not hit grounded opponent');
- const air=make(id);air.f[1].x=440;air.f[1].y=-100;air.f[1].vy=-5;E.spawnProjectile(air,0,m);tick(air,10);assert.equal(air.f[1].hp,78,'wide anti-air hits airborne opponent');
+ const air=make(id);air.f[1].x=440;air.f[1].y=-100;air.f[1].vy=-5;E.spawnProjectile(air,0,m);tick(air,10);assert.equal(air.f[1].hp,90.5,'wide anti-air hits airborne opponent');
  const before=air.f[0].x;const p={x:air.f[1].x,y:400,vx:7,vy:-7,airOnly:true};assert.equal(E.hit(ground,0,m,0,p),false);assert.equal(air.f[0].x,before,'projectile hits never move the owner as a collision proxy');
 }
 {
