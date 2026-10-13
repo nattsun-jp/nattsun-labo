@@ -9,11 +9,11 @@
 .scene[data-bg="classroom"]>.sun,.scene[data-bg="classroom"]>.horizon,.scene[data-bg="classroom"]>.window,.scene[data-bg="classroom"]>.floor,.scene[data-bg="classroom"]>.petal,.scene[data-bg="hallway"]>.sun,.scene[data-bg="hallway"]>.horizon,.scene[data-bg="hallway"]>.window,.scene[data-bg="hallway"]>.floor,.scene[data-bg="hallway"]>.petal{display:none}
 .portrait{width:auto;height:98%;max-height:none;right:4%;bottom:-6%;max-width:70%;object-fit:contain;transform-origin:bottom}
 @media(max-width:650px){.portrait{height:85%;width:auto;max-width:94%;right:-4%;bottom:12%}.scene{min-height:560px}.dialog{min-height:31%}.choices{top:13%;gap:9px}}
-</style></head>
+.stats{position:static;display:flex;width:max-content;max-width:100%;gap:4px;flex-wrap:wrap;margin:0 4px 12px;padding:9px 13px}.stats strong{margin-left:4px}</style></head>
 <body><div class="top"><div class="brand">ナッツんLABO / GAME 02</div><a href="../">← ゲーム一覧に戻る</a></div>
-<main class="page"><h1 class="name">月城麗と、放課後の約束</h1><div class="scene" id="scene" data-bg="classroom"><div class="sun"></div><div class="horizon"></div><div class="window"></div><div class="floor"></div><div class="petal p1"></div><div class="petal p2"></div><div class="petal p3"></div><div class="petal p4"></div>
+<main class="page"><h1 class="name">月城麗と、放課後の約束</h1><div class="stats">第<span id="chapter">1</span>章　<span id="meter">♡ ♡ ♡ ♡ ♡ ♡</span> <strong id="score" aria-label="好感度">0 / 6</strong></div><div class="scene" id="scene" data-bg="classroom"><div class="sun"></div><div class="horizon"></div><div class="window"></div><div class="floor"></div><div class="petal p1"></div><div class="petal p2"></div><div class="petal p3"></div><div class="petal p4"></div>
 <canvas class="portrait" id="portrait" width="944" height="1584" role="img" aria-label="月城麗の制服立ち絵" data-mood="normal"></canvas>
-<div class="stats">第<span id="chapter">1</span>章　<span id="meter">♡ ♡ ♡ ♡ ♡ ♡</span> <strong id="score" aria-label="好感度">0 / 6</strong></div>
+
 <div class="choices" id="choices" aria-label="会話の選択肢"></div><div class="dialog" id="dialog" role="button" tabindex="0" aria-label="タップして話を進める"><div class="speaker" id="speaker">ナレーション</div><div class="line" id="line">物語のはじまり。</div><div class="next" id="next">タップして進む ▾</div></div>
 <div class="cover" id="cover"><div class="box"><div class="kicker" id="coverTag">FREE VISUAL NOVEL</div><h2 id="coverTitle">放課後の約束</h2><p id="coverText">春の放課後。いつも静かな月城麗と、少しずつ距離を縮めていく短い物語。あなたの選択で結末が変わります。<br>全年齢対象・登録不要・無料。</p><button type="button" class="start" id="coverStart">はじめる</button><button type="button" class="start ghost" id="coverLoad">セーブから再開</button></div></div>
 </div><div class="toolbar"><button type="button" id="save">💾 セーブ</button><button type="button" id="load">📂 ロード</button><button type="button" id="historyBtn">☷ 会話履歴</button><button type="button" id="restart">↻ 最初から</button></div><p class="help">会話欄をタップ（またはEnter）すると進行。選択肢でストーリーが変化します。セーブは端末のブラウザ内に1件保存。月城麗の立ち絵と教室・廊下はPixAI / Tsubaki.3で制作。LoRAなし。遊ぶための課金・アカウント登録は必要ありません。</p></main>
@@ -25,7 +25,7 @@
 'use strict';
 const $=id=>document.getElementById(id),KEY='nattsun_rei_romance_v1';
 const scene=$('scene'),speaker=$('speaker'),line=$('line'),choiceBox=$('choices'),dialog=$('dialog'),cover=$('cover'),portrait=$('portrait');
-const portraits = {}; let portraitToken = 0;
+const portraits = {};
 function paintPortrait(mood) {
   const source = portraits[mood === 'shy' ? 'shy' : 'smile'];
   if (!source) return;
