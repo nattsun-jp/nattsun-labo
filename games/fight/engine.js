@@ -14,13 +14,13 @@ window.LaboFight=(()=>{
   {id:'nuts',name:'ナッツんjp',color:'#f0c25c',label:'落花生の底力',skills:[
    {name:'落花生爆弾',cost:30,start:14,end:42,hits:[16],damage:22,range:0,kind:'bomb'},
    {name:'落花生回転',cost:30,start:6,end:45,hits:[9,21],damage:12,range:102,kind:'roll',speed:6.5},
-   {name:'落花生の中からこんにちは。',cost:100,start:27,end:70,hits:[30],damage:48,range:195,kind:'giant'},
+   {name:'落花生の中からこんにちは。',cost:100,start:8,end:82,hits:[24],damage:48,range:195,kind:'giant'},
    {name:'落花生だって負けない！',cost:100,start:5,end:46,hits:[],damage:0,range:0,kind:'power'},
    {name:'落花生ロケット',cost:30,start:10,end:40,hits:[12],damage:22,range:0,kind:'bomb',projectile:true,antiAir:true}]},
   {id:'chappy',name:'チャッピー',color:'#63d4d0',label:'電気と叡智の使い手',skills:[
    {name:'プラグイン',cost:30,start:12,end:39,hits:[15],damage:24,range:230,kind:'cable'},
    {name:'電気ビリビリ',cost:30,start:10,end:42,hits:[14],damage:27,range:105,kind:'shock'},
-   {name:'データ収集',cost:100,start:38,end:78,hits:[42],damage:50,range:145,kind:'data',unblockable:true},
+   {name:'データ収集',cost:100,start:8,end:84,hits:[54],damage:50,range:145,kind:'data',unblockable:true},
    {name:'叡智の集合体',cost:100,start:5,end:46,hits:[],damage:0,range:0,kind:'reach'},
    {name:'撃ち落とします！',cost:30,start:8,end:37,hits:[10],damage:22,range:0,kind:'cd',projectile:true,antiAir:true}]}
  ];
@@ -62,6 +62,7 @@ window.LaboFight=(()=>{
  }
  function startMove(s,side,m){const f=s.f[side];if(!m)return;f.action=m;f.dash=0;f.lastMove=m.name;emit(s,m.type==='skill'&&m.cost>=100?'super':'move',m.name,side);if(m.kind==='power')f.power=1.5;if(m.kind==='reach')f.reach=1.6;
   if(f.id===0&&m.type==='skill'&&m.kind==='orbit'){s.cinematic={kind:'rei-moonlight',side,frame:0,duration:78};s.f.forEach(p=>{p.dir=[0,0];p.queue=[];p.motions=[];p.tap=null;});m.trail=[];}
+  if(m.type==='skill'&&m.cost>=100&&(f.id===1&&m.kind==='giant'||f.id===2&&m.kind==='data')){s.cinematic={kind:f.id===1?'nuts-shell':'chappy-data',side,frame:0,duration:f.id===1?60:66};s.f.forEach(p=>{p.dir=[0,0];p.queue=[];p.motions=[];p.tap=null;});}
   if(s.mode==='training'&&side===0){const target={special1:0,special2:1,super1:2,super2:3,antiAir:4}[s.drill];if(target===m.index&&m.type==='skill')s.complete=true;}
  }
  function canGuard(f,from,m){return !m.unblockable&&f.y===0&&!f.action&&f.guard>0&&f.confusion===0&&f.stun===0&&f.down===0&&f.wakeup===0&&f.dir[0]*(from.x>f.x?-1:1)>0&&(m.low?f.dir[1]>0:m.high?f.dir[1]<=0:true);}
@@ -79,7 +80,8 @@ window.LaboFight=(()=>{
   }
   if(m.kind==='impact'&&!m.connected&&!guard){e.x=f.face>0?arena.right-10:arena.left+10;m.connected=true;}
   if(m.kind==='orbit'&&!guard&&m.frame===m.hits.at(-1)){const sign=Math.sign(dx||m.originFace);e.x=clamp(e.x+sign*38,arena.left,arena.right);e.vy=-6;e.airVx=sign*4.6;e.down=22;e.stun=0;}
-  if(m.kind==='data')f.slow=.65;
+  if(m.kind==='giant'&&!guard){const sign=Math.sign(dx||m.originFace);e.x=clamp(e.x+sign*50,arena.left,arena.right);e.vy=-7;e.airVx=sign*6;e.down=28;e.stun=0;}
+  if(m.kind==='data'){f.slow=.65;m.collected=true;}
   if(m.type==='basic')f.meter=clamp(f.meter+(guard?3:12),0,100);else if(m.type==='skill'&&m.cost<100){const gain=Math.min(6,18-(m.gained||0));m.gained=(m.gained||0)+gain;f.meter=clamp(f.meter+gain,0,100);}
   s.effects.push({x:contact?.x??e.x,y:contact?.y??440+e.y-132,kind:guard?'guard':m.kind,life:20,side});emit(s,guard?'guard':'hit',guard?'GUARD':damage+' DAMAGE',1-side);
   if(s.mode==='training'&&side===0){if(s.drill==='combo'&&f.combo>=3)s.complete=true;if(s.drill==='throw'&&m.kind==='throw')s.complete=true;}
@@ -96,9 +98,9 @@ window.LaboFight=(()=>{
   if(dist<155&&random(s)<.8)press(s,1,random(s)<.5?'P':'K');if(dist>160&&random(s)<.12)direction(s,1,f.face,-1);
  }
  function resetRound(s){const wins=s.f.map(f=>f.wins);s.f=[fighter(s.ids[0],435),fighter(s.ids[1],765)];s.f.forEach((f,i)=>f.wins=wins[i]);s.time=99;s.projectiles=[];s.effects=[];s.cinematic=null;s.phase='intro';s.phaseTicks=90;s.round=wins[0]+wins[1]+1;}
- function endRound(s){const a=s.f[0],b=s.f[1];const winner=a.hp===b.hp?null:a.hp>b.hp?0:1;s.winner=winner;if(winner!==null)s.f[winner].wins++;s.phase=s.f.some(f=>f.wins>=2)?'match':'round';s.phaseTicks=150;emit(s,'round',winner===null?'DRAW':chars[s.f[winner].id].name+' WIN',winner);}
+ function endRound(s){const a=s.f[0],b=s.f[1];const winner=a.hp===b.hp?null:a.hp>b.hp?0:1;s.winner=winner;if(winner!==null)s.f[winner].wins++;s.phase=s.f.some(f=>f.wins>=2)?'match':'round';s.phaseTicks=150;s.f.forEach(f=>f.slow=1);emit(s,'round',winner===null?'DRAW':chars[s.f[winner].id].name+' WIN',winner);}
  function orbitOffset(frame){const points=[[12,-145,0],[18,-110,0],[26,160,-20],[34,110,0],[42,165,-135],[50,0,-130],[58,-160,-80],[66,-105,0],[74,-175,-130],[82,105,-65],[92,130,0],[104,130,0]];for(let i=1;i<points.length;i++){if(frame<=points[i][0]){const a=points[i-1],b=points[i],t=clamp((frame-a[0])/(b[0]-a[0]),0,1);return {x:a[1]+(b[1]-a[1])*t,y:a[2]+(b[2]-a[2])*t};}}return {x:130,y:0};}
- function step(s){if(s.cinematic){s.frame++;const cut=s.cinematic;if(++cut.frame===40)emit(s,'release','月光解放',cut.side);if(cut.frame>=cut.duration){s.cinematic=null;s.f.forEach(f=>{f.queue=[];f.motions=[];f.tap=null;});}return;}s.frame++;s.effects=s.effects.filter(e=>--e.life>0);if(s.phase==='match')return;if(s.phase==='intro'){if(--s.phaseTicks<=0)s.phase='fight';return;}if(s.phase==='round'){if(--s.phaseTicks<=0)resetRound(s);return;}
+ function step(s){if(s.cinematic){s.frame++;const cut=s.cinematic;cut.frame++;const cue=cut.kind==='nuts-shell'?26:cut.kind==='chappy-data'?30:40;if(cut.frame===cue)emit(s,cut.kind==='nuts-shell'?'shellCrack':cut.kind==='chappy-data'?'scan':'release',cut.kind==='nuts-shell'?'殻を破る':cut.kind==='chappy-data'?'データ解析':'月光解放',cut.side);if(cut.frame>=cut.duration){s.cinematic=null;s.f.forEach(f=>{f.queue=[];f.motions=[];f.tap=null;});}return;}s.frame++;s.effects=s.effects.filter(e=>--e.life>0);if(s.phase==='match')return;if(s.phase==='intro'){if(--s.phaseTicks<=0)s.phase='fight';return;}if(s.phase==='round'){if(--s.phaseTicks<=0)resetRound(s);return;}
   if(s.mode!=='friend')cpu(s);if(s.cinematic)return;if(s.mode!=='training')s.time=Math.max(0,s.time-1/60);
   for(let side=0;side<2;side++){const f=s.f[side],e=s.f[1-side];f.face=f.action?f.action.originFace:e.x>=f.x?1:-1;f.meter=clamp(f.meter+1/60,0,100);if(s.mode==='training'&&s.infinite&&side===0)f.meter=100;f.stun=Math.max(0,f.stun-1);f.guardStun=Math.max(0,f.guardStun-1);f.guardDelay=Math.max(0,f.guardDelay-1);if(f.confusion>0){f.dir=[0,0];f.queue=[];if(--f.confusion===0){f.guard=balance.guardMax;f.guardDelay=balance.guardRecoverDelay;}}else if(f.guardDelay===0&&f.guardStun===0&&f.stun===0&&f.down===0&&!f.action)f.guard=clamp(f.guard+balance.guardRecoverPerFrame,0,balance.guardMax);f.wakeup=Math.max(0,f.wakeup-1);if(f.down>0&&f.y===0&&--f.down===0)f.wakeup=10;f.pink=Math.max(f.hp,f.pink-(s.frame%2?.2:.45));
    if(s.mode==='training'&&e.hp<100&&!locked(e)&&!f.action&&s.frame>f.comboUntil){e.hp=e.pink=100;}
@@ -123,4 +125,5 @@ window.LaboFight=(()=>{
  }
  return {balance,arena,damageFor,dragonMotion,spawnProjectile,combat,basicGeometry,hurtbox,attackbox,chars,create,direction,press,step,choose,startMove,canGuard,hit,resetRound,orbitOffset};
 })();
+
 
