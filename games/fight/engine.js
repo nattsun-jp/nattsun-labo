@@ -14,13 +14,13 @@ window.LaboFight=(()=>{
   {id:'nuts',name:'ナッツんjp',color:'#f0c25c',label:'落花生の底力',skills:[
    {name:'落花生爆弾',cost:30,start:14,end:42,hits:[16],damage:22,range:0,kind:'bomb'},
    {name:'落花生回転',cost:30,start:6,end:45,hits:[9,21],damage:12,range:102,kind:'roll',speed:6.5},
-   {name:'落花生の中からこんにちは。',cost:100,start:8,end:82,hits:[24],damage:48,range:195,kind:'giant'},
+   {name:'落花生の中からこんにちは。',cost:100,start:8,end:104,hits:[20],activeUntil:64,damage:48,range:600,verticalRange:260,kind:'giant'},
    {name:'落花生だって負けない！',cost:100,start:5,end:46,hits:[],damage:0,range:0,kind:'power'},
    {name:'落花生ロケット',cost:30,start:10,end:40,hits:[12],damage:22,range:0,kind:'bomb',projectile:true,antiAir:true}]},
   {id:'chappy',name:'チャッピー',color:'#63d4d0',label:'電気と叡智の使い手',skills:[
    {name:'プラグイン',cost:30,start:12,end:39,hits:[15],damage:24,range:230,kind:'cable'},
    {name:'電気ビリビリ',cost:30,start:10,end:42,hits:[14],damage:27,range:105,kind:'shock'},
-   {name:'データ収集',cost:100,start:8,end:84,hits:[54],damage:50,range:145,kind:'data',unblockable:true},
+   {name:'データ収集',cost:100,start:8,end:116,hits:[42],activeUntil:88,damage:50,range:640,verticalRange:260,kind:'data',unblockable:true},
    {name:'叡智の集合体',cost:100,start:5,end:46,hits:[],damage:0,range:0,kind:'reach'},
    {name:'撃ち落とします！',cost:30,start:8,end:37,hits:[10],damage:22,range:0,kind:'cd',projectile:true,antiAir:true}]}
  ];
@@ -66,11 +66,12 @@ window.LaboFight=(()=>{
   if(s.mode==='training'&&side===0){const target={special1:0,special2:1,super1:2,super2:3,antiAir:4}[s.drill];if(target===m.index&&m.type==='skill')s.complete=true;}
  }
  function canGuard(f,from,m){return !m.unblockable&&f.y===0&&!f.action&&f.guard>0&&f.confusion===0&&f.stun===0&&f.down===0&&f.wakeup===0&&f.dir[0]*(from.x>f.x?-1:1)>0&&(m.low?f.dir[1]>0:m.high?f.dir[1]<=0:true);}
+ const superReach=m=>m.kind==='giant'?180+420*clamp((m.frame-20)/24,0,1):m.range;
  function hit(s,side,m,range=m.range,projectile=null){const f=s.f[side],e=s.f[1-side];if(e.hp<=0||e.down>0)return false;const dx=e.x-f.x,omni=['shock','orbit','data'].includes(m.kind),reach=regular(m)?f.reach:1;let contact,from=projectile?{x:e.x-Math.sign(projectile.vx||projectile.v||m.originFace)*100}:f;
   if(projectile){if(projectile.airOnly&&e.y===0)return false;const body=hurtbox(e);contact={x:clamp(projectile.x,body.left,body.right),y:clamp(projectile.y,body.top,body.bottom)};}
   else if(m.type==='basic'){const box=attackbox(f,m),body=hurtbox(e);if(!overlaps(box,body))return false;contact={x:clamp(box.x,body.left,body.right),y:clamp(box.y,body.top,body.bottom)};}
   else if(m.kind==='throw'){if(Math.abs(dx)>range||m.air!==(f.y<0)||m.air!==(e.y<0)||Math.abs(f.y-e.y)>(m.air?75:10)||locked(e)||e.action?.type==='throw')return false;}
-  else if(Math.abs(dx)>range*reach||(!omni&&dx*m.originFace<-15)||Math.abs(f.y-e.y)>(m.kind==='orbit'?180:100))return false;
+  else if(Math.abs(dx)>range*reach||(!omni&&dx*m.originFace<-15)||Math.abs(f.y-e.y)>(m.verticalRange??(m.kind==='orbit'?180:100)))return false;
   const continuing=e.stun>0&&s.frame<=f.comboUntil,guard=canGuard(e,from,m),damage=guard?0:damageFor(m,regular(m)?f.power:1);
   e.hp=clamp(e.hp-damage*100/balance.maxHp,0,100);e.damageTaken+=damage;e.stun=guard?0:m.type==='basic'?20:22;e.action=null;e.queue=[];e.dash=0;e.wakeup=0;
   if(guard){e.guard=clamp(e.guard-Math.max(6,Math.round(m.damage*1.2)),0,balance.guardMax);e.guardDelay=balance.guardRecoverDelay;e.guardStun=7;if(e.guard===0){e.confusion=balance.guardBreakFrames;e.guardStun=0;e.dir=[0,0];e.motions=[];e.tap=null;emit(s,'guardBreak','GUARD BREAK · 2秒間混乱',1-side);}}
@@ -83,7 +84,7 @@ window.LaboFight=(()=>{
   if(m.kind==='giant'&&!guard){const sign=Math.sign(dx||m.originFace);e.x=clamp(e.x+sign*50,arena.left,arena.right);e.vy=-7;e.airVx=sign*6;e.down=28;e.stun=0;}
   if(m.kind==='data'){f.slow=.65;m.collected=true;}
   if(m.type==='basic')f.meter=clamp(f.meter+(guard?3:12),0,100);else if(m.type==='skill'&&m.cost<100){const gain=Math.min(6,18-(m.gained||0));m.gained=(m.gained||0)+gain;f.meter=clamp(f.meter+gain,0,100);}
-  s.effects.push({x:contact?.x??e.x,y:contact?.y??440+e.y-132,kind:guard?'guard':m.kind,life:20,side});emit(s,guard?'guard':'hit',guard?'GUARD':damage+' DAMAGE',1-side);
+  const effectLife=['giant','data'].includes(m.kind)?36:20;s.effects.push({x:contact?.x??e.x,y:contact?.y??440+e.y-132,kind:guard?'guard':m.kind,life:effectLife,ttl:effectLife,side});emit(s,guard?'guard':'hit',guard?'GUARD':damage+' DAMAGE',1-side);
   if(s.mode==='training'&&side===0){if(s.drill==='combo'&&f.combo>=3)s.complete=true;if(s.drill==='throw'&&m.kind==='throw')s.complete=true;}
   return true;
  }
@@ -114,7 +115,8 @@ window.LaboFight=(()=>{
    if(s.cinematic)return;
    const m=f.action;if(m){m.frame++;if(m.speed&&m.frame>=m.start&&m.frame<m.end-8)f.x=clamp(f.x+m.originFace*m.speed,arena.left,arena.right);
     if(m.kind==='orbit'&&m.frame>=m.start&&m.frame<m.end-8){const offset=orbitOffset(m.frame);f.x=clamp(e.x+offset.x,arena.left,arena.right);f.y=Math.min(0,e.y+offset.y);f.vy=0;f.face=m.originFace=e.x>=f.x?1:-1;m.orbitTilt=m.frame>=42&&m.frame<=58?1.15:m.frame>=74&&m.frame<=85?-.35:0;m.trail=(m.trail||[]).concat({x:f.x,y:f.y,face:f.face}).slice(-4);}
-    if(m.hits.includes(m.frame)&&!m.hit.includes(m.frame)){m.hit.push(m.frame);if(m.projectile||m.kind==='bomb'){spawnProjectile(s,side,m);}else hit(s,side,m,m.kind==='impact'&&m.connected?arena.width:m.range);}
+    if(['giant','data'].includes(m.kind)&&m.frame>=m.hits[0]&&m.frame<=m.activeUntil&&!m.contactDone){if(hit(s,side,m,superReach(m))){m.contactDone=true;m.impactFrame=m.frame;}}
+    if(!['giant','data'].includes(m.kind)&&m.hits.includes(m.frame)&&!m.hit.includes(m.frame)){m.hit.push(m.frame);if(m.projectile||m.kind==='bomb'){spawnProjectile(s,side,m);}else hit(s,side,m,m.kind==='impact'&&m.connected?arena.width:m.range);}
     if(m.frame>=m.end)f.action=null;
    }
   }
@@ -123,7 +125,7 @@ window.LaboFight=(()=>{
   for(const p of s.projectiles){const oldX=p.x,oldY=p.y;p.x+=p.vx??p.v;p.y+=p.vy||0;p.life--;const enemy=s.f[1-p.side],body=hurtbox(enemy),rx=p.rx||20,ry=p.ry||20,box={left:Math.min(oldX,p.x)-rx,right:Math.max(oldX,p.x)+rx,top:Math.min(oldY,p.y)-ry,bottom:Math.max(oldY,p.y)+ry};if((!p.airOnly||enemy.y<0)&&overlaps(box,body)&&hit(s,p.side,p.m,p.m.range,p))p.life=0;if(p.life<=0)s.effects.push({x:p.x,y:p.y,kind:p.m.kind,life:24,side:p.side});}s.projectiles=s.projectiles.filter(p=>p.life>0&&p.x>-70&&p.x<arena.width+70&&p.y>-80&&p.y<520);
   if(s.mode!=='training'&&(s.time<=0||s.f.some(f=>f.hp<=0)))endRound(s);
  }
- return {balance,arena,damageFor,dragonMotion,spawnProjectile,combat,basicGeometry,hurtbox,attackbox,chars,create,direction,press,step,choose,startMove,canGuard,hit,resetRound,orbitOffset};
+ return {balance,arena,superReach,damageFor,dragonMotion,spawnProjectile,combat,basicGeometry,hurtbox,attackbox,chars,create,direction,press,step,choose,startMove,canGuard,hit,resetRound,orbitOffset};
 })();
 
 
