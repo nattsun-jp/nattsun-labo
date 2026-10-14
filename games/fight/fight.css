@@ -54,3 +54,7 @@ body.expanded{position:fixed;inset:0;overflow:hidden;overscroll-behavior:none}.p
 .play-shell.expanded.rotated{--play-safe-top:env(safe-area-inset-right,0px);--play-safe-right:env(safe-area-inset-bottom,0px);--play-safe-bottom:env(safe-area-inset-left,0px);--play-safe-left:env(safe-area-inset-top,0px)}
 /* A translucent iOS status bar can still intercept touches when an inset is zero. */
 .play-shell.expanded.rotated.phone-layout.ios-standalone .touch-controls{left:max(64px,calc(var(--play-safe-left) + 12px));right:max(12px,calc(var(--play-safe-right) + 12px));bottom:max(12px,calc(var(--play-safe-bottom) + 12px))}
+
+
+/* Keep the release portrait clear; gameplay controls return with the simulation. */
+.play-shell.cinematic .hud,.play-shell.cinematic .training-hud{visibility:hidden}.play-shell.cinematic .touch-controls{opacity:.12}.play-shell.cinematic .touch-controls>div{pointer-events:none}
