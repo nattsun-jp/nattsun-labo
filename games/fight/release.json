@@ -1,0 +1,27 @@
+{
+  "release": "2026-10-15-super-effects",
+  "sourceCommit": "393d0ba0fe5a6c1557e08c78a2aa451cc997d421",
+  "scripts": {
+    "engine": 10,
+    "render": 11,
+    "fight": 19
+  },
+  "files": [
+    {
+      "path": "games/fight/engine.js",
+      "gitBlobSha": "16f81041a6380e8ededac6761241892db0cc3cb1"
+    },
+    {
+      "path": "games/fight/fight.js",
+      "gitBlobSha": "abe5cf15afa0408642ea827b3518328a18c2d27a"
+    },
+    {
+      "path": "games/fight/index.html",
+      "gitBlobSha": "394216022f0818290b0d1f4b3ad6e1a0bbd7bf6c"
+    },
+    {
+      "path": "games/fight/render.js",
+      "gitBlobSha": "5948de44b3620ca6f848c587f72db79d1e1c9658"
+    }
+  ]
+}
