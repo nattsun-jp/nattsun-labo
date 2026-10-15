@@ -1,4 +1,4 @@
-# LABOことばトレーニング v2
+# LABOことばトレーニング v3
 
 API-free English / Japanese-kanji learning for GitHub Pages. No AI conversation, account, recording API, or paid fallback.
 
@@ -19,3 +19,6 @@ API-free English / Japanese-kanji learning for GitHub Pages. No AI conversation,
 `node --check learn/app.js`
 
 The tests verify counts, all accepted answers, distinct distractors, rejected negations/numbers, 100-point totals, no duplicate test items, pending-input grading, and safe progress/exam restoration. Real iOS dictation, installed voices and visual browser checks require an available browser QA environment.
+
+## Vocabulary expansion v3
+5050 NGSL-GR headwords (5000 ranked plus 50 supplementary), definitions from EJDict CC0 and 120 original corrections. Existing 420 questions retained; English total 5470 questions. Levels vocab-1…vocab-11 are corpus bands, not school grades. Derived english-expanded.js are CC BY-SA 4.0, attributed in sources.html. Full raw dictionary entries retained for explanation, with short glosses for questions. See english-expanded.LICENSE.md.
