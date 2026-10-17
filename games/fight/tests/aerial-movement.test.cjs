@@ -23,7 +23,7 @@ for(let id=0;id<3;id++)for(let enemy=0;enemy<3;enemy++)for(const sign of [-1,1])
   if(f.combo>last){last=f.combo;hits.push({n,y:f.y,enemyY:e.y,name:f.action?.name,down:e.down,stun:e.stun});}
   for(const [w,h,phone] of [[960,540,false],[844,390,true],[390,320,true]]){const cam=R.camera(s,w,h,phone);for(const who of s.f){const box=E.hurtbox(who);assert(box.top*cam.scale+cam.oy>=0,'heads remain in frame');assert(box.bottom*cam.scale+cam.oy<=h,'feet remain in frame');}}
  }
- assert.equal(hits.length,10,JSON.stringify({id,enemy,sign,finish,hits}));assert(hits[8].y<hits[4].y-180,'jump/dash extensions carry the combo higher');assert(hits.at(-1).down>0&&hits.at(-1).stun===0,'both finishers cause hard knockdown');assert.equal(hits.at(-1).name,finish==='throw'?'空中投げ':'空中'+E.chars[id].skills[1].name);
+ assert.equal(hits.length,10,JSON.stringify({id,enemy,sign,finish,hits}));assert(hits[8].y<hits[4].y-180,'jump/dash extensions carry the combo higher');assert(hits.at(-1).down>0&&hits.at(-1).stun===0,'both finishers cause hard knockdown');assert.equal(hits.at(-1).name,finish==='throw'?'空中投げ':E.comboStyles[id].finisher);
  assert(c.window.LaboFriend.validState({...JSON.parse(JSON.stringify(s)),mode:'friend'}));
 }
 // The projectile extension must connect at the new high altitude, then grant JC.

@@ -59,8 +59,8 @@ for(const sheet of data.sheets){assert(sheet.parts.every(file=>fs.existsSync(pat
 for(let id=0;id<3;id++){
  const s=state(id),f=s.f[0];const check=(category,row)=>{const pose=R.animationPose(f,s.frame);assert.equal(pose.category,category);assert.equal(pose.row,row)};
  check('locomotion',0);f.walking=true;check('locomotion',1);f.walking=false;f.dash=12;check('locomotion',2);f.dash=0;f.y=-40;check('locomotion',3);
- for(const b of ['P','K']){f.dir=[0,0];f.action=E.choose(s,0,b);check('air-combo',b==='P'?0:1)}
- f.y=0;f.dir=[1,1];f.action=E.choose(s,0,'K');check('air-combo',2);f.action=null;f.y=-60;f.stun=20;check('air-combo',3);
+ for(const b of ['P','K']){f.dir=[0,0];f.action=E.choose(s,0,b);check(id===0&&b==='K'?'ruler-draw':'air-combo',id===0&&b==='K'?0:b==='P'?0:1)}
+ f.y=0;f.dir=[1,1];f.action=E.choose(s,0,'K');check(id===0?'ruler-draw':'air-combo',id===0?0:2);f.action=null;f.y=-60;f.stun=20;check('air-combo',3);
  let depth=0,draws=[];const c=new Proxy({canvas:{width:960,height:540},save(){depth++},restore(){depth--},drawImage(...args){draws.push(args)},createLinearGradient(){return {addColorStop(){}}}},{get(t,p){return p in t?t[p]:()=>{}},set(t,p,v){t[p]=v;return true}});
  R.draw(c,s);assert.equal(depth,0);assert(draws.some(args=>args[0].src.includes('animation-v2')),'new artwork is drawn');
 }
