@@ -57,7 +57,7 @@ for(const family of ['basic','skill','projectile']){
 }
 // Air specials and their hit-confirm JC, plus early up input buffering.
 for(let id=0;id<3;id++){
- const s=setup(id,id),f=s.f[0];f.meter=100;f.y=-100;E.direction(s,0,0,1);s.frame++;E.direction(s,0,-1,1);s.frame++;E.direction(s,0,-1,0);const m=E.choose(s,0,'K');assert(m.airSpecial);E.startMove(s,0,m);s.f[1].y=-100;assert(E.hit(s,0,m));E.direction(s,0,0,-1);tick(s,1);assert.equal(f.airJumps,1,'air special confirms into extra jump');
+ const s=setup(id,id),f=s.f[0];f.meter=100;f.y=-100;E.direction(s,0,0,1);s.frame++;E.direction(s,0,1,1);s.frame++;E.direction(s,0,1,0);const m=E.choose(s,0,'P');assert(m.airSpecial&&!m.airFinish);E.startMove(s,0,m);s.f[1].y=-100;assert(E.hit(s,0,m,m.range,m.projectile||m.kind==='bomb'?{x:s.f[1].x,y:210,vx:7}:null));E.direction(s,0,0,-1);tick(s,1);assert.equal(f.airJumps,1,'air special confirms into extra jump');
  const b=setup(id,id);E.press(b,0,'P');tick(b,4);E.direction(b,0,0,-1);tick(b,4);assert(b.f[0].y<0,'up buffered just before a hit confirms into jump');
 }
 console.log('Cancels: 36 actual 10-hit routes, 6 ruler cancel routes, character feints, input buffers, air special JC, throws, shared budgets and serialized guest states passed');

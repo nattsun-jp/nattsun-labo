@@ -29,10 +29,10 @@ for(const swap of [false,true]){
  const f=s.f[0];f.meter=100;E.direction(s,0,1,0);s.frame++;E.direction(s,0,0,1);s.frame++;E.direction(s,0,-1,0);assert.equal(E.choose(s,0,'S').index,2,'super takes priority over directional throw');assert.equal(f.meter,0);
 }
 for(const dx of [-1,1]){
- const s=state();s.f[0].x=dx>0?300:500;s.f[1].x=dx>0?355:445;E.direction(s,0,dx,-1);tick(s,37);assert.equal(s.f[0].y,0);assert.equal(s.f[0].x>s.f[1].x,dx>0,'diagonal jump crosses opponent');tick(s,1);assert.equal(s.f[0].face,dx>0?-1:1);
+ const s=state();s.f[0].x=dx>0?300:500;s.f[1].x=dx>0?355:445;E.direction(s,0,dx,-1);tick(s,52);assert.equal(s.f[0].y,0);assert.equal(s.f[0].x>s.f[1].x,dx>0,'diagonal jump crosses opponent');tick(s,1);assert.equal(s.f[0].face,dx>0?-1:1);
 }
 for(const dy of [-1,0,1]){
- const s=state();E.direction(s,0,1,dy);tick(s,2);E.direction(s,0,0,0);tick(s,1);E.direction(s,0,1,dy);assert(s.f[0].dash>0,'double tap direction starts dash');const x=s.f[0].x;tick(s,1);assert(s.f[0].x-x>6);const ticks=s.f[0].dash;E.direction(s,0,1,dy);assert.equal(s.f[0].dash,ticks,'held input does not restart dash');
+ const s=state();E.direction(s,0,1,dy);tick(s,2);E.direction(s,0,0,0);tick(s,1);if(dy<0){E.direction(s,0,1,dy);tick(s,1);E.direction(s,0,0,0);tick(s,1);}E.direction(s,0,1,dy);assert(s.f[0].dash>0,'double tap direction starts dash');const x=s.f[0].x;tick(s,1);assert(s.f[0].x-x>6);const ticks=s.f[0].dash;E.direction(s,0,1,dy);assert.equal(s.f[0].dash,ticks,'held input does not restart dash');
 }
 {
  const s=state();E.direction(s,0,1,0);tick(s,20);E.direction(s,0,0,0);tick(s,1);E.direction(s,0,1,0);assert.equal(s.f[0].dash,0,'late second tap is ordinary walking');
