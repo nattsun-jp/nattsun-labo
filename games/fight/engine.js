@@ -1,7 +1,7 @@
 /* NattsunLABO's original fighting simulation. No network or billing dependencies. */
 window.LaboFight=(()=>{
  'use strict';
- const balance={maxHp:200,damageScale:.85,guardMax:100,guardBreakFrames:120,guardRecoverDelay:90,guardRecoverPerFrame:.125};
+ const balance={maxHp:200,damageScale:.85,guardMax:100,guardBreakFrames:120,guardRecoverDelay:90,guardRecoverPerFrame:.125,juggleMax:12,comboMax:18};
  const arena={width:1200,height:675,viewTop:-100,left:65,right:1135,center:600};
  const damageFor=(m,power=1)=>m.kind==='data'?balance.maxHp*.5:Math.max(1,Math.round(m.damage*balance.damageScale*power));
  const chars=[
@@ -32,64 +32,76 @@ window.LaboFight=(()=>{
  ];
  function basicGeometry(id,kick,low,high,chain=1){const limb=combat[id][kick?'kick':'punch'],sx=(low||high)?0.62:1,sy=low?0.35:high?0.65:1;return {tipX:limb.x*sx+(chain-1)*4,tipY:limb.y*sy,rx:limb.rx,ry:limb.ry,sx,sy};}
  function hurtbox(f){const p=combat[f.id],m=f.action,crouching=f.y===0&&(f.dir[1]>0||m?.low),height=crouching?p.crouch:p.height;return {left:f.x-p.width,right:f.x+p.width,top:440+f.y-height,bottom:440+f.y};}
- function attackbox(f,m){if(m?.type!=='basic')return null;const reach=f.reach||1,tip=m.tipX*reach,back=Math.max(16,tip*.35),a=f.x+m.originFace*back,b=f.x+m.originFace*(tip+m.rx),cy=440+f.y+m.tipY;return {left:Math.min(a,b),right:Math.max(a,b),top:cy-m.ry,bottom:cy+m.ry,x:f.x+m.originFace*tip,y:cy};}
+ function attackbox(f,m){if(m?.type!=='basic')return null;const reach=f.reach||1,tip=m.tipX*reach,back=m.high?12:Math.max(16,tip*.35),a=f.x+m.originFace*back,b=f.x+m.originFace*(tip+m.rx),cy=440+f.y+m.tipY;return {left:Math.min(a,b),right:Math.max(a,b),top:cy-m.ry,bottom:cy+m.ry,x:f.x+m.originFace*tip,y:cy};}
  const overlaps=(a,b)=>a.left<=b.right&&a.right>=b.left&&a.top<=b.bottom&&a.bottom>=b.top;
  const locked=f=>f.stun>0||f.down>0||f.wakeup>0||f.guardStun>0||f.confusion>0;
  const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
- function fighter(id,x){return {id,x,y:0,vy:0,hp:100,pink:100,maxHp:balance.maxHp,guard:balance.guardMax,guardStun:0,guardDelay:0,confusion:0,meter:0,wins:0,face:x<arena.center?1:-1,dir:[0,0],previousY:0,airVx:0,walkPhase:0,walking:false,dash:0,dashDx:0,airDashed:false,airChain:0,airJumps:0,juggleHits:0,jumpCancelUntil:0,landing:0,airComboHits:0,launchedComboUntil:0,tap:null,down:0,wakeup:0,stun:0,action:null,queue:[],motions:[],history:[],lastDir:'',chain:0,lastBasic:-100,power:1,reach:1,slow:1,combo:0,comboDamage:0,comboUntil:0,damageTaken:0,lastMove:'',aiAt:0,guardTicks:0};}
+ function fighter(id,x){return {id,x,y:0,vy:0,hp:100,pink:100,maxHp:balance.maxHp,guard:balance.guardMax,guardStun:0,guardDelay:0,confusion:0,meter:0,wins:0,face:x<arena.center?1:-1,dir:[0,0],previousY:0,airVx:0,walkPhase:0,walking:false,dash:0,dashDx:0,airDashed:false,airDashFrames:0,airChain:0,airJumps:0,juggleHits:0,comboAirHits:0,feintUsed:false,feintReadyAt:0,jumpRequestUntil:0,jumpCancelUntil:0,landing:0,airComboHits:0,launchedComboUntil:0,tap:null,down:0,wakeup:0,stun:0,action:null,queue:[],motions:[],history:[],lastDir:'',chain:0,lastBasic:-100,power:1,reach:1,slow:1,combo:0,comboDamage:0,comboUntil:0,damageTaken:0,lastMove:'',aiAt:0,guardTicks:0};}
  function create(mode='cpu',ids=[0,1]){return {mode,ids:[...ids],f:[fighter(ids[0],435),fighter(ids[1],765)],frame:0,time:99,phase:'intro',phaseTicks:100,round:1,winner:null,effects:[],projectiles:[],events:[],dummy:'stand',infinite:true,drill:'free',complete:false,rng:192731,inputSeq:0,showHitboxes:false};}
  function random(s){s.rng=(Math.imul(s.rng,1664525)+1013904223)>>>0;return s.rng/4294967296;}
  function emit(s,type,text,side){s.events.push({type,text,side,frame:s.frame});if(s.events.length>12)s.events.shift();}
  function direction(s,side,dx,dy){const f=s.f[side];if(s.cinematic){f.dir=[0,0];return;}dx=clamp(dx,-1,1);dy=clamp(dy,-1,1);const changed=dx!==f.dir[0]||dy!==f.dir[1];
   if(f.confusion>0){f.dir=[0,0];return;}
-  if(changed&&dx!==0&&s.phase==='fight'){const tap=f.tap;if(tap&&tap.dx===dx&&tap.dy===dy&&s.frame-tap.t<=16&&s.frame>tap.t&&!locked(f)&&!f.action&&!(f.y<0&&f.airDashed)){f.dash=14;f.dashDx=dx;if(f.y<0){f.airDashed=true;f.airVx=dx*7.5;}emit(s,'move','ダッシュ',side);f.tap=null;}else f.tap={dx,dy,t:s.frame};}
+  if(changed&&dx!==0&&s.phase==='fight'){const tap=f.tap,air=f.y<0,airCancel=air&&f.action?.type==='basic'&&f.action.confirmed&&!f.action.airSpike&&s.frame<=f.jumpCancelUntil;if(tap&&tap.dx===dx&&tap.dy===dy&&s.frame-tap.t<=16&&s.frame>tap.t&&!locked(f)&&(!f.action||airCancel)&&!(air&&f.airDashed)){f.dash=14;f.dashDx=dx;if(air){f.airDashed=true;f.airVx=dx*7.5;f.vy=0;f.airDashFrames=10;if(airCancel){f.action=null;f.queue=[];f.airChain=0;f.jumpCancelUntil=0;f.motions=[];if(s.mode==='training'&&side===0&&s.drill==='airDash')s.complete=true;}}emit(s,'move',airCancel?'空中ダッシュキャンセル':'ダッシュ',side);f.tap=null;}else f.tap={dx,dy,t:s.frame};}
   f.dir=[dx,dy];const value=(dy<0?'↑':dy>0?'↓':'')+(dx<0?'←':dx>0?'→':'');if(value&&value!==f.lastDir){f.motions.push({dx,dy,t:s.frame,face:f.face});f.motions=f.motions.filter(m=>s.frame-m.t<75).slice(-14);f.history.push({text:value,t:s.frame});if(f.history.length>18)f.history.shift();}f.lastDir=value;
  }
  function press(s,side,button){if(s.cinematic||!['P','K','S'].includes(button)||s.phase==='match')return;const f=s.f[side];if(f.confusion>0)return;f.history.push({text:button,t:s.frame});if(f.history.length>18)f.history.shift();f.queue.push({button,t:s.frame,dir:[...f.dir],motions:f.motions.map(m=>({...m}))});f.queue=f.queue.slice(-3);}
  function motion(f,seq,time){const list=f.motions.filter(m=>time-m.t<=65);let cursor=seq.length-1,face=f.face;for(let i=list.length-1;i>=0&&cursor>=0;i--){const m=list[i],symbol=m.dy>0?'D':m.dx*face>0?'F':m.dx*face<0?'B':null;if(symbol===seq[cursor])cursor--;else if(symbol&&symbol!==seq[cursor+1])return false;}return cursor<0;}
  function dragonMotion(f,time){const list=f.motions.filter(m=>time-m.t<=65),face=f.face;let cursor=2;const seq=['F','D','DF'];for(let i=list.length-1;i>=0&&cursor>=0;i--){const m=list[i],symbol=m.dx*face>0&&m.dy>0?'DF':m.dy>0&&m.dx===0?'D':m.dx*face>0&&m.dy===0?'F':'other';if(symbol===seq[cursor])cursor--;else if(symbol!==seq[cursor+1])return false;}return cursor<0;}
  const regular=m=>m.type==='basic'||m.type==='skill'&&m.cost<100;
- function spawnProjectile(s,side,m){const f=s.f[side],face=m.originFace,air=!!m.antiAir;const radius=air?48:m.kind==='fist'?28:20;s.projectiles.push({x:f.x+face*(combat[f.id].punch.x-16),y:440+f.y+combat[f.id].punch.y,vx:face*(air?7:m.kind==='fist'?9:7),vy:air?-7:0,side,life:100,rx:radius*f.reach,ry:(air?44:m.kind==='fist'?24:20)*f.reach,airOnly:air,m:{...m,hit:[],gained:0}});}
+ function spawnProjectile(s,side,m){const f=s.f[side],face=m.originFace,air=!!m.antiAir;const radius=air?48:m.kind==='fist'?28:20;s.projectiles.push({x:f.x+face*(combat[f.id].punch.x-16),y:440+f.y+(m.airSpecial?-130:combat[f.id].punch.y),vx:face*(air?7:m.kind==='fist'?9:7),vy:air?-7:0,side,life:100,rx:radius*f.reach,ry:(air?44:m.kind==='fist'?24:20)*f.reach,airOnly:air,m:{...m,hit:[],gained:0}});}
  function choose(s,side,button){const f=s.f[side],e=s.f[1-side],skills=chars[f.id].skills;let index=-1;
-  if(button==='S'){if(motion(f,['F','D','B'],s.frame))index=2;else if(motion(f,['B','D','F'],s.frame))index=3;else if(f.dir[0]!==0&&f.dir[1]===0){f.motions=[];const air=f.y<0;return {name:air?'空中投げ':'投げ',type:'throw',kind:'throw',start:4,end:32,hits:[6],damage:air?24:16,range:air?90:80,air,throwDx:f.dir[0],swap:f.dir[0]*f.face<0,unblockable:true,frame:0,hit:[],originFace:f.face};}else{emit(s,'hint','打ち上げは斜め前下＋K / 投げは左右＋S',side);return null;}}
+  if(button==='S'){if(motion(f,['F','D','B'],s.frame))index=2;else if(motion(f,['B','D','F'],s.frame))index=3;else if(f.dir[0]!==0&&f.dir[1]===0){f.motions=[];const air=f.y<0;return {name:air?'空中投げ':'投げ',type:'throw',kind:'throw',start:4,end:32,hits:[6],damage:air?24:16,range:air?112:80,air,throwDx:f.dir[0],swap:f.dir[0]*f.face<0,unblockable:true,frame:0,hit:[],originFace:f.face};}else{emit(s,'hint','打ち上げは斜め前下＋K / 投げは左右＋S',side);return null;}}
   else if(button==='K'&&f.y===0&&f.dir[1]>0&&f.dir[0]*f.face>0){f.motions=[];f.chain=0;f.lastBasic=s.frame;return {name:'打ち上げ',type:'basic',kind:'kick',launcher:true,tipX:96,tipY:-145,rx:28,ry:54,start:8,end:32,hits:[10],damage:10,range:124,frame:0,hit:[],originFace:f.face};}
+  else if(button==='K'&&f.id===0&&f.y===0&&motion(f,['D','F'],s.frame)){f.motions=[];return {name:'定規抜刀',type:'skill',kind:'rulerDraw',cost:0,index:5,feint:true,start:6,end:30,hits:[8],damage:12,range:184,verticalRange:100,frame:0,hit:[],originFace:f.face};}
   else if(button==='P'&&dragonMotion(f,s.frame))index=4;
   else if(button==='P'&&motion(f,['D','F'],s.frame))index=0;
   else if(button==='K'&&motion(f,['D','B'],s.frame))index=1;
-  if(index>=0){const m=skills[index];if(f.meter<m.cost){emit(s,'hint',m.cost>=100?'ゲージMAXで発動できます':'スキルゲージが足りません',side);return null;}f.meter-=m.cost;f.motions=[];return {...m,type:'skill',index,frame:0,hit:[],originFace:f.face,connected:false};}
+  if(index>=0){const m=skills[index];if(f.meter<m.cost){emit(s,'hint',m.cost>=100?'ゲージMAXで発動できます':'スキルゲージが足りません',side);return null;}f.meter-=m.cost;f.motions=[];const airSpecial=f.y<0&&index<2;return {...m,name:(airSpecial?'空中':'')+m.name,type:'skill',index,airSpecial,feint:f.y===0&&(f.id===1&&index===1||f.id===2&&index===0),frame:0,hit:[],originFace:f.face,connected:false};}
   const chain=s.frame-f.lastBasic<48?f.chain%3+1:1;f.chain=chain;f.lastBasic=s.frame;const kick=button==='K';const low=f.dir[1]>0&&f.y===0,high=f.y<0;
   if(high)f.airChain=(f.airChain||0)+1;
+  if(high&&kick&&f.dir[1]>0)return {name:'空中叩き落とし',type:'basic',kind:'kick',high:true,airSpike:true,tipX:110,tipY:-65,rx:32,ry:48,start:7,end:32,hits:[9],damage:16,range:142,frame:0,hit:[],originFace:f.face};
   const geometry=basicGeometry(f.id,kick,low,high,chain);
   return {...geometry,launcher:false,name:(low?'しゃがみ':high?'ジャンプ':'')+(kick?'キック':'パンチ')+(chain>1?' '+chain:' '),type:'basic',kind:kick?'kick':'punch',start:chain===3?8:5,end:chain===3?30:21,hits:[chain===3?10:7],damage:(kick?9:6)+(chain-1)*2,range:geometry.tipX+geometry.rx,low,high,frame:0,hit:[],originFace:f.face};
  }
- function startMove(s,side,m){const f=s.f[side];if(!m)return;f.action=m;f.jumpCancelUntil=0;f.dash=0;f.lastMove=m.name;emit(s,m.type==='skill'&&m.cost>=100?'super':'move',m.name,side);if(m.kind==='power')f.power=1.5;if(m.kind==='reach')f.reach=1.6;
+ function startMove(s,side,m){const f=s.f[side];if(!m)return;f.action=m;m.serial=++s.inputSeq;f.jumpCancelUntil=0;f.dash=0;f.lastMove=m.name;emit(s,m.type==='skill'&&m.cost>=100?'super':'move',m.name,side);if(m.kind==='power')f.power=1.5;if(m.kind==='reach')f.reach=1.6;
   if(f.id===0&&m.type==='skill'&&m.kind==='orbit'){s.cinematic={kind:'rei-moonlight',side,frame:0,duration:78};s.f.forEach(p=>{p.dir=[0,0];p.queue=[];p.motions=[];p.tap=null;});m.trail=[];}
   if(m.type==='skill'&&m.cost>=100&&(f.id===1&&m.kind==='giant'||f.id===2&&m.kind==='data')){s.cinematic={kind:f.id===1?'nuts-shell':'chappy-data',side,frame:0,duration:f.id===1?60:66};s.f.forEach(p=>{p.dir=[0,0];p.queue=[];p.motions=[];p.tap=null;});}
   if(s.mode==='training'&&side===0){const target={special1:0,special2:1,super1:2,super2:3,antiAir:4}[s.drill];if(target===m.index&&m.type==='skill')s.complete=true;}
+ }
+ function feintCancel(s,side){const f=s.f[side],m=f.action;if(!m?.feint||f.y!==0||locked(f))return false;
+  if(s.frame<f.feintReadyAt||(f.feintUsed&&s.f[1-side].stun>0&&s.frame<=f.comboUntil)){emit(s,'hint','固有キャンセルは1コンボ1回・再使用まで少し待ちます',side);return false;}
+  f.feintUsed=true;f.feintReadyAt=s.frame+45;f.chain=0;f.lastBasic=-100;f.motions=[];f.queue=[];f.jumpRequestUntil=0;
+  startMove(s,side,{name:['定規抜刀キャンセル','回転キャンセル','プラグイン解除'][f.id],type:'feint',kind:f.id===0?'rulerSheathe':'feint',start:0,end:6,hits:[],damage:0,frame:0,hit:[],originFace:f.face});
+  if(s.mode==='training'&&side===0&&s.drill==='cancel')s.complete=true;return true;
  }
  function canGuard(f,from,m){return !m.unblockable&&f.y===0&&!f.action&&f.guard>0&&f.confusion===0&&f.stun===0&&f.down===0&&f.wakeup===0&&f.dir[0]*(from.x>f.x?-1:1)>0&&(m.low?f.dir[1]>0:m.high?f.dir[1]<=0:true);}
  const superReach=m=>m.kind==='giant'?180+420*clamp((m.frame-20)/24,0,1):m.range;
  function hit(s,side,m,range=m.range,projectile=null){const f=s.f[side],e=s.f[1-side];if(e.hp<=0||e.down>0)return false;const dx=e.x-f.x,omni=['shock','orbit','data'].includes(m.kind),reach=regular(m)?f.reach:1;let contact,from=projectile?{x:e.x-Math.sign(projectile.vx||projectile.v||m.originFace)*100}:f;
   if(projectile){if(projectile.airOnly&&e.y===0)return false;const body=hurtbox(e);contact={x:clamp(projectile.x,body.left,body.right),y:clamp(projectile.y,body.top,body.bottom)};}
   else if(m.type==='basic'){const box=attackbox(f,m),body=hurtbox(e);if(!overlaps(box,body))return false;contact={x:clamp(box.x,body.left,body.right),y:clamp(box.y,body.top,body.bottom)};}
-  else if(m.kind==='throw'){if(Math.abs(dx)>range||m.air!==(f.y<0)||m.air!==(e.y<0)||Math.abs(f.y-e.y)>(m.air?75:10)||locked(e)||e.action?.type==='throw')return false;}
+  else if(m.kind==='throw'){const comboThrow=m.air&&e.stun>0&&f.combo>0&&s.frame<=f.comboUntil&&(e.juggleHits||0)>0&&!e.down&&!e.wakeup&&!e.guardStun&&!e.confusion;if(Math.abs(dx)>range||m.air!==(f.y<0)||m.air!==(e.y<0)||Math.abs(f.y-e.y)>(m.air?105:10)||locked(e)&&!comboThrow||e.action?.type==='throw')return false;}
   else if(Math.abs(dx)>range*reach||(!omni&&dx*m.originFace<-15)||Math.abs(f.y-e.y)>(m.verticalRange??(m.kind==='orbit'?180:100)))return false;
   const continuing=e.stun>0&&s.frame<=f.comboUntil,guard=canGuard(e,from,m);
-  // Limit aerial relaunches so a corner cannot become an infinite combo.
-  if(!guard&&m.type==='basic'&&e.y<0&&(e.juggleHits||0)>=6)return false;
-  const damage=guard?0:damageFor(m,regular(m)?f.power:1);
+  // One shared budget covers normals, skills and projectiles, even across landings.
+  if(!guard&&continuing&&(f.combo>=balance.comboMax||(f.comboAirHits||0)>=balance.juggleMax)&&m.kind!=='throw')return false;
+  if(!guard&&e.y<0&&(e.juggleHits||0)>=balance.juggleMax&&m.kind!=='throw')return false;
+  const baseDamage=damageFor(m,regular(m)?f.power:1),scaling=continuing&&f.combo>=5&&m.kind!=='data'?Math.max(.4,1-(f.combo-4)*.09):1;
+  const damage=guard?0:Math.max(1,Math.round(baseDamage*scaling));
   e.hp=clamp(e.hp-damage*100/balance.maxHp,0,100);e.damageTaken+=damage;e.stun=guard?0:m.type==='basic'?20:22;e.action=null;e.queue=[];e.dash=0;e.wakeup=0;
   if(guard){e.guard=clamp(e.guard-Math.max(6,Math.round(m.damage*1.2)),0,balance.guardMax);e.guardDelay=balance.guardRecoverDelay;e.guardStun=7;if(e.guard===0){e.confusion=balance.guardBreakFrames;e.guardStun=0;e.dir=[0,0];e.motions=[];e.tap=null;emit(s,'guardBreak','GUARD BREAK · 2秒間混乱',1-side);}}
-  if(!guard){m.confirmed=true;if(m.type==='basic')f.jumpCancelUntil=s.frame+24;f.combo=continuing?f.combo+1:1;f.comboDamage=continuing?f.comboDamage+damage:damage;f.comboUntil=s.frame+65;
+  if(!guard){m.confirmed=true;if(f.action&&m.serial&&f.action.serial===m.serial)f.action.confirmed=true;if(m.type==='basic'||m.airSpecial)f.jumpCancelUntil=s.frame+24;if(!continuing){f.comboAirHits=0;f.feintUsed=false;}if(e.y<0||m.launcher)f.comboAirHits=(f.comboAirHits||0)+1;f.combo=continuing?f.combo+1:1;f.comboDamage=continuing?f.comboDamage+damage:damage;f.comboUntil=s.frame+65;
    if(m.kind==='throw'){const oldX=f.x,enemyX=e.x,sign=Math.sign(dx||f.face);if(m.swap){f.x=clamp(enemyX,arena.left,arena.right);e.x=clamp(oldX-sign*42,arena.left,arena.right);}else e.x=clamp(enemyX+sign*110,arena.left,arena.right);e.down=30;e.stun=0;e.vy=m.air?6:0;e.airVx=0;f.face=e.x>=f.x?1:-1;e.face=-f.face;m.originFace=f.face;contact={x:e.x,y:440+e.y-45};}
    else e.x=clamp(e.x+Math.sign(projectile?(projectile.vx||projectile.v):dx||f.face)*(m.type==='basic'?5:12),arena.left,arena.right);
   }
-  if(!guard&&m.launcher){f.airComboHits=0;f.launchedComboUntil=s.frame+90;e.y=Math.min(e.y,-1);e.vy=-11.8;e.airVx=m.originFace*1.1;e.stun=42;e.juggleHits=(e.juggleHits||0)+1;}
-  else if(!guard&&m.type==='basic'&&e.y<0){e.juggleHits=(e.juggleHits||0)+1;e.vy=-Math.max(1.4,4.6-e.juggleHits*.55);e.airVx=m.originFace*.7;e.stun=26;if(m.high){f.vy=Math.min(f.vy,-1.8);f.airVx=Math.sign(f.airVx||m.originFace)*1.4;if(continuing&&s.frame<=f.launchedComboUntil){f.airComboHits=(f.airComboHits||0)+1;if(s.mode==='training'&&side===0&&s.drill==='airCombo'&&f.airComboHits>=2)s.complete=true;}}}
+  if(!guard&&m.launcher){f.airComboHits=0;f.launchedComboUntil=s.frame+220;e.y=Math.min(e.y,-1);e.vy=-11.8;e.airVx=m.originFace*1.1;e.stun=42;e.juggleHits=(e.juggleHits||0)+1;}
+  else if(!guard&&regular(m)&&m.kind!=='throw'&&e.y<0){e.juggleHits=(e.juggleHits||0)+1;e.vy=-Math.max(2.2,7.4-e.juggleHits*.35);e.airVx=m.originFace*.7;e.stun=30;if((m.high||m.airSpecial)&&f.y<0){f.vy=Math.min(f.vy,-1.8);f.airVx=Math.sign(f.airVx||m.originFace)*1.4;if(continuing&&s.frame<=f.launchedComboUntil){f.airComboHits=(f.airComboHits||0)+1;if(s.mode==='training'&&side===0&&s.drill==='airCombo'&&f.airComboHits>=2)s.complete=true;}}}
   if(m.kind==='impact'&&!m.connected&&!guard){e.x=f.face>0?arena.right-10:arena.left+10;m.connected=true;}
   if(m.kind==='orbit'&&!guard&&m.frame===m.hits.at(-1)){const sign=Math.sign(dx||m.originFace);e.x=clamp(e.x+sign*38,arena.left,arena.right);e.vy=-6;e.airVx=sign*4.6;e.down=22;e.stun=0;}
   if(m.kind==='giant'&&!guard){const sign=Math.sign(dx||m.originFace);e.x=clamp(e.x+sign*50,arena.left,arena.right);e.vy=-7;e.airVx=sign*6;e.down=28;e.stun=0;}
   if(m.kind==='data'){f.slow=.65;m.collected=true;}
+  if(!guard&&m.kind!=='throw'&&(m.airSpike||f.combo>=balance.comboMax||(f.comboAirHits||0)>=balance.juggleMax)){e.down=30;e.stun=0;e.vy=e.y<0?8:0;e.airVx=m.originFace*2.5;f.jumpCancelUntil=0;emit(s,'move',m.airSpike?'空中叩き落とし':'コンボ上限・ダウン',side);}
+  if(!guard&&s.mode==='training'&&side===0&&s.drill==='airThrow'&&m.kind==='throw'&&m.air&&continuing)s.complete=true;
   if(m.type==='basic')f.meter=clamp(f.meter+(guard?3:12),0,100);else if(m.type==='skill'&&m.cost<100){const gain=Math.min(6,18-(m.gained||0));m.gained=(m.gained||0)+gain;f.meter=clamp(f.meter+gain,0,100);}
   const effectLife=['giant','data'].includes(m.kind)?36:20;s.effects.push({x:contact?.x??e.x,y:contact?.y??440+e.y-132,kind:guard?'guard':m.kind,life:effectLife,ttl:effectLife,side});emit(s,guard?'guard':'hit',guard?'GUARD':damage+' DAMAGE',1-side);
   if(s.mode==='training'&&side===0){if(s.drill==='combo'&&f.combo>=3)s.complete=true;if(s.drill==='throw'&&m.kind==='throw')s.complete=true;}
@@ -113,15 +125,16 @@ window.LaboFight=(()=>{
   for(let side=0;side<2;side++){const f=s.f[side],e=s.f[1-side];f.face=f.action?f.action.originFace:e.x>=f.x?1:-1;f.meter=clamp(f.meter+1/60,0,100);if(s.mode==='training'&&s.infinite&&side===0)f.meter=100;f.stun=Math.max(0,f.stun-1);f.guardStun=Math.max(0,f.guardStun-1);f.guardDelay=Math.max(0,f.guardDelay-1);if(f.confusion>0){f.dir=[0,0];f.queue=[];if(--f.confusion===0){f.guard=balance.guardMax;f.guardDelay=balance.guardRecoverDelay;}}else if(f.guardDelay===0&&f.guardStun===0&&f.stun===0&&f.down===0&&!f.action)f.guard=clamp(f.guard+balance.guardRecoverPerFrame,0,balance.guardMax);f.wakeup=Math.max(0,f.wakeup-1);if(f.down>0&&f.y===0&&--f.down===0)f.wakeup=10;f.pink=Math.max(f.hp,f.pink-(s.frame%2?.2:.45));
    if(s.mode==='training'&&e.hp<100&&!locked(e)&&!f.action&&s.frame>f.comboUntil){e.hp=e.pink=100;}
    const profile=combat[f.id];f.walking=false;f.landing=Math.max(0,(f.landing||0)-1);
-   const jumpEdge=f.dir[1]<0&&f.previousY>=0;
-   if(!locked(f)&&f.action?.type==='basic'&&f.action.confirmed&&s.frame<=f.jumpCancelUntil&&jumpEdge&&(f.y===0||(f.airJumps||0)<1)){if(f.y<0)f.airJumps=(f.airJumps||0)+1;else f.airJumps=0;f.action=null;f.queue=[];f.vy=-12;f.airVx=f.dir[0]*profile.jumpSpeed;f.airChain=0;f.jumpCancelUntil=0;emit(s,'move','ジャンプキャンセル',side);}
+   const jumpEdge=f.dir[1]<0&&f.previousY>=0;if(jumpEdge)f.jumpRequestUntil=s.frame+5;
+   const jumpConfirmed=f.action?.confirmed&&(f.action.type==='basic'&&!f.action.airSpike||f.action.airSpecial);
+   if(!locked(f)&&jumpConfirmed&&s.frame<=f.jumpCancelUntil&&s.frame<=f.jumpRequestUntil&&(f.y===0||(f.airJumps||0)<1)){if(f.y<0)f.airJumps=(f.airJumps||0)+1;else f.airJumps=0;f.action=null;f.queue=[];f.vy=-12;f.airVx=f.dir[0]*profile.jumpSpeed;f.airChain=0;f.jumpCancelUntil=0;f.jumpRequestUntil=0;emit(s,'move','ジャンプキャンセル',side);}
    if(!locked(f)&&!f.action){const frozenDummy=s.mode==='training'&&side===1&&s.dummy!=='cpu';
     if(f.dir[1]<0&&f.previousY>=0&&f.y===0&&f.vy===0){f.vy=-10;f.airVx=f.dir[0]*profile.jumpSpeed;f.airDashed=false;f.airChain=0;f.airJumps=0;}
     if(!frozenDummy){const crouch=f.dir[1]>0&&f.y===0,velocity=f.dash>0?f.dashDx*7.5*f.slow:f.y<0?(f.dir[0]?f.dir[0]*profile.jumpSpeed:f.airVx)*f.slow:crouch?0:f.dir[0]*profile.speed*f.slow;const beforeX=f.x;f.x=clamp(f.x+velocity,arena.left,arena.right);if(f.y===0&&f.vy===0&&!crouch&&Math.abs(f.x-beforeX)>.01){f.walking=true;f.walkPhase=(f.walkPhase+Math.abs(f.x-beforeX)/22)%4;}}
    }else f.dash=0;
    if(f.y<0&&f.action&&!locked(f))f.x=clamp(f.x+(f.airVx||0)*f.slow,arena.left,arena.right);
-   f.dash=Math.max(0,f.dash-1);f.previousY=f.dir[1];if((f.down>0||f.stun>0)&&f.y<0){f.x=clamp(f.x+(f.airVx||0),arena.left,arena.right);f.airVx*=.96;}const wasAir=f.y<0;f.vy+=.55;f.y=Math.min(0,f.y+f.vy);if(f.y===0){f.vy=0;f.airVx=0;f.airDashed=false;f.airJumps=0;f.airChain=0;f.juggleHits=0;if(wasAir){f.airComboHits=0;f.launchedComboUntil=0;f.landing=6;if(f.action?.high)f.action=null;}}
-   f.queue=f.queue.filter(q=>s.frame-q.t<40);const qLauncher=f.y===0&&f.queue[0]?.button==='K'&&f.queue[0].dir?.[1]>0&&f.queue[0].dir?.[0]*f.face>0;const cancellable=f.action?.type==='basic'&&!f.action.launcher&&(f.y<0?f.action.confirmed&&f.action.frame>=8&&(f.airChain||0)<4:f.action.frame>=12&&(f.chain<3||qLauncher&&f.action.confirmed));
+   f.dash=Math.max(0,f.dash-1);f.previousY=f.dir[1];if((f.down>0||f.stun>0)&&f.y<0){f.x=clamp(f.x+(f.airVx||0),arena.left,arena.right);f.airVx*=.96;}const wasAir=f.y<0;if(f.airDashFrames>0&&!locked(f)){f.airDashFrames--;f.vy=0;}else{f.airDashFrames=0;f.vy+=.55;}f.y=Math.min(0,f.y+f.vy);if(f.y===0){f.vy=0;f.airVx=0;f.airDashed=false;f.airDashFrames=0;f.airJumps=0;f.airChain=0;f.juggleHits=0;if(wasAir){f.airComboHits=0;f.launchedComboUntil=0;f.landing=6;if(f.action?.high||f.action?.airSpecial)f.action=null;}}
+   f.queue=f.queue.filter(q=>s.frame-q.t<40);if(f.queue[0]?.button==='S'&&f.action?.feint&&!locked(f)){f.queue.shift();feintCancel(s,side);}const qLauncher=f.y===0&&f.queue[0]?.button==='K'&&f.queue[0].dir?.[1]>0&&f.queue[0].dir?.[0]*f.face>0;const queuedThrow=f.y<0&&f.queue[0]?.button==='S'&&f.queue[0]?.dir?.[0]!==0,queuedSpecial=f.queue[0]&&((f.queue[0].button==='P'&&motion({...f,motions:f.queue[0].motions||[]},['D','F'],s.frame))||(f.queue[0].button==='K'&&(motion({...f,motions:f.queue[0].motions||[]},['D','B'],s.frame)||f.id===0&&f.y===0&&motion({...f,motions:f.queue[0].motions||[]},['D','F'],s.frame))));const cancellable=f.action?.type==='basic'&&!f.action.launcher&&!f.action.airSpike&&(f.y<0?f.action.confirmed&&f.action.frame>=8&&((f.airChain||0)<4||queuedThrow||queuedSpecial):f.action.frame>=12&&(f.chain<3||qLauncher&&f.action.confirmed||queuedSpecial&&f.action.confirmed));
    if(f.queue.length&&!locked(f)&&(!f.action||cancellable)){const q=f.queue.shift(),currentDir=f.dir,currentMotions=f.motions;if(q.dir)f.dir=q.dir;if(q.motions)f.motions=q.motions;const move=choose(s,side,q.button);f.dir=currentDir;f.motions=move?.type==='skill'||move?.type==='throw'||move?.launcher?currentMotions.filter(m=>m.t>q.t):currentMotions;startMove(s,side,move);}
    if(s.cinematic)return;
    const m=f.action;if(m){m.frame++;if(m.speed&&m.frame>=m.start&&m.frame<m.end-8)f.x=clamp(f.x+m.originFace*m.speed,arena.left,arena.right);
@@ -136,7 +149,7 @@ window.LaboFight=(()=>{
   for(const p of s.projectiles){const oldX=p.x,oldY=p.y;p.x+=p.vx??p.v;p.y+=p.vy||0;p.life--;const enemy=s.f[1-p.side],body=hurtbox(enemy),rx=p.rx||20,ry=p.ry||20,box={left:Math.min(oldX,p.x)-rx,right:Math.max(oldX,p.x)+rx,top:Math.min(oldY,p.y)-ry,bottom:Math.max(oldY,p.y)+ry};if((!p.airOnly||enemy.y<0)&&overlaps(box,body)&&hit(s,p.side,p.m,p.m.range,p))p.life=0;if(p.life<=0)s.effects.push({x:p.x,y:p.y,kind:p.m.kind,life:24,side:p.side});}s.projectiles=s.projectiles.filter(p=>p.life>0&&p.x>-70&&p.x<arena.width+70&&p.y>-80&&p.y<520);
   if(s.mode!=='training'&&(s.time<=0||s.f.some(f=>f.hp<=0)))endRound(s);
  }
- return {balance,arena,superReach,damageFor,dragonMotion,spawnProjectile,combat,basicGeometry,hurtbox,attackbox,chars,create,direction,press,step,choose,startMove,canGuard,hit,resetRound,orbitOffset};
+ return {balance,arena,superReach,damageFor,dragonMotion,spawnProjectile,combat,basicGeometry,hurtbox,attackbox,chars,create,direction,press,step,choose,startMove,feintCancel,canGuard,hit,resetRound,orbitOffset};
 })();
 
 

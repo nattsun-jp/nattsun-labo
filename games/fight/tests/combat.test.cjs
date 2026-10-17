@@ -5,7 +5,7 @@ function tick(s,n){for(let i=0;i<n;i++)E.step(s);}
 const basic=(s,b='K')=>{s.f[0].chain=0;s.f[0].lastBasic=s.frame-100;return E.choose(s,0,b);};
 for(let id=0;id<3;id++){
  const s=state([id,id]),f=s.f[0],e=s.f[1];for(const button of ['P','K']){
-  f.dir=[0,0];const mid=basic(s,button);f.dir=[0,1];const low=basic(s,button);f.y=-40;const air=basic(s,button);f.y=0;f.dir=[0,0];
+  f.dir=[0,0];const mid=basic(s,button);f.dir=[0,1];const low=basic(s,button);f.y=-40;f.dir=[0,0];const air=basic(s,button);f.y=0;f.dir=[0,0];
   assert(low.tipX<mid.tipX);assert.equal(low.tipX,air.tipX);assert.notEqual(mid.tipY,low.tipY);assert.notEqual(air.tipY,low.tipY);
   const bx=E.attackbox(f,mid);e.x=bx.right+E.combat[id].width+2;assert.equal(E.hit(s,0,mid),false,'outside limb cannot hit');e.x=mid.tipX+f.x;assert.equal(E.hit(s,0,mid),true,'fist or toe contact must hit');e.hp=100;e.stun=0;
   f.face=-1;mid.originFace=-1;const mirror=E.attackbox(f,mid);assert.equal(Math.round(mirror.left-f.x),Math.round(f.x-bx.right));f.face=1;
