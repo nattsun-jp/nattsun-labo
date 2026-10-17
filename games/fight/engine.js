@@ -36,7 +36,7 @@ window.LaboFight=(()=>{
  const overlaps=(a,b)=>a.left<=b.right&&a.right>=b.left&&a.top<=b.bottom&&a.bottom>=b.top;
  const locked=f=>f.stun>0||f.down>0||f.wakeup>0||f.guardStun>0||f.confusion>0;
  const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
- function fighter(id,x){return {id,x,y:0,vy:0,hp:100,pink:100,maxHp:balance.maxHp,guard:balance.guardMax,guardStun:0,guardDelay:0,confusion:0,meter:0,wins:0,face:x<arena.center?1:-1,dir:[0,0],previousY:0,airVx:0,walkPhase:0,walking:false,dash:0,dashDx:0,airDashed:false,airChain:0,airJumps:0,juggleHits:0,jumpCancelUntil:0,landing:0,tap:null,down:0,wakeup:0,stun:0,action:null,queue:[],motions:[],history:[],lastDir:'',chain:0,lastBasic:-100,power:1,reach:1,slow:1,combo:0,comboDamage:0,comboUntil:0,damageTaken:0,lastMove:'',aiAt:0,guardTicks:0};}
+ function fighter(id,x){return {id,x,y:0,vy:0,hp:100,pink:100,maxHp:balance.maxHp,guard:balance.guardMax,guardStun:0,guardDelay:0,confusion:0,meter:0,wins:0,face:x<arena.center?1:-1,dir:[0,0],previousY:0,airVx:0,walkPhase:0,walking:false,dash:0,dashDx:0,airDashed:false,airChain:0,airJumps:0,juggleHits:0,jumpCancelUntil:0,landing:0,airComboHits:0,launchedComboUntil:0,tap:null,down:0,wakeup:0,stun:0,action:null,queue:[],motions:[],history:[],lastDir:'',chain:0,lastBasic:-100,power:1,reach:1,slow:1,combo:0,comboDamage:0,comboUntil:0,damageTaken:0,lastMove:'',aiAt:0,guardTicks:0};}
  function create(mode='cpu',ids=[0,1]){return {mode,ids:[...ids],f:[fighter(ids[0],435),fighter(ids[1],765)],frame:0,time:99,phase:'intro',phaseTicks:100,round:1,winner:null,effects:[],projectiles:[],events:[],dummy:'stand',infinite:true,drill:'free',complete:false,rng:192731,inputSeq:0,showHitboxes:false};}
  function random(s){s.rng=(Math.imul(s.rng,1664525)+1013904223)>>>0;return s.rng/4294967296;}
  function emit(s,type,text,side){s.events.push({type,text,side,frame:s.frame});if(s.events.length>12)s.events.shift();}
@@ -57,9 +57,10 @@ window.LaboFight=(()=>{
   else if(button==='K'&&motion(f,['D','B'],s.frame))index=1;
   if(index>=0){const m=skills[index];if(f.meter<m.cost){emit(s,'hint',m.cost>=100?'ゲージMAXで発動できます':'スキルゲージが足りません',side);return null;}f.meter-=m.cost;f.motions=[];return {...m,type:'skill',index,frame:0,hit:[],originFace:f.face,connected:false};}
   const chain=s.frame-f.lastBasic<48?f.chain%3+1:1;f.chain=chain;f.lastBasic=s.frame;const kick=button==='K';const low=f.dir[1]>0&&f.y===0,high=f.y<0;
+  const launcher=kick&&chain===3&&!low&&!high;
   if(high)f.airChain=(f.airChain||0)+1;
   const geometry=basicGeometry(f.id,kick,low,high,chain);
-  return {...geometry,name:(low?'しゃがみ':high?'ジャンプ':'')+(kick?'キック':'パンチ')+(chain>1?' '+chain:' '),type:'basic',kind:kick?'kick':'punch',start:chain===3?8:5,end:chain===3?30:21,hits:[chain===3?10:7],damage:(kick?9:6)+(chain-1)*2,range:geometry.tipX+geometry.rx,low,high,frame:0,hit:[],originFace:f.face};
+  return {...geometry,launcher,name:launcher?'打ち上げキック':(low?'しゃがみ':high?'ジャンプ':'')+(kick?'キック':'パンチ')+(chain>1?' '+chain:' '),type:'basic',kind:kick?'kick':'punch',start:chain===3?8:5,end:chain===3?30:21,hits:[chain===3?10:7],damage:(kick?9:6)+(chain-1)*2,range:geometry.tipX+geometry.rx,low,high,frame:0,hit:[],originFace:f.face};
  }
  function startMove(s,side,m){const f=s.f[side];if(!m)return;f.action=m;f.jumpCancelUntil=0;f.dash=0;f.lastMove=m.name;emit(s,m.type==='skill'&&m.cost>=100?'super':'move',m.name,side);if(m.kind==='power')f.power=1.5;if(m.kind==='reach')f.reach=1.6;
   if(f.id===0&&m.type==='skill'&&m.kind==='orbit'){s.cinematic={kind:'rei-moonlight',side,frame:0,duration:78};s.f.forEach(p=>{p.dir=[0,0];p.queue=[];p.motions=[];p.tap=null;});m.trail=[];}
@@ -83,8 +84,8 @@ window.LaboFight=(()=>{
    if(m.kind==='throw'){const oldX=f.x,enemyX=e.x,sign=Math.sign(dx||f.face);if(m.swap){f.x=clamp(enemyX,arena.left,arena.right);e.x=clamp(oldX-sign*42,arena.left,arena.right);}else e.x=clamp(enemyX+sign*110,arena.left,arena.right);e.down=30;e.stun=0;e.vy=m.air?6:0;e.airVx=0;f.face=e.x>=f.x?1:-1;e.face=-f.face;m.originFace=f.face;contact={x:e.x,y:440+e.y-45};}
    else e.x=clamp(e.x+Math.sign(projectile?(projectile.vx||projectile.v):dx||f.face)*(m.type==='basic'?5:12),arena.left,arena.right);
   }
-  if(!guard&&m.launcher){e.y=Math.min(e.y,-1);e.vy=-11.8;e.airVx=m.originFace*1.1;e.stun=42;e.juggleHits=(e.juggleHits||0)+1;}
-  else if(!guard&&m.type==='basic'&&e.y<0){e.juggleHits=(e.juggleHits||0)+1;e.vy=-Math.max(1.4,4.6-e.juggleHits*.55);e.airVx=m.originFace*.7;e.stun=26;if(m.high){f.vy=Math.min(f.vy,-1.8);f.airVx=Math.sign(f.airVx||m.originFace)*1.4;if(s.mode==='training'&&side===0&&s.drill==='airCombo'&&f.combo>=3)s.complete=true;}}
+  if(!guard&&m.launcher){f.airComboHits=0;f.launchedComboUntil=s.frame+90;e.y=Math.min(e.y,-1);e.vy=-11.8;e.airVx=m.originFace*1.1;e.stun=42;e.juggleHits=(e.juggleHits||0)+1;}
+  else if(!guard&&m.type==='basic'&&e.y<0){e.juggleHits=(e.juggleHits||0)+1;e.vy=-Math.max(1.4,4.6-e.juggleHits*.55);e.airVx=m.originFace*.7;e.stun=26;if(m.high){f.vy=Math.min(f.vy,-1.8);f.airVx=Math.sign(f.airVx||m.originFace)*1.4;if(continuing&&s.frame<=f.launchedComboUntil){f.airComboHits=(f.airComboHits||0)+1;if(s.mode==='training'&&side===0&&s.drill==='airCombo'&&f.airComboHits>=2)s.complete=true;}}}
   if(m.kind==='impact'&&!m.connected&&!guard){e.x=f.face>0?arena.right-10:arena.left+10;m.connected=true;}
   if(m.kind==='orbit'&&!guard&&m.frame===m.hits.at(-1)){const sign=Math.sign(dx||m.originFace);e.x=clamp(e.x+sign*38,arena.left,arena.right);e.vy=-6;e.airVx=sign*4.6;e.down=22;e.stun=0;}
   if(m.kind==='giant'&&!guard){const sign=Math.sign(dx||m.originFace);e.x=clamp(e.x+sign*50,arena.left,arena.right);e.vy=-7;e.airVx=sign*6;e.down=28;e.stun=0;}
@@ -119,7 +120,7 @@ window.LaboFight=(()=>{
     if(!frozenDummy){const crouch=f.dir[1]>0&&f.y===0,velocity=f.dash>0?f.dashDx*7.5*f.slow:f.y<0?(f.dir[0]?f.dir[0]*profile.jumpSpeed:f.airVx)*f.slow:crouch?0:f.dir[0]*profile.speed*f.slow;const beforeX=f.x;f.x=clamp(f.x+velocity,arena.left,arena.right);if(f.y===0&&f.vy===0&&!crouch&&Math.abs(f.x-beforeX)>.01){f.walking=true;f.walkPhase=(f.walkPhase+Math.abs(f.x-beforeX)/22)%4;}}
    }else f.dash=0;
    if(f.y<0&&f.action&&!locked(f))f.x=clamp(f.x+(f.airVx||0)*f.slow,arena.left,arena.right);
-   f.dash=Math.max(0,f.dash-1);f.previousY=f.dir[1];if((f.down>0||f.stun>0)&&f.y<0){f.x=clamp(f.x+(f.airVx||0),arena.left,arena.right);f.airVx*=.96;}const wasAir=f.y<0;f.vy+=.55;f.y=Math.min(0,f.y+f.vy);if(f.y===0){f.vy=0;f.airVx=0;f.airDashed=false;f.airJumps=0;f.airChain=0;f.juggleHits=0;if(wasAir){f.landing=6;if(f.action?.high)f.action=null;}}
+   f.dash=Math.max(0,f.dash-1);f.previousY=f.dir[1];if((f.down>0||f.stun>0)&&f.y<0){f.x=clamp(f.x+(f.airVx||0),arena.left,arena.right);f.airVx*=.96;}const wasAir=f.y<0;f.vy+=.55;f.y=Math.min(0,f.y+f.vy);if(f.y===0){f.vy=0;f.airVx=0;f.airDashed=false;f.airJumps=0;f.airChain=0;f.juggleHits=0;if(wasAir){f.airComboHits=0;f.launchedComboUntil=0;f.landing=6;if(f.action?.high)f.action=null;}}
    f.queue=f.queue.filter(q=>s.frame-q.t<40);const cancellable=f.action?.type==='basic'&&!f.action.launcher&&(f.y<0?f.action.confirmed&&f.action.frame>=8&&(f.airChain||0)<4:f.action.frame>=12&&f.chain<3);
    if(f.queue.length&&!locked(f)&&(!f.action||cancellable)){const q=f.queue.shift(),currentDir=f.dir,currentMotions=f.motions;if(q.dir)f.dir=q.dir;if(q.motions)f.motions=q.motions;const move=choose(s,side,q.button);f.dir=currentDir;f.motions=move?.type==='skill'||move?.type==='throw'||move?.launcher?currentMotions.filter(m=>m.t>q.t):currentMotions;startMove(s,side,move);}
    if(s.cinematic)return;

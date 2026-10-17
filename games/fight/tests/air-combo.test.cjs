@@ -4,6 +4,19 @@ for(const file of ['engine.js','animation-data.js','render.js','friend.js'])vm.r
 const E=sandbox.window.LaboFight,R=sandbox.window.LaboFightRender;
 function state(id=0,sign=1){const s=E.create('training',[id,id]);s.phase='fight';s.infinite=false;s.drill='airCombo';s.f[0].x=sign>0?300:600;s.f[1].x=s.f[0].x+sign*90;s.f[0].face=sign;s.f[1].face=-sign;return s}
 const tick=(s,n)=>{for(let i=0;i<n;i++)E.step(s)};
+for(let id=0;id<3;id++)for(const sign of [-1,1])for(const route of [['P','P','K'],['P','K','K'],['K','K','K']]){
+ const s=state(id,sign);
+ for(let n=0;n<80;n++){
+  if(n===0)E.press(s,0,route[0]);if(n===13)E.press(s,0,route[1]);if(n===26)E.press(s,0,route[2]);
+  if(n===37){assert.equal(s.f[0].action.launcher,true);assert.equal(s.f[0].combo,3);assert(s.f[1].y<0);assert.equal(s.complete,false,'ground hits alone do not complete aerial drill')}
+  if(n===38)E.direction(s,0,sign,-1);if(n===42)E.press(s,0,'P');if(n===52)E.press(s,0,'K');E.step(s);
+ }
+ assert.equal(s.f[0].combo,5,'P/K-only route continues through launcher into two air hits');assert(s.complete);assert(!s.f[0].history.some(h=>h.text==='S'));
+}
+{
+ const s=state(),f=s.f[0];for(const mode of ['crouch','air']){f.chain=2;f.lastBasic=s.frame;f.y=mode==='air'?-40:0;f.dir=[0,mode==='crouch'?1:0];assert.equal(E.choose(s,0,'K').launcher,false,'crouch/air third kick remains its dedicated attack')}
+ const g=state();g.mode='friend';g.f[1].dir=[1,0];for(let n=0;n<40;n++){if([0,13,26].includes(n))E.press(g,0,'K');E.step(g)}assert.equal(g.f[1].hp,100);assert.equal(g.f[1].y,0,'blocked third kick does not launch');assert.equal(g.f[0].action.confirmed,undefined);
+}
 for(let id=0;id<3;id++)for(const sign of [-1,1]){
  const s=state(id,sign);E.direction(s,0,0,1);E.press(s,0,'S');tick(s,11);assert(s.f[1].y<0);assert(s.f[0].action.confirmed);assert(s.f[0].meter>=12,'launcher works at zero meter and gains meter on hit');
  E.direction(s,0,sign,-1);tick(s,4);assert(s.f[0].y<0,'hit-confirm jump cancel leaves the ground');assert.equal(s.f[0].action,null);
