@@ -35,7 +35,7 @@ for(const dy of [-1,0,1]){
  const s=state();E.direction(s,0,1,dy);tick(s,2);E.direction(s,0,0,0);tick(s,1);if(dy<0){E.direction(s,0,1,dy);tick(s,1);E.direction(s,0,0,0);tick(s,1);}E.direction(s,0,1,dy);assert(s.f[0].dash>0,'double tap direction starts dash');const x=s.f[0].x;tick(s,1);assert(s.f[0].x-x>6);const ticks=s.f[0].dash;E.direction(s,0,1,dy);assert.equal(s.f[0].dash,ticks,'held input does not restart dash');
 }
 {
- const s=state();E.direction(s,0,1,0);tick(s,20);E.direction(s,0,0,0);tick(s,1);E.direction(s,0,1,0);assert.equal(s.f[0].dash,0,'late second tap is ordinary walking');
+ const s=state();E.direction(s,0,1,0);tick(s,26);E.direction(s,0,0,0);tick(s,1);E.direction(s,0,1,0);assert.equal(s.f[0].dash,0,'late second tap is ordinary walking');
 }
 // Existing combo, super and CPU simulation still complete without invalid state.
 {
