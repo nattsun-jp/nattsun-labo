@@ -51,16 +51,16 @@ window.LaboFight=(()=>{
  const regular=m=>m.type==='basic'||m.type==='skill'&&m.cost<100;
  function spawnProjectile(s,side,m){const f=s.f[side],face=m.originFace,air=!!m.antiAir;const radius=air?48:m.kind==='fist'?28:20;s.projectiles.push({x:f.x+face*(combat[f.id].punch.x-16),y:440+f.y+combat[f.id].punch.y,vx:face*(air?7:m.kind==='fist'?9:7),vy:air?-7:0,side,life:100,rx:radius*f.reach,ry:(air?44:m.kind==='fist'?24:20)*f.reach,airOnly:air,m:{...m,hit:[],gained:0}});}
  function choose(s,side,button){const f=s.f[side],e=s.f[1-side],skills=chars[f.id].skills;let index=-1;
-  if(button==='S'){if(motion(f,['F','D','B'],s.frame))index=2;else if(motion(f,['B','D','F'],s.frame))index=3;else if(f.dir[1]>0&&f.y===0){f.motions=[];return {name:'打ち上げ',type:'basic',kind:'punch',launcher:true,tipX:96,tipY:-145,rx:28,ry:54,start:8,end:32,hits:[10],damage:10,range:124,frame:0,hit:[],originFace:f.face};}else if(f.dir[0]!==0&&f.dir[1]===0){f.motions=[];const air=f.y<0;return {name:air?'空中投げ':'投げ',type:'throw',kind:'throw',start:4,end:32,hits:[6],damage:air?24:16,range:air?90:80,air,throwDx:f.dir[0],swap:f.dir[0]*f.face<0,unblockable:true,frame:0,hit:[],originFace:f.face};}else{emit(s,'hint','打ち上げは↓＋S / 投げは左右＋S',side);return null;}}
+  if(button==='S'){if(motion(f,['F','D','B'],s.frame))index=2;else if(motion(f,['B','D','F'],s.frame))index=3;else if(f.dir[0]!==0&&f.dir[1]===0){f.motions=[];const air=f.y<0;return {name:air?'空中投げ':'投げ',type:'throw',kind:'throw',start:4,end:32,hits:[6],damage:air?24:16,range:air?90:80,air,throwDx:f.dir[0],swap:f.dir[0]*f.face<0,unblockable:true,frame:0,hit:[],originFace:f.face};}else{emit(s,'hint','打ち上げは斜め前下＋K / 投げは左右＋S',side);return null;}}
+  else if(button==='K'&&f.y===0&&f.dir[1]>0&&f.dir[0]*f.face>0){f.motions=[];f.chain=0;f.lastBasic=s.frame;return {name:'打ち上げ',type:'basic',kind:'kick',launcher:true,tipX:96,tipY:-145,rx:28,ry:54,start:8,end:32,hits:[10],damage:10,range:124,frame:0,hit:[],originFace:f.face};}
   else if(button==='P'&&dragonMotion(f,s.frame))index=4;
   else if(button==='P'&&motion(f,['D','F'],s.frame))index=0;
   else if(button==='K'&&motion(f,['D','B'],s.frame))index=1;
   if(index>=0){const m=skills[index];if(f.meter<m.cost){emit(s,'hint',m.cost>=100?'ゲージMAXで発動できます':'スキルゲージが足りません',side);return null;}f.meter-=m.cost;f.motions=[];return {...m,type:'skill',index,frame:0,hit:[],originFace:f.face,connected:false};}
   const chain=s.frame-f.lastBasic<48?f.chain%3+1:1;f.chain=chain;f.lastBasic=s.frame;const kick=button==='K';const low=f.dir[1]>0&&f.y===0,high=f.y<0;
-  const launcher=kick&&chain===3&&!low&&!high;
   if(high)f.airChain=(f.airChain||0)+1;
   const geometry=basicGeometry(f.id,kick,low,high,chain);
-  return {...geometry,launcher,name:launcher?'打ち上げキック':(low?'しゃがみ':high?'ジャンプ':'')+(kick?'キック':'パンチ')+(chain>1?' '+chain:' '),type:'basic',kind:kick?'kick':'punch',start:chain===3?8:5,end:chain===3?30:21,hits:[chain===3?10:7],damage:(kick?9:6)+(chain-1)*2,range:geometry.tipX+geometry.rx,low,high,frame:0,hit:[],originFace:f.face};
+  return {...geometry,launcher:false,name:(low?'しゃがみ':high?'ジャンプ':'')+(kick?'キック':'パンチ')+(chain>1?' '+chain:' '),type:'basic',kind:kick?'kick':'punch',start:chain===3?8:5,end:chain===3?30:21,hits:[chain===3?10:7],damage:(kick?9:6)+(chain-1)*2,range:geometry.tipX+geometry.rx,low,high,frame:0,hit:[],originFace:f.face};
  }
  function startMove(s,side,m){const f=s.f[side];if(!m)return;f.action=m;f.jumpCancelUntil=0;f.dash=0;f.lastMove=m.name;emit(s,m.type==='skill'&&m.cost>=100?'super':'move',m.name,side);if(m.kind==='power')f.power=1.5;if(m.kind==='reach')f.reach=1.6;
   if(f.id===0&&m.type==='skill'&&m.kind==='orbit'){s.cinematic={kind:'rei-moonlight',side,frame:0,duration:78};s.f.forEach(p=>{p.dir=[0,0];p.queue=[];p.motions=[];p.tap=null;});m.trail=[];}
