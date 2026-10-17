@@ -72,7 +72,7 @@ window.LaboFight=(()=>{
  function feintCancel(s,side){const f=s.f[side],m=f.action;if(!m?.feint||f.y!==0||locked(f))return false;
   if(s.frame<f.feintReadyAt||(f.feintUsed&&s.f[1-side].stun>0&&s.frame<=f.comboUntil)){emit(s,'hint','固有キャンセルは1コンボ1回・再使用まで少し待ちます',side);return false;}
   f.feintUsed=true;f.feintReadyAt=s.frame+45;f.chain=0;f.lastBasic=-100;f.motions=[];f.queue=[];f.jumpRequestUntil=0;
-  startMove(s,side,{name:['定規抜刀キャンセル','回転キャンセル','プラグイン解除'][f.id],type:'feint',kind:f.id===0?'rulerSheathe':'feint',start:0,end:6,hits:[],damage:0,frame:0,hit:[],originFace:f.face});
+  startMove(s,side,{name:['定規抜刀キャンセル','回転キャンセル','プラグイン解除'][f.id],type:'feint',rulerFrom:m.frame,kind:f.id===0?'rulerSheathe':'feint',start:0,end:6,hits:[],damage:0,frame:0,hit:[],originFace:f.face});
   if(s.mode==='training'&&side===0&&s.drill==='cancel')s.complete=true;return true;
  }
  function canGuard(f,from,m){return !m.unblockable&&f.y===0&&!f.action&&f.guard>0&&f.confusion===0&&f.stun===0&&f.down===0&&f.wakeup===0&&f.dir[0]*(from.x>f.x?-1:1)>0&&(m.low?f.dir[1]>0:m.high?f.dir[1]<=0:true);}
