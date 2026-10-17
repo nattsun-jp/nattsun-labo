@@ -5,7 +5,7 @@ async function run(fail){
  const requests=[],blobs=[],revoked=[];
  class AssetImage{constructor(){this.complete=false;this.naturalWidth=0}get src(){return this.source}set src(value){this.source=value;if(value.startsWith('blob:')){this.complete=true;this.naturalWidth=1254;queueMicrotask(()=>this.onload?.())}}addEventListener(){}}
  const sandbox={window:{},Image:AssetImage,Blob,URL:{createObjectURL(blob){blobs.push(blob);return 'blob:'+blobs.length},revokeObjectURL(url){revoked.push(url)}},fetch:async file=>{requests.push(file);if(fail)return {ok:false,status:404};const b=fs.readFileSync(path.join(root,file));return {ok:true,arrayBuffer:async()=>b.buffer.slice(b.byteOffset,b.byteOffset+b.byteLength)}}};
- vm.createContext(sandbox);for(const name of ['engine.js','animation-data.js','ruler-animation.js','render.js'])vm.runInContext(fs.readFileSync(path.join(root,name),'utf8'),sandbox);
+ vm.createContext(sandbox);for(const name of ['engine.js','animation-data.js','ruler-animation.js','vertical-animation.js','render.js'])vm.runInContext(fs.readFileSync(path.join(root,name),'utf8'),sandbox);
  const E=sandbox.window.LaboFight,R=sandbox.window.LaboFightRender,s=E.create('training',[0,0]);s.phase='fight';const c=new Proxy({canvas:{width:960,height:540},createLinearGradient(){return {addColorStop(){}}}},{get(t,p){return p in t?t[p]:()=>{}},set(t,p,v){t[p]=v;return true}});
  R.draw(c,s);await settle();await settle();const count=requests.length;R.draw(c,s);await settle();assert.equal(requests.length,count,'repeated frames do not repeat successful or failed fetches');
  const sheets=sandbox.window.LaboFighterAnimations.sheets.filter(x=>x.character==='rei');assert.equal(count,sheets.reduce((n,x)=>n+x.parts.length,0),'only the selected character is fetched');

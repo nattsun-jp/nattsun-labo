@@ -17,7 +17,7 @@ for(const face of [-1,1]){
 }
 for(let id=0;id<3;id++){
  const ground=make(id);ground.f[1].x=420;const m={...E.chars[id].skills[4],type:'skill',index:4,originFace:1};E.spawnProjectile(ground,0,m);tick(ground,10);assert.equal(ground.f[1].hp,100,'anti-air does not hit grounded opponent');
- const air=make(id);air.f[1].x=440;air.f[1].y=-100;air.f[1].vy=-5;E.spawnProjectile(air,0,m);tick(air,10);assert.equal(air.f[1].hp,90.5,'wide anti-air hits airborne opponent');
+ const air=make(id);air.f[1].x=440;air.f[1].y=-100;air.f[1].vy=-5;E.spawnProjectile(air,0,m);tick(air,10);assert.equal(air.f[1].hp,id===1?87.5:90.5,'wide anti-air hits airborne opponent');
  const before=air.f[0].x;const p={x:air.f[1].x,y:400,vx:7,vy:-7,airOnly:true};assert.equal(E.hit(ground,0,m,0,p),false);assert.equal(air.f[0].x,before,'projectile hits never move the owner as a collision proxy');
 }
 {

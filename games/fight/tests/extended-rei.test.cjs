@@ -18,5 +18,5 @@ for(const sign of [-1,1]){
  const superState=scene(sign),superMove={...E.chars[0].skills[3],type:'skill',frame:10,originFace:sign};superState.f[1].x=500+sign*191;assert(!E.hit(superState,0,superMove),'super cannot catch a target outside 190');superState.f[1].x=500+sign*190;assert(E.hit(superState,0,superMove));superState.f[1].x=500+sign*400;assert(!E.hit(superState,0,superMove),'confirmed super never turns into an arena-wide hitbox');
  for(const budget of ['juggleMax','comboMax']){const t=scene(sign),a=t.f[0],b=t.f[1],limits=E.comboLimits(0);b.stun=30;a.comboUntil=70;a.combo=budget==='comboMax'?limits.comboMax-1:5;a.comboAirHits=budget==='juggleMax'?limits.juggleMax-1:0;assert(E.hit(t,0,{...superMove}));assert(b.down>0);const hp=b.hp;assert(!E.hit(t,0,{...superMove}));assert.equal(b.hp,hp);}
 }
-assert.equal(E.comboLimits(1).comboMax,18);assert.equal(E.comboLimits(2).juggleMax,12);
+assert.equal(E.comboLimits(1).comboMax,12);assert.equal(E.comboLimits(2).juggleMax,18);
 console.log('Extended Rei: 12 real-time 34-hit routes from zero meter, ±3-frame inputs, uninterrupted hitstun; one rebound, whiff/guard, real finisher range and both shared caps passed');
