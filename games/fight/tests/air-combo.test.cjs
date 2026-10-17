@@ -49,7 +49,7 @@ for(const guard of [false,true]){
 }
 {
  const s=state(),f=s.f[0],e=s.f[1];f.y=e.y=-100;f.dir=[0,0];f.motions=[];e.x=365;
- const attack=E.choose(s,0,'P');for(let i=0;i<E.balance.juggleMax;i++)assert(E.hit(s,0,attack));const hp=e.hp;assert.equal(E.hit(s,0,attack),false,'a hit beyond the airborne budget cannot restart a juggle');assert.equal(e.hp,hp);
+ const attack=E.choose(s,0,'P');for(let i=0;i<E.comboLimits(f.id).juggleMax;i++){e.x=f.x+65;assert(E.hit(s,0,attack));}const hp=e.hp;assert.equal(E.hit(s,0,attack),false,'a hit beyond the airborne budget cannot restart a juggle');assert.equal(e.hp,hp);
 }
 {
  const s=state(),f=s.f[0];s.f[1].x=900;f.y=-80;f.dir=[0,0];E.press(s,0,'P');tick(s,2);E.press(s,0,'K');tick(s,10);assert.equal(f.action.kind,'punch','air whiff does not cancel to another attack');

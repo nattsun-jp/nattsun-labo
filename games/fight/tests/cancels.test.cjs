@@ -50,9 +50,9 @@ for(const condition of ['noCombo','guard','confusion','down','wakeup','far','hei
 }
 // Every attack family spends the same aerial budget, including projectiles.
 for(const family of ['basic','skill','projectile']){
- const s=setup(),f=s.f[0],e=s.f[1];f.y=e.y=-100;e.x=f.x+70;e.stun=25;e.juggleHits=11;f.comboAirHits=11;f.combo=12;f.comboUntil=70;
+ const s=setup(),f=s.f[0],e=s.f[1];f.y=e.y=-100;e.x=f.x+70;e.stun=25;e.juggleHits=E.comboLimits(f.id).juggleMax-1;f.comboAirHits=e.juggleHits;f.combo=12;f.comboUntil=70;
  const m=family==='basic'?E.choose(s,0,'P'):{...E.chars[2].skills[0],type:'skill',originFace:1};const p=family==='projectile'?{x:e.x,y:300,vx:7}:null;
- assert(E.hit(s,0,m,m.range,p));assert.equal(f.comboAirHits,12);assert(e.down>0&&e.stun===0,'budget-ending hit forces a knockdown');const hp=e.hp;assert.equal(E.hit(s,0,m,m.range,p),false);assert.equal(e.hp,hp);
+ assert(E.hit(s,0,m,m.range,p));assert.equal(f.comboAirHits,E.comboLimits(f.id).juggleMax);assert(e.down>0&&e.stun===0,'budget-ending hit forces a knockdown');const hp=e.hp;assert.equal(E.hit(s,0,m,m.range,p),false);assert.equal(e.hp,hp);
  e.y=0;e.juggleHits=0;e.down=0;e.stun=10;assert.equal(E.hit(s,0,m,m.range,p),false,'landing alone does not renew the attackers combo budget');
 }
 // Air specials and their hit-confirm JC, plus early up input buffering.
