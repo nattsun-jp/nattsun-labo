@@ -14,13 +14,13 @@ window.LaboFightRender=(()=>{
  // New animation sheets load on demand for the characters actually drawn.
  const animationData=window.LaboFighterAnimations,animationImages=new Map(),clipPaths=new WeakMap(),prefetchedCharacters=new Set();
  function animationImage(sheet){let img=animationImages.get(sheet.file);if(!img){img=new Image();animationImages.set(sheet.file,img);if(sheet.parts&&typeof fetch==='function'&&typeof URL.createObjectURL==='function'){Promise.all(sheet.parts.map(async file=>{const r=await fetch(file);if(!r.ok)throw Error('animation asset '+r.status);return r.arrayBuffer();})).then(parts=>{const url=URL.createObjectURL(new Blob(parts,{type:'image/webp'}));img.onload=img.onerror=()=>URL.revokeObjectURL(url);img.src=url;}).catch(()=>{img.assetFailed=true;});}else img.src=sheet.file;}return img;}
- function directionalPose(f){const m=f.action;if(!m)return null;let row=null;
+ function directionalPose(f){const m=f.action;if(!m)return null;const hits=m.hits||[8],at=[...hits].reverse().find(n=>n<=m.frame+4)??hits[0]??8,stroke=Math.max(0,hits.indexOf(at));let row=null;
   if(m.launcher||m.groundLift)row=0;
   else if(m.airSpike||m.airFinish||m.reboundSlash)row=1;
-  else if(f.id===0&&m.rulerArt)row=m.rulerRepeat?((m.hits.filter(n=>n<=m.frame).length-1+2)%2):m.slashDirection==='up'?0:1;
-  else if(f.id===2&&(m.airBarrage||m.rushBarrage))row=(m.hits.filter(n=>n<=m.frame).length+1)%2;
+  else if(f.id===0&&m.rulerArt)row=m.rulerRepeat?stroke%2:m.slashDirection==='up'?0:1;
+  else if(f.id===2&&(m.airBarrage||m.rushBarrage))row=stroke%2;
   else if(f.id===1&&m.high&&m.kind==='kick')row=1;
-  if(row===null)return null;const at=[...(m.hits||[8])].reverse().find(n=>n<=m.frame+4)??m.hits?.[0]??8;return {category:'vertical-attacks',row,col:m.frame<at-4?0:m.frame<at?1:m.frame<=at+3?2:3};
+  if(row===null)return null;return {category:'vertical-attacks',row,col:m.frame<at-4?0:m.frame<at?1:m.frame<=at+3?2:3};
  }
  function animationPose(f,t){
   const m=f.action,vertical=directionalPose(f);let category='locomotion',row=0,col=Math.floor(t/10)%4;
@@ -44,7 +44,7 @@ window.LaboFightRender=(()=>{
   c.drawImage(img,x,y,w,h,0,0,w,h);c.restore();return true;
  }
  function rulerFrame(m){if(m.rulerRepeat){const at=[...m.hits].reverse().find(n=>n<=m.frame+5)??m.hits[0];return rulerFrame({...m,rulerRepeat:false,rulerArt:false,frame:Math.max(0,m.frame-at+8)});}if(m.rulerArt){const end=m.hits?.[0]??8;return rulerFrame({...m,rulerArt:false,frame:Math.max(0,m.frame-(end-8))});}if(m.kind==='rulerSheathe'){const from=m.rulerFrom??8;if(from<6)return m.frame<2?1:m.frame<5?6:7;if(from>=18)return m.frame<4?6:7;return m.frame<2?4:m.frame<3?5:m.frame<5?6:7;}const n=m.frame;return n<2?0:n<4?1:n<6?2:n<9?3:n<13?4:n<18?5:n<24?6:7;}
- function drawRulerTrail(c,m){if(m.kind!=='rulerDraw'&&!m.rulerArt)return;const at=m.rulerRepeat?([...m.hits].reverse().find(n=>n<=m.frame+4)??m.hits[0]):m.hits?.[0]??8;const n=m.frame-(m.rulerArt?at-8:0);if(n<4||n>13)return;const t=(n-4)/9;c.save();c.translate(35,-164);const vertical=m.reboundSlash||m.airFinish||m.launcher||m.rulerArt;if(vertical)c.rotate(m.reboundSlash||m.airFinish||m.airSpike||m.slashDirection==='down'||m.rulerRepeat&&((m.hits.filter(n=>n<=m.frame).length+1)%2===1)?.95:-.95);c.strokeStyle='#c8f4ff';c.shadowColor='#b3ecff';c.shadowBlur=8;c.globalAlpha*=Math.sin(Math.PI*t)*.8;c.lineWidth=3;c.beginPath();c.ellipse(15,0,150,64,-.15,-1.6+t*2.1,-.3+t*2.1);c.stroke();c.restore();}
+ function drawRulerTrail(c,m){if(m.kind!=='rulerDraw'&&!m.rulerArt)return;const at=m.rulerRepeat?([...m.hits].reverse().find(n=>n<=m.frame+4)??m.hits[0]):m.hits?.[0]??8;const n=m.frame-(m.rulerArt?at-8:0);if(n<4||n>13)return;const t=(n-4)/9;c.save();c.translate(35,-164);const vertical=m.reboundSlash||m.airFinish||m.launcher||m.rulerArt;if(vertical)c.rotate(m.reboundSlash||m.airFinish||m.airSpike||m.slashDirection==='down'||m.rulerRepeat&&m.hits.indexOf(at)%2===1?.95:-.95);c.strokeStyle='#c8f4ff';c.shadowColor='#b3ecff';c.shadowBlur=8;c.globalAlpha*=Math.sin(Math.PI*t)*.8;c.lineWidth=3;c.beginPath();c.ellipse(15,0,150,64,-.15,-1.6+t*2.1,-.3+t*2.1);c.stroke();c.restore();}
  const sourceWidths=[480,490,512,512,512,512];
  function pose(f){const m=f.action,active=m&&m.frame>=m.start&&m.frame<m.end-8;if(f.down>0||f.wakeup>0||f.stun>0)return 5;if(active&&m.kind==='data')return 0;if(active&&m.kind==='orbit')return m.hits.some(n=>Math.abs(n-m.frame)<=3)?2:0;if(active&&['kick','spin','roll'].includes(m.kind))return 2;if(active&&['punch','rush','impact','giant','cable','shock','data','fist','ruler','cd','bomb'].includes(m.kind))return 1;if((f.dir[1]>0&&!m)||m?.low&&!active)return 3;if(f.dir[0]*f.face<0&&!m)return 4;return 0;}
  function motionFrame(f){const m=f.action,active=m&&m.frame>=m.start&&m.frame<m.end-8;if(f.down>0||f.wakeup>0||f.stun>0)return null;if(active&&m.kind==='orbit'&&!m.hits.some(n=>Math.abs(n-m.frame)<=3))return m.frame%8<4?1:2;if(active&&m.type==='basic'&&m.low)return m.kind==='kick'?5:4;if(!m&&f.walking&&f.y===0&&f.dir[1]===0){const frame=Math.floor(f.walkPhase||0)%4;return f.dir[0]*f.face<0?(4-frame)%4:frame;}return null;}
