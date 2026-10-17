@@ -19,6 +19,15 @@ for(let id=0;id<3;id++)for(const sign of [-1,1])for(const route of [['P','P','K'
  }
  assert.equal(s.f[0].combo,5,'forward-down K cancels ground normals and continues into two air hits');assert(s.complete);assert(!s.f[0].history.some(h=>h.text==='S'));
 }
+for(let id=0;id<3;id++)for(const sign of [-1,1])for(const prefix of [['P'],['K'],['P','P','P'],['P','P','K'],['K','K','K']]){
+ const s=state(id,sign),launch=prefix.length*13;
+ for(let n=0;n<launch+52;n++){
+  if(n<launch&&n%13===0)E.press(s,0,prefix[n/13]);
+  if(n===launch){E.direction(s,0,sign,1);E.press(s,0,'K')}
+  if(n===launch+12)E.direction(s,0,sign,-1);if(n===launch+16)E.press(s,0,'P');if(n===launch+26)E.press(s,0,'K');E.step(s);
+ }
+ assert.equal(s.f[0].combo,prefix.length+3,'confirmed first/third normal can cancel into diagonal K and air combo');assert(s.complete);
+}
 {
  const s=state(),f=s.f[0];for(const mode of ['crouch','air']){f.chain=2;f.lastBasic=s.frame;f.y=mode==='air'?-40:0;f.dir=[0,mode==='crouch'?1:0];assert.equal(E.choose(s,0,'K').launcher,false,'crouch/air third kick remains its dedicated attack')}
  const g=state();g.mode='friend';g.f[1].dir=[1,0];for(let n=0;n<40;n++){if([0,13,26].includes(n))E.press(g,0,'K');E.step(g)}assert.equal(g.f[1].hp,100);assert.equal(g.f[1].y,0,'blocked third kick does not launch');assert.equal(g.f[0].action.confirmed,undefined);

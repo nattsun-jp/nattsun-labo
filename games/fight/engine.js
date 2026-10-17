@@ -121,7 +121,7 @@ window.LaboFight=(()=>{
    }else f.dash=0;
    if(f.y<0&&f.action&&!locked(f))f.x=clamp(f.x+(f.airVx||0)*f.slow,arena.left,arena.right);
    f.dash=Math.max(0,f.dash-1);f.previousY=f.dir[1];if((f.down>0||f.stun>0)&&f.y<0){f.x=clamp(f.x+(f.airVx||0),arena.left,arena.right);f.airVx*=.96;}const wasAir=f.y<0;f.vy+=.55;f.y=Math.min(0,f.y+f.vy);if(f.y===0){f.vy=0;f.airVx=0;f.airDashed=false;f.airJumps=0;f.airChain=0;f.juggleHits=0;if(wasAir){f.airComboHits=0;f.launchedComboUntil=0;f.landing=6;if(f.action?.high)f.action=null;}}
-   f.queue=f.queue.filter(q=>s.frame-q.t<40);const cancellable=f.action?.type==='basic'&&!f.action.launcher&&(f.y<0?f.action.confirmed&&f.action.frame>=8&&(f.airChain||0)<4:f.action.frame>=12&&f.chain<3);
+   f.queue=f.queue.filter(q=>s.frame-q.t<40);const qLauncher=f.y===0&&f.queue[0]?.button==='K'&&f.queue[0].dir?.[1]>0&&f.queue[0].dir?.[0]*f.face>0;const cancellable=f.action?.type==='basic'&&!f.action.launcher&&(f.y<0?f.action.confirmed&&f.action.frame>=8&&(f.airChain||0)<4:f.action.frame>=12&&(f.chain<3||qLauncher&&f.action.confirmed));
    if(f.queue.length&&!locked(f)&&(!f.action||cancellable)){const q=f.queue.shift(),currentDir=f.dir,currentMotions=f.motions;if(q.dir)f.dir=q.dir;if(q.motions)f.motions=q.motions;const move=choose(s,side,q.button);f.dir=currentDir;f.motions=move?.type==='skill'||move?.type==='throw'||move?.launcher?currentMotions.filter(m=>m.t>q.t):currentMotions;startMove(s,side,move);}
    if(s.cinematic)return;
    const m=f.action;if(m){m.frame++;if(m.speed&&m.frame>=m.start&&m.frame<m.end-8)f.x=clamp(f.x+m.originFace*m.speed,arena.left,arena.right);
