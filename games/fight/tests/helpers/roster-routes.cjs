@@ -1,6 +1,6 @@
 const {E}=require('./character-routes.cjs');
-function runRoute({id=2,enemy=0,sign=1,route='rush',finish='special',startMeter=100,jitter=0,low=false}={}){
- const s=E.create('training',[id,enemy]);s.phase='fight';s.infinite=false;s.f[0].meter=startMeter;s.f[0].x=sign>0?360:840;s.f[1].x=s.f[0].x+sign*90;s.f[0].face=sign;s.f[1].face=-sign;
+function runRoute({id=2,enemy=0,sign=1,route='rush',finish='special',startMeter=100,jitter=0,low=false,startDistance=90}={}){
+ const s=E.create('training',[id,enemy]);s.phase='fight';s.infinite=false;s.f[0].meter=startMeter;s.f[0].x=sign>0?360:840;s.f[1].x=s.f[0].x+sign*startDistance;s.f[0].face=sign;s.f[1].face=-sign;
  const commands=[],d=(n,x,y)=>commands.push({n,dir:[x*sign,y]}),b=(n,button)=>commands.push({n,button});
  function quarter(n,forward,button){d(n,0,1);d(n+4,forward,1);d(n+8,forward,0);b(n+8,button);d(n+9,0,0);}
  function end(n){if(finish==='special')quarter(n,-1,'K');else if(finish==='spike'){d(n,0,1);b(n,'K');}else if(finish==='super'){d(n,1,0);d(n+4,0,1);d(n+8,-1,0);b(n+8,'S');d(n+9,0,0);}else{d(n,1,0);b(n,'S');}}

@@ -6,6 +6,7 @@ window.LaboFight=(()=>{
  const tempo={lightStop:10,heavyStop:12,multiStop:5,guardStop:6,inputBuffer:40,jumpBuffer:10};
  const airMovement={jump:14,doubleJump:14,jumpCancel:15.5,launch:15.3,rise:5.8,gravity:.55};
  const comboStyles=[{name:'定規の斬撃連携',rise:5.8,finisher:'空中定規一閃'},{name:'落花生の空中連撃',rise:5.8,finisher:'空中殻割りハンマー'},{name:'電撃の接近連打',rise:6.2,finisher:'空中電撃落とし'}];
+ const spacing={bodyGap:128,bodyHeight:160,groundThrow:136,airThrow:144};
  const arena={width:1200,height:675,viewTop:-100,left:65,right:1135,center:600};
  const damageFor=(m,power=1)=>m.kind==='data'?balance.maxHp*.5:Math.max(1,Math.round(m.damage*balance.damageScale*power));
  const chars=[
@@ -34,7 +35,7 @@ window.LaboFight=(()=>{
   {height:232,crouch:172,width:40,speed:2.45,jumpSpeed:4.5,punch:{x:111,y:-151,rx:24,ry:26},kick:{x:145,y:-153,rx:27,ry:27}},
   {height:266,crouch:185,width:30,speed:2.65,jumpSpeed:5.1,punch:{x:132,y:-204,rx:18,ry:20},kick:{x:200,y:-181,rx:22,ry:22}}
  ];
- function basicGeometry(id,kick,low,high,chain=1){const limb=combat[id][kick?'kick':'punch'],sx=(low||high)?0.62:1,sy=low?0.35:high?0.65:1;return {tipX:limb.x*sx+(chain-1)*4,tipY:limb.y*sy,rx:limb.rx,ry:limb.ry,sx,sy};}
+ function basicGeometry(id,kick,low,high,chain=1){const limb=combat[id][kick?'kick':'punch'],sx=low?.78:high?.9:1,sy=low?0.35:high?0.65:1;return {tipX:limb.x*sx+(chain-1)*4,tipY:limb.y*sy,rx:limb.rx,ry:limb.ry+(high?10:0),sx,sy};}
  function hurtbox(f){const p=combat[f.id],m=f.action,crouching=f.y===0&&(f.dir[1]>0||m?.low),height=crouching?p.crouch:p.height;return {left:f.x-p.width,right:f.x+p.width,top:440+f.y-height,bottom:440+f.y};}
  function attackbox(f,m){if(m?.type!=='basic')return null;const reach=f.reach||1,tip=m.tipX*reach,back=m.high?12:Math.max(16,tip*.35),a=f.x+m.originFace*back,b=f.x+m.originFace*(tip+m.rx),cy=440+f.y+m.tipY;return {left:Math.min(a,b),right:Math.max(a,b),top:cy-m.ry,bottom:cy+m.ry,x:f.x+m.originFace*tip,y:cy};}
  // Rectangles are shared by contact checks and the training overlay.
@@ -71,8 +72,8 @@ window.LaboFight=(()=>{
  const regular=m=>m.type==='basic'||m.type==='skill'&&m.cost<100;
  function spawnProjectile(s,side,m){const f=s.f[side],face=m.originFace,air=!!m.antiAir;const radius=air?48:m.kind==='fist'?28:20;s.projectiles.push({x:f.x+face*(m.airSpecial?36:combat[f.id].punch.x-16),y:440+f.y+(m.airSpecial?-130:combat[f.id].punch.y),vx:face*(air?7:m.kind==='fist'?9:7),vy:air?-7:0,side,life:100,rx:radius*f.reach,ry:(air?44:m.kind==='fist'?24:20)*f.reach,airOnly:air,m:{...m,hit:[],gained:0}});}
  function choose(s,side,button){const f=s.f[side],e=s.f[1-side],skills=chars[f.id].skills;let index=-1;
-  if(button==='S'){if(motion(f,['F','D','B'],s.frame))index=2;else if(motion(f,['B','D','F'],s.frame))index=3;else if(f.dir[0]!==0&&f.dir[1]===0){f.motions=[];const air=f.y<0;return {name:air?'空中投げ':'投げ',type:'throw',kind:'throw',start:4,end:32,hits:[6],damage:f.id===1?(air?32:24):air?24:16,range:air?112:80,air,throwDx:f.dir[0],swap:f.dir[0]*f.face<0,unblockable:true,frame:0,hit:[],originFace:f.face};}else{emit(s,'hint','打ち上げは斜め前下＋K / 投げは左右＋S',side);return null;}}
-  else if(button==='K'&&f.y===0&&f.dir[1]>0&&f.dir[0]*f.face>0){f.motions=[];f.chain=0;f.lastBasic=s.frame;return {name:f.id===0?'定規斬り上げ':'打ち上げ',type:'basic',kind:'kick',launcher:true,rulerArt:f.id===0,tipX:f.id===0?144:96,tipY:-145,rx:28,ry:54,start:8,end:32,hits:[10],damage:10,range:124,frame:0,hit:[],originFace:f.face};}
+  if(button==='S'){if(motion(f,['F','D','B'],s.frame))index=2;else if(motion(f,['B','D','F'],s.frame))index=3;else if(f.dir[0]!==0&&f.dir[1]===0){f.motions=[];const air=f.y<0;return {name:air?'空中投げ':'投げ',type:'throw',kind:'throw',start:4,end:32,hits:[6],damage:f.id===1?(air?32:24):air?24:16,range:air?spacing.airThrow:spacing.groundThrow,air,throwDx:f.dir[0],swap:f.dir[0]*f.face<0,unblockable:true,frame:0,hit:[],originFace:f.face};}else{emit(s,'hint','打ち上げは斜め前下＋K / 投げは左右＋S',side);return null;}}
+  else if(button==='K'&&f.y===0&&f.dir[1]>0&&f.dir[0]*f.face>0){f.motions=[];f.chain=0;f.lastBasic=s.frame;return {name:f.id===0?'定規斬り上げ':'打ち上げ',type:'basic',kind:'kick',launcher:true,rulerArt:f.id===0,tipX:f.id===0?164:132,tipY:-145,rx:28,ry:54,start:8,end:32,hits:[10],damage:10,range:124,frame:0,hit:[],originFace:f.face};}
   else if(button==='K'&&f.id===0&&f.y===0&&motion(f,['D','F'],s.frame)){f.motions=[];return {name:'定規抜刀',type:'skill',kind:'rulerDraw',cost:0,index:5,feint:true,start:6,end:30,hits:[8],damage:12,range:184,verticalRange:100,frame:0,hit:[],originFace:f.face};}
   else if(button==='K'&&f.id!==0&&f.y===0&&motion(f,['D','F'],s.frame)){const cost=f.id===1?20:30;if(f.meter<cost){emit(s,'hint','スキルゲージが足りません',side);return null;}f.meter-=cost;f.motions=[];const heavy=f.id===1;return {name:heavy?'殻砕きアッパー':'電光ラッシュ',type:'skill',kind:heavy?'roll':'shock',index:5,cost,start:heavy?8:5,end:heavy?36:38,hits:heavy?[12]:[8,16,24],damage:heavy?24:6,range:heavy?128:120,speed:heavy?3:3.5,rushStep:true,groundLift:heavy,feint:!heavy,rushBarrage:!heavy,frame:0,hit:[],originFace:f.face};}
   else if(button==='K'&&f.id===0&&f.y<0&&motion(f,['D','F'],s.frame)){if(f.reboundUsed&&s.frame<=f.comboUntil){emit(s,'hint','落月斬りの拾い直しは1コンボ1回',side);return null;}f.motions=[];return {name:'落月斬り',type:'skill',kind:'rulerDraw',cost:0,index:6,rulerArt:true,reboundSlash:true,airSpecial:true,start:6,end:90,hits:[8],damage:10,range:176,frame:0,hit:[],originFace:f.face};}
@@ -137,12 +138,12 @@ window.LaboFight=(()=>{
  }
  function cpu(s){const f=s.f[1],e=s.f[0];if(s.mode==='training'&&s.dummy!=='cpu'){direction(s,1,s.dummy==='guard'?-f.face:0,s.dummy==='jump'&&f.y===0?f.dir[1]<0?0:-1:0);return;}
   if(s.frame<f.aiAt)return;f.aiAt=s.frame+12+Math.floor(random(s)*12);const dist=Math.abs(e.x-f.x);if(e.action&&random(s)<.32){direction(s,1,-f.face,e.action.low?1:0);return;}
-  direction(s,1,dist>105?f.face:0,0);if(f.action||locked(f))return;
+  direction(s,1,dist>145?f.face:0,0);if(f.action||locked(f))return;
   if(e.y<0&&dist<450&&f.meter>=30&&random(s)<.65){f.meter-=30;startMove(s,1,{...chars[f.id].skills[4],type:'skill',index:4,frame:0,hit:[],originFace:f.face});return;}
   if(f.id===0&&dist>170&&dist<620&&f.meter>=30&&random(s)<.2){f.meter-=30;startMove(s,1,{...chars[f.id].skills[0],type:'skill',index:0,frame:0,hit:[],originFace:f.face});return;}
   if(dist<180&&f.meter>=100&&random(s)<.12){const i=Math.floor(random(s)*2)+2;f.meter-=100;startMove(s,1,{...chars[f.id].skills[i],type:'skill',index:i,frame:0,hit:[],originFace:f.face});return;}
   if(dist<170&&f.meter>=30&&random(s)<.2){const i=random(s)<.5?0:1;f.meter-=30;startMove(s,1,{...chars[f.id].skills[i],type:'skill',index:i,frame:0,hit:[],originFace:f.face});return;}
-  if(dist<65&&f.y===0&&e.y===0&&random(s)<.15){direction(s,1,random(s)<.5?f.face:-f.face,0);press(s,1,'S');return;}
+  if(dist<=spacing.groundThrow&&f.y===0&&e.y===0&&random(s)<.15){direction(s,1,random(s)<.5?f.face:-f.face,0);press(s,1,'S');return;}
   if(dist<155&&random(s)<.8)press(s,1,random(s)<.5?'P':'K');if(dist>160&&random(s)<.12)direction(s,1,f.face,-1);
  }
  function resetRound(s){const wins=s.f.map(f=>f.wins);s.f=[fighter(s.ids[0],435),fighter(s.ids[1],765)];s.f.forEach((f,i)=>f.wins=wins[i]);s.time=99;s.projectiles=[];s.effects=[];s.cinematic=null;s.hitStopFrames=0;s.phase='intro';s.phaseTicks=90;s.round=wins[0]+wins[1]+1;}
@@ -166,19 +167,25 @@ window.LaboFight=(()=>{
    f.queue=f.queue.filter(q=>s.frame-q.t<tempo.inputBuffer);if(f.queue[0]?.button==='S'&&f.action?.feint&&!locked(f)){f.queue.shift();feintCancel(s,side);}const qLauncher=f.y===0&&f.queue[0]?.button==='K'&&f.queue[0].dir?.[1]>0&&f.queue[0].dir?.[0]*f.face>0;const queuedThrow=f.y<0&&f.queue[0]?.button==='S'&&f.queue[0]?.dir?.[0]!==0,queuedSpecial=f.queue[0]&&((f.queue[0].button==='P'&&motion({...f,motions:f.queue[0].motions||[]},['D','F'],s.frame))||(f.queue[0].button==='K'&&(motion({...f,motions:f.queue[0].motions||[]},['D','B'],s.frame)||motion({...f,motions:f.queue[0].motions||[]},['D','F'],s.frame))));const superCancel=f.meter>=100&&f.queue[0]?.button==='S'&&f.action?.confirmed&&!f.action.airFinish&&!f.action.reboundSlash&&regular(f.action)&&f.action.frame>=8&&(f.id===0&&motion({...f,motions:f.queue[0].motions||[]},['B','D','F'],s.frame)||f.id===1&&motion({...f,motions:f.queue[0].motions||[]},['F','D','B'],s.frame));const cancellable=superCancel||f.action?.type==='basic'&&!f.action.launcher&&!f.action.airSpike&&(f.y<0?f.action.confirmed&&f.action.frame>=(f.id===2?7:8)&&((f.airChain||0)<4||queuedThrow||queuedSpecial):f.action.frame>=12&&(f.chain<3||qLauncher&&f.action.confirmed||queuedSpecial&&f.action.confirmed));
    if(f.queue.length&&!locked(f)&&(!f.action||cancellable)){const q=f.queue.shift(),currentDir=f.dir,currentMotions=f.motions;if(q.dir)f.dir=q.dir;if(q.motions)f.motions=q.motions;const move=choose(s,side,q.button);f.dir=currentDir;f.motions=move?.type==='skill'||move?.type==='throw'||move?.launcher?currentMotions.filter(m=>m.t>q.t):currentMotions;startMove(s,side,move);}
    if(s.cinematic)return;
-   const m=f.action;if(m){m.frame++;if(m.reboundSlash&&m.frame>=m.start)f.vy=Math.max(f.vy,12);if(m.speed&&m.frame>=m.start&&m.frame<m.end-8){const distance=(e.x-f.x)*m.originFace,travel=m.rushStep?Math.min(m.speed,Math.max(0,distance-64)):m.speed;f.x=clamp(f.x+m.originFace*travel,arena.left,arena.right);}
+   const m=f.action;if(m){m.frame++;if(m.reboundSlash&&m.frame>=m.start)f.vy=Math.max(f.vy,12);if(m.speed&&m.frame>=m.start&&m.frame<m.end-8){const distance=(e.x-f.x)*m.originFace,travel=m.rushStep?Math.min(m.speed,Math.max(0,distance-spacing.bodyGap)):m.speed;f.x=clamp(f.x+m.originFace*travel,arena.left,arena.right);}
     if(m.kind==='orbit'&&m.frame>=m.start&&m.frame<m.end-8){const offset=orbitOffset(m.frame);f.x=clamp(e.x+offset.x,arena.left,arena.right);f.y=Math.min(0,e.y+offset.y);f.vy=0;f.face=m.originFace=e.x>=f.x?1:-1;m.orbitTilt=m.frame>=42&&m.frame<=58?1.15:m.frame>=74&&m.frame<=85?-.35:0;m.trail=(m.trail||[]).concat({x:f.x,y:f.y,face:f.face}).slice(-4);}
     if(['giant','data'].includes(m.kind)&&m.frame>=m.hits[0]&&m.frame<=m.activeUntil&&!m.contactDone){if(hit(s,side,m,superReach(m))){m.contactDone=true;m.impactFrame=m.frame;}}
     if(!['giant','data'].includes(m.kind))for(const at of m.hits){if(m.frame>=at&&m.frame<at+activeFrames(m)&&!m.hit.includes(at)){if(m.projectile||m.kind==='bomb'){m.hit.push(at);spawnProjectile(s,side,m);}else if(hit(s,side,m,m.range))m.hit.push(at);}}
     if(m.frame>=m.end)f.action=null;
    }
   }
-  // Body collision keeps fighters apart on the ground, while jumps allow cross-ups.
-  const a=s.f[0],b=s.f[1];if(Math.abs(a.x-b.x)<50&&a.y===0&&b.y===0&&!a.action?.kind?.includes('orbit')&&!b.action?.kind?.includes('orbit')){const push=(50-Math.abs(a.x-b.x))/2,sign=a.x<=b.x?1:-1;a.x=clamp(a.x-sign*push,arena.left,arena.right);b.x=clamp(b.x+sign*push,arena.left,arena.right);if(Math.abs(a.x-b.x)<50){if(a.x<=arena.left||a.x>=arena.right)b.x=clamp(a.x+sign*50,arena.left,arena.right);else a.x=clamp(b.x-sign*50,arena.left,arena.right);}}
+  // Torso pushboxes apply at comparable heights, including aerial pursuit.
+  // A jump over the opponent's head and the orbit super can still cross sides.
+  const a=s.f[0],b=s.f[1],gap=spacing.bodyGap;
+  if(Math.abs(a.x-b.x)<gap&&Math.abs(a.y-b.y)<(a.y<0&&b.y<0?spacing.bodyHeight:100)&&!a.down&&!b.down&&a.action?.kind!=='orbit'&&b.action?.kind!=='orbit'){
+   const sign=a.x<=b.x?1:-1,push=gap-Math.abs(a.x-b.x),weight=locked(a)&&!locked(b)?0:locked(b)&&!locked(a)?1:.5;
+   a.x=clamp(a.x-sign*push*weight,arena.left,arena.right);b.x=clamp(b.x+sign*push*(1-weight),arena.left,arena.right);
+   if(Math.abs(a.x-b.x)<gap){if(a.x<=arena.left||a.x>=arena.right)b.x=clamp(a.x+sign*gap,arena.left,arena.right);else a.x=clamp(b.x-sign*gap,arena.left,arena.right);}
+  }
   for(const p of s.projectiles){const oldX=p.x,oldY=p.y;p.x+=p.vx??p.v;p.y+=p.vy||0;p.life--;const enemy=s.f[1-p.side],body=hurtbox(enemy),rx=p.rx||20,ry=p.ry||20,box={left:Math.min(oldX,p.x)-rx,right:Math.max(oldX,p.x)+rx,top:Math.min(oldY,p.y)-ry,bottom:Math.max(oldY,p.y)+ry};p.sweepBox=box;if((!p.airOnly||enemy.y<0)&&overlaps(box,body)&&hit(s,p.side,p.m,p.m.range,p)){p.life=0;p.contactDone=true;}if(p.life<=0&&!p.contactDone)s.effects.push({x:p.x,y:p.y,kind:p.m.kind,life:24,side:p.side});}s.projectiles=s.projectiles.filter(p=>p.life>0&&p.x>-70&&p.x<arena.width+70&&p.y>-1800&&p.y<520);
   if(s.mode!=='training'&&(s.time<=0||s.f.some(f=>f.hp<=0)))endRound(s);
  }
- return {balance,comboLimits,reachGuide,impactStyle,tempo,advance,activeFrames,activeNow,attackboxes,skillbox,airMovement,comboStyles,arena,superReach,damageFor,dragonMotion,spawnProjectile,combat,basicGeometry,hurtbox,attackbox,chars,create,direction,press,step,choose,startMove,feintCancel,canGuard,hit,resetRound,orbitOffset};
+ return {balance,spacing,comboLimits,reachGuide,impactStyle,tempo,advance,activeFrames,activeNow,attackboxes,skillbox,airMovement,comboStyles,arena,superReach,damageFor,dragonMotion,spawnProjectile,combat,basicGeometry,hurtbox,attackbox,chars,create,direction,press,step,choose,startMove,feintCancel,canGuard,hit,resetRound,orbitOffset};
 })();
 
 

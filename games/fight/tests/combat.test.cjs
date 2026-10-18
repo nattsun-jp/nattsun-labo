@@ -6,7 +6,7 @@ const basic=(s,b='K')=>{s.f[0].chain=0;s.f[0].lastBasic=s.frame-100;return E.cho
 for(let id=0;id<3;id++){
  const s=state([id,id]),f=s.f[0],e=s.f[1];for(const button of ['P','K']){
   f.dir=[0,0];const mid=basic(s,button);f.dir=[0,1];const low=basic(s,button);f.y=-40;f.dir=[0,0];const air=basic(s,button);f.y=0;f.dir=[0,0];
-  assert(low.tipX<mid.tipX);if(id===0&&button==='K')assert(air.rulerArt&&air.tipX>low.tipX,'Rei aerial K uses the ruler reach');else assert.equal(low.tipX,air.tipX);assert.notEqual(mid.tipY,low.tipY);assert.notEqual(air.tipY,low.tipY);
+  assert(low.tipX<mid.tipX);if(id===0&&button==='K')assert(air.rulerArt&&air.tipX>low.tipX,'Rei aerial K uses the ruler reach');else assert(low.tipX<air.tipX,'air reach is longer than crouching reach');assert.notEqual(mid.tipY,low.tipY);assert.notEqual(air.tipY,low.tipY);
   const bx=E.attackbox(f,mid);e.x=bx.right+E.combat[id].width+2;assert.equal(E.hit(s,0,mid),false,'outside limb cannot hit');e.x=mid.tipX+f.x;assert.equal(E.hit(s,0,mid),true,'fist or toe contact must hit');e.hp=100;e.stun=0;
   f.face=-1;mid.originFace=-1;const mirror=E.attackbox(f,mid);assert.equal(Math.round(mirror.left-f.x),Math.round(f.x-bx.right));f.face=1;
  }
@@ -32,7 +32,7 @@ for(const dx of [-1,1]){
  const s=state();s.f[0].x=dx>0?300:500;s.f[1].x=dx>0?355:445;E.direction(s,0,dx,-1);tick(s,52);assert.equal(s.f[0].y,0);assert.equal(s.f[0].x>s.f[1].x,dx>0,'diagonal jump crosses opponent');tick(s,1);assert.equal(s.f[0].face,dx>0?-1:1);
 }
 for(const dy of [-1,0,1]){
- const s=state();E.direction(s,0,1,dy);tick(s,2);E.direction(s,0,0,0);tick(s,1);if(dy<0){E.direction(s,0,1,dy);tick(s,1);E.direction(s,0,0,0);tick(s,1);}E.direction(s,0,1,dy);assert(s.f[0].dash>0,'double tap direction starts dash');const x=s.f[0].x;tick(s,1);assert(s.f[0].x-x>6);const ticks=s.f[0].dash;E.direction(s,0,1,dy);assert.equal(s.f[0].dash,ticks,'held input does not restart dash');
+ const s=state();s.f[1].x=800;E.direction(s,0,1,dy);tick(s,2);E.direction(s,0,0,0);tick(s,1);if(dy<0){E.direction(s,0,1,dy);tick(s,1);E.direction(s,0,0,0);tick(s,1);}E.direction(s,0,1,dy);assert(s.f[0].dash>0,'double tap direction starts dash');const x=s.f[0].x;tick(s,1);assert(s.f[0].x-x>6);const ticks=s.f[0].dash;E.direction(s,0,1,dy);assert.equal(s.f[0].dash,ticks,'held input does not restart dash');
 }
 {
  const s=state();E.direction(s,0,1,0);tick(s,26);E.direction(s,0,0,0);tick(s,1);E.direction(s,0,1,0);assert.equal(s.f[0].dash,0,'late second tap is ordinary walking');
