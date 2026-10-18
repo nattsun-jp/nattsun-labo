@@ -7,16 +7,16 @@
 
 <meta
   name="description"
-  content="ナッツんjpが運営するナッツんLABO（NattsunLABO）公式サイト。AIアート「月夜の彼女」の作品紹介・DLsite購入案内、無料・登録不要の配信ガチャ、トークツール、効果音・BGMサウンドボード、英語・漢字の無料学習、見え方の実験を公開。"
+  content="ナッツんjpが運営するナッツんLABO（NattsunLABO）公式サイト。漫画「月がほどく、ほんとの気持ち」・AIアート「月夜の彼女」の作品紹介・DLsite購入案内、無料・登録不要の配信ガチャ、トークツール、効果音・BGMサウンドボード、英語・漢字の無料学習、見え方の実験を公開。"
 >
 
 <title>ナッツんLABO公式サイト｜ナッツんjpのAIアート・無料配信ツール</title>
 <link rel="canonical" href="https://nattsun-jp.github.io/nattsun-labo/">
 <meta property="og:type" content="website">
 <meta property="og:title" content="ナッツんLABO｜AIアート・無料配信ツール">
-<meta property="og:description" content="ナッツんjpが運営するナッツんLABO（NattsunLABO）公式サイト。AIアート「月夜の彼女」の作品紹介・DLsite購入案内、無料・登録不要の配信ガチャ、トークツール、効果音・BGMサウンドボード、英語・漢字の無料学習、見え方の実験を公開。">
+<meta property="og:description" content="ナッツんjpが運営するナッツんLABO（NattsunLABO）公式サイト。漫画「月がほどく、ほんとの気持ち」・AIアート「月夜の彼女」の作品紹介・DLsite購入案内、無料・登録不要の配信ガチャ、トークツール、効果音・BGMサウンドボード、英語・漢字の無料学習、見え方の実験を公開。">
 <meta property="og:url" content="https://nattsun-jp.github.io/nattsun-labo/">
-<meta property="og:image" content="https://nattsun-jp.github.io/nattsun-labo/moonlight.png">
+<meta property="og:image" content="https://nattsun-jp.github.io/nattsun-labo/assets/works/tsukishiro-rei-manga.png">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@nattsunjp_212">
 
@@ -455,6 +455,22 @@ header { padding: 28px 20px; }
 #works .work-subtitle { margin-bottom: 12px; }
 #works .sample-area { margin-top: 22px; }
 @media(max-width:700px) { .hero-actions { gap: 8px; } #works { padding-top: 28px; } }
+
+/* 新作漫画の販売案内 */
+.comic-release { max-width:850px; margin:0 auto 32px; overflow:hidden; border:1px solid #8d9dce; border-radius:22px; background:linear-gradient(135deg,#192c51,#16182d); box-shadow:0 20px 60px #0004; }
+.comic-release-grid { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); align-items:center; }
+.comic-release-visual { display:block; }
+.comic-release-visual img { display:block; width:100%; height:auto; }
+.comic-release-copy { padding:28px; min-width:0; }
+.comic-release-badge { display:inline-block; margin:0 0 12px; padding:4px 13px; border-radius:99px; background:#dce6ff; color:#142447; font-size:13px; font-weight:800; }
+.comic-release h3 { margin:0 0 8px; font-size:clamp(22px,3vw,29px); line-height:1.5; }
+.comic-release-character { margin:0 0 14px; color:#b9c7ff; }
+.comic-release-description { color:#e0e5f3; font-size:14px; }
+.comic-release-format { color:#bac9e8; font-size:12px; }
+.comic-release .dlsite-button { margin:20px 0 0; font-size:14px; }
+.comic-release-note { margin:12px 0 0; color:#b9c7df; font-size:11px; }
+@media(max-width:700px) { .comic-release-grid { grid-template-columns:1fr; } .comic-release-copy { padding:22px; } }
+
 </style>
 </head>
 
@@ -483,7 +499,7 @@ header { padding: 28px 20px; }
 
   <p>見て、試して、つくる。ナッツんjpの制作実験室。<br>ナッツんLABO（NattsunLABO）は、AIアート・無料配信ツール・視覚実験を公開するサイトです。</p>
   <div class="hero-actions">
-    <a class="stream-primary" href="#works">月城麗の作品を見る <span>月夜の彼女 · サンプル・購入案内 →</span></a>
+    <a class="stream-primary" href="#comic-release">月城麗の新作漫画、販売中 <span>月がほどく、ほんとの気持ち →</span></a>
     <a class="secondary-button" href="games/">月城麗の無料ゲーム</a>
     <a class="secondary-button" href="#stream-tools">無料の配信ツール</a>
     <a class="secondary-button" href="learn/">英語・漢字の学習</a>
@@ -522,6 +538,24 @@ header { padding: 28px 20px; }
       作品
       <span>WORKS</span>
     </h2>
+
+    <article class="comic-release" id="comic-release" aria-labelledby="comic-release-title">
+      <div class="comic-release-grid">
+        <a class="comic-release-visual" href="https://dlaf.jp/home/dlaf/=/aid/nattsunlabo/url/https%3A%2F%2Fwww.dlsite.com%2Fai-touch%2Fwork%2F%3D%2Fproduct_id%2FRJ01743089.html" target="_blank" rel="noopener sponsored" aria-label="月がほどく、ほんとの気持ちのDLsite販売ページを開く">
+          <img src="assets/works/tsukishiro-rei-manga.png" width="560" height="420" fetchpriority="high" decoding="async" alt="月がほどく、ほんとの気持ち ― 月城麗。月夜の屋上に立つ麗を描いた漫画の紹介画像">
+        </a>
+        <div class="comic-release-copy">
+          <p class="comic-release-badge">新作漫画 · DLsiteで販売中</p>
+          <h3 id="comic-release-title">月がほどく、<br>ほんとの気持ち</h3>
+          <p class="comic-release-character">月城 麗</p>
+          <p class="comic-release-description">月夜の屋上で、麗があなたにそっと本音を打ち明ける。静かな夜に心の距離が近づく、フルカラー短編漫画。</p>
+          <p class="comic-release-format">本文10ページ／全12ページ（表紙・奥付含む） · PDF・PNG収録</p>
+          <a class="dlsite-button" href="https://dlaf.jp/home/dlaf/=/aid/nattsunlabo/url/https%3A%2F%2Fwww.dlsite.com%2Fai-touch%2Fwork%2F%3D%2Fproduct_id%2FRJ01743089.html" target="_blank" rel="noopener sponsored">DLsiteで作品を見る・購入する →</a>
+          <p class="comic-release-note">AIを活用して制作しています。価格・収録内容は販売ページでご確認ください。<br>広告：DLsiteへのリンクにはアフィリエイトリンクを使用しています。</p>
+        </div>
+      </div>
+    </article>
+
 
 
     <div class="work-card">
