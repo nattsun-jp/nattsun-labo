@@ -4,7 +4,7 @@ const tick=(s,n)=>{for(let i=0;i<n;i++)E.step(s);};
 function state(id=0){const s=E.create('friend',[id,id]);s.phase='fight';s.f[0].x=300;s.f[1].x=400;return s;}
 for(let id=0;id<3;id++)for(const b of ['P','K']){
  const s=state(id),f=s.f[0],e=s.f[1];f.y=-50;const air=E.choose(s,0,b);air.frame=8;f.action=air;e.x=850;
- let scales=[],images=[],depth=0;const c=new Proxy({canvas:{width:960,height:540},save(){depth++},restore(){depth--},scale(...a){scales.push(a)},drawImage(...a){images.push(a)},createLinearGradient(){return {addColorStop(){}}}},{get(t,p){return p in t?t[p]:()=>{}},set(t,p,v){t[p]=v;return true}});R.draw(c,s);assert.equal(depth,0);assert(!scales.some(([x,y])=>y===.65||x===.62),'air attack artwork must not shrink');assert(images.length>=2);assert(air.tipX<E.combat[id][b==='P'?'punch':'kick'].x,'air hitbox stays shorter, independent of body art');
+ let scales=[],images=[],depth=0;const c=new Proxy({canvas:{width:960,height:540},save(){depth++},restore(){depth--},scale(...a){scales.push(a)},drawImage(...a){images.push(a)},createLinearGradient(){return {addColorStop(){}}}},{get(t,p){return p in t?t[p]:()=>{}},set(t,p,v){t[p]=v;return true}});R.draw(c,s);assert.equal(depth,0);assert(!scales.some(([x,y])=>y===.65||x===.62),'air attack artwork must not shrink');assert(images.length>=2);assert(air.rulerArt?air.tipX===270:air.tipX<E.combat[id][b==='P'?'punch':'kick'].x,'long ruler and normal limb geometry stay distinct');
 }
 {
  const s=state(),f=s.f[0],e=s.f[1];e.dir=[1,0];const m=E.choose(s,0,'P');for(let i=0;i<4;i++)assert(E.hit(s,0,m));assert.equal(e.hp,100,'every hit during blockstun remains harmless');assert.equal(e.guard,72);assert.equal(e.damageTaken,0);assert.equal(f.combo,0);
