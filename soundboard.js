@@ -2,7 +2,8 @@
 (() => {
 const $=id=>document.getElementById(id), storageKey='nattsun-labo-soundboard-v1';
 const presets=[['正解','◎','q','correct'],['不正解','×','w','wrong'],['決定','✓','e','confirm'],['通知','♪','r','notice'],['ドラムロール','◌','a','roll'],['ファンファーレ','✦','s','fanfare'],['カウントダウン','3→1','d','count'],['タイムアップ','⌛','f','time'],['ひらめき','✧','z','idea'],['登場','↗','x','enter'],['退場','↘','c','exit'],['きらきら','☆','v','sparkle']];
-let ctx,master,settings={};
+let ctx,master,settings={},fanfareBufferPromise,effectsGeneration=0;
+const activeFanfare=new WeakMap();
 const sources=new Set(), playingButtons=new Map(), customAudios=new Set();
 try{settings=JSON.parse(localStorage.getItem(storageKey)||'{}')||{};}catch{}
 for(const id of ['se-volume','bgm-volume'])if(Number.isFinite(settings[id]))$(id).value=Math.max(0,Math.min(100,settings[id]));
@@ -19,7 +20,6 @@ case 'wrong':note(155,t,.6,'sawtooth',.12,105);duration=.65;break;
 case 'confirm':note(520,t,.08,'triangle');note(900,t+.07,.18,'triangle');duration=.3;break;
 case 'notice':note(660,t,.32);note(880,t+.19,.45);duration=.7;break;
 case 'roll':for(let i=0;i<36;i++){const at=t+i*.055;noise(at,.065,.11+i*.003);note(130,at,.04,'triangle',.12);}duration=2.1;break;
-case 'fanfare':[523,659,784,1047].forEach((f,i)=>note(f,t+i*.16,.4,'triangle',.16));duration=1;break;
 case 'count':for(let i=0;i<3;i++)note(700,t+i,.16,'sine',.2);note(1200,t+3,.45,'triangle',.2);duration=3.5;break;
 case 'time':for(let i=0;i<3;i++)note(220,t+i*.25,.18,'square',.09);duration=.8;break;
 case 'idea':note(1200,t,.65,'sine',.2);note(1800,t+.03,.5,'sine',.07);duration=.7;break;
@@ -29,8 +29,21 @@ case 'sparkle':[1050,1570,1320,2100,1760,2400].forEach((f,i)=>note(f,t+i*.1,.4,'
 }return duration;}
 function mark(button,duration){const old=playingButtons.get(button);if(old)clearTimeout(old);button.classList.add('playing');button.setAttribute('aria-pressed','true');if(duration)playingButtons.set(button,setTimeout(()=>unmark(button),duration*1000));}
 function unmark(button){clearTimeout(playingButtons.get(button));playingButtons.delete(button);button.classList.remove('playing');button.setAttribute('aria-pressed','false');}
-function stopEffects(){for(const source of sources){try{source.stop();}catch{}}sources.clear();for(const a of customAudios){a.pause();a.currentTime=0;}for(const button of [...playingButtons.keys()])unmark(button);}
-async function playPreset(p,button){try{if(!$('overlap').checked)stopEffects();await audioReady();const seconds=synth(p[3]);mark(button,seconds+.1);$('status').textContent=p[0]+'を再生中';}catch(e){$('status').textContent=e.message;}}
+function stopEffects(){effectsGeneration++;for(const source of sources){try{source.stop();}catch{}}sources.clear();for(const a of customAudios){a.pause();a.currentTime=0;}for(const button of [...playingButtons.keys()])unmark(button);}
+function loadFanfare(){
+ if(!fanfareBufferPromise)fanfareBufferPromise=fetch('assets/audio/nattsun-fanfare.mp3').then(response=>{if(!response.ok)throw Error('ファンファーレを読み込めませんでした。もう一度お試しください。');return response.arrayBuffer();}).then(bytes=>ctx.decodeAudioData(bytes)).catch(error=>{fanfareBufferPromise=undefined;throw error;});
+ return fanfareBufferPromise;
+}
+async function playPreset(p,button){try{
+ if(!$('overlap').checked)stopEffects();const generation=effectsGeneration;await audioReady();if(generation!==effectsGeneration)return;
+ if(p[3]==='fanfare'){
+  $('status').textContent='ファンファーレを読み込み中…';const buffer=await loadFanfare();if(generation!==effectsGeneration)return;
+  const source=ctx.createBufferSource();source.buffer=buffer;source.connect(master);sources.add(source);activeFanfare.set(button,source);
+  source.onended=()=>{sources.delete(source);source.disconnect();if(activeFanfare.get(button)===source){activeFanfare.delete(button);unmark(button);}};
+  source.start();mark(button);playingButtons.set(button,null);
+ }else{const seconds=synth(p[3]);mark(button,seconds+.1);}
+ $('status').textContent=p[0]+'を再生中';
+}catch(e){$('status').textContent=e.message;}}
 function makePad(label,symbol,key){const b=document.createElement('button');b.className='pad';b.type='button';b.setAttribute('aria-pressed','false');const icon=document.createElement('span');icon.className='symbol';icon.textContent=symbol;const name=document.createElement('span');name.textContent=label;const hint=document.createElement('small');hint.textContent=key?key.toUpperCase():'端末内の音源';b.append(icon,name,hint);return b;}
 presets.forEach(p=>{const b=makePad(p[0],p[1],p[2]);b.onclick=()=>playPreset(p,b);$('pads').append(b);});
 document.querySelectorAll('[data-audio-preset]').forEach(button=>{const p=presets.find(p=>p[3]===button.dataset.audioPreset);if(p)button.onclick=()=>playPreset(p,button);});
